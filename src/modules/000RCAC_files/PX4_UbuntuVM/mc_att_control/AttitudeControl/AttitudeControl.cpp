@@ -40,10 +40,6 @@
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 
-#include <fstream>
-#include <iostream>
-
-using namespace std;
 using namespace matrix;
 
 void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_gain)
@@ -96,95 +92,6 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 
 	// calculate angular rates setpoint
 	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);
-
-	
-	if (RCAC_Aq_ON)
-	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Pq_ON)
-	{
-		// cout << "Attitude controller" << "\n";
-		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
-		ii_Pq_R = ii_Pq_R + 1;
-		if (ii_Pq_R == 1)
-		{
-			P_Pq_R = eye<float, 3>() * 0.010 * 100.0f*alpha_P;
-			N1_Pq = eye<float, 3>() * (1.0f) * alpha_N;
-			I3 = eye<float, 3>();
-			phi_k_Pq_R.setZero();
-			phi_km1_Pq_R.setZero();
-			theta_k_Pq_R.setZero();
-			z_k_Pq_R.setZero();
-			z_km1_Pq_R.setZero();
-			u_k_Pq_R.setZero();
-			u_km1_Pq_R.setZero();
-			Gamma_Pq_R.setZero();
-
-			theta_k_Pq_R = 0.0f*_proportional_gain;
-
-		}
-
-		phi_k_Pq_R(0, 0) = eq(0);
-		phi_k_Pq_R(1, 1) = eq(1);
-		phi_k_Pq_R(2, 2) = eq(2);
-
-		z_k_Pq_R = eq;
-
-		Gamma_Pq_R 	= phi_km1_Pq_R * P_Pq_R * phi_km1_Pq_R.T() + I3;
-		Gamma_Pq_R 	= Gamma_Pq_R.I();
-		P_Pq_R 		= P_Pq_R - (P_Pq_R * phi_km1_Pq_R.T()) * Gamma_Pq_R * (phi_km1_Pq_R * P_Pq_R);
-		//theta_k_Pq_R 	= theta_k_Pq_R + (P_Pq_R * phi_km1_Pq_R.T()) *
-		//		 (z_k_Pq_R + (-1.0f)*(phi_km1_Pq_R * theta_k_Pq_R - u_km1_Pq_R) * (-1.0f));
-		theta_k_Pq_R 	= theta_k_Pq_R + (P_Pq_R * phi_km1_Pq_R.T()) * N1_Pq *
-				 (z_k_Pq_R + N1_Pq*(phi_km1_Pq_R * theta_k_Pq_R - u_km1_Pq_R) );
-
-		u_k_Pq_R 	= phi_k_Pq_R * theta_k_Pq_R;
-		u_km1_Pq_R 	= u_k_Pq_R;
-		phi_km1_Pq_R 	= phi_k_Pq_R;
-		if (ii_Pq_R%1000==0)
-		{
-		cout 	<< ii_Pq_R << "\t"
-			<< theta_k_Pq_R(0,0) << "\t"
-			<< theta_k_Pq_R(1,0) << "\t"
-			<< theta_k_Pq_R(2,0) << "\t"
-			<< _proportional_gain(0) << "\t"
-			<< _proportional_gain(1) << "\t"
-			<< _proportional_gain(2) << "\t"
-			<< eq(0) << "\t"
-			<< eq(1) << "\t"
-			<< eq(2) << "\t"
-			<< P_Pq_R(0,0)
-			<< "\n";
-		}
-		rate_setpoint = u_k_Pq_R;
-
-		if (1) //
-		{
-			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
-			ofstream RCAC_A_q("RCAC_A_q.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-			if (RCAC_A_q.is_open())
-			{
-				RCAC_A_q << ii_Pq_R << "\t"
-					<< z_k_Pq_R(0,0) << "\t"
-					<< z_k_Pq_R(1,0) << "\t"
-					<< z_k_Pq_R(2,0) << "\t"
-					<< theta_k_Pq_R(0,0) << "\t"
-					<< theta_k_Pq_R(1,0) << "\t"
-					<< theta_k_Pq_R(2,0) << "\t"
-					<< u_k_Pq_R(0,0) << "\t"
-					<< u_k_Pq_R(1,0) << "\t"
-					<< u_k_Pq_R(2,0) << "\t"
-					//
-					<< _proportional_gain(0) << "\t"
-					<< _proportional_gain(1) << "\t"
-					<< _proportional_gain(2) << "\t"
-					<< "\n";
-				RCAC_A_q.close();
-			}
-		}
-
-
-	}
-
-	
 
 	// Feed forward the yaw setpoint rate.
 	// yaw_sp_move_rate is the feed forward commanded rotation around the world z-axis,

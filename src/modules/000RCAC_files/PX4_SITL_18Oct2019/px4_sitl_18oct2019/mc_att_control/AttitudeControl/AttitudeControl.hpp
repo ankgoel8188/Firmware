@@ -57,6 +57,15 @@ public:
 	~AttitudeControl() = default;
 
 	/**
+	 * Run one control loop cycle calculation with either new
+	 * @param q estimation of the current vehicle attitude unit quaternion
+	 * @param qd desired vehicle attitude setpoint
+	 * @param yawspeed_feedforward [rad/s] yaw feed forward angular rate in world frame
+	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
+	 */
+	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward);
+
+	/**
 	 * Set proportional attitude control gain
 	 * @param proportional_gain 3D vector containing gains for roll, pitch, yaw
 	 */
@@ -68,22 +77,13 @@ public:
 	 */
 	void setRateLimit(const matrix::Vector3f &rate_limit) { _rate_limit = rate_limit; }
 
-	/**
-	 * Run one control loop cycle calculation
-	 * @param q estimation of the current vehicle attitude unit quaternion
-	 * @param qd desired vehicle attitude setpoint
-	 * @param yawspeed_feedforward [rad/s] yaw feed forward angular rate in world frame
-	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
-	 */
-	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward);
-
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
 	float _yaw_w = 0.0f; /**< yaw weight [0,1] to prioritize roll and pitch */
 
 	int ii_Pq_R = 0;
-  	bool RCAC_Aq_ON=1;
+  	bool RCAC_Aq_ON=0;
 	matrix::SquareMatrix<float, 3> P_Pq_R;
 	matrix::Matrix<float, 3,3> phi_k_Pq_R, phi_km1_Pq_R;
 	matrix::Matrix<float, 3,1> theta_k_Pq_R;

@@ -81,14 +81,4 @@ private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
 	float _yaw_w = 0.0f; /**< yaw weight [0,1] to prioritize roll and pitch */
-
-	int ii_Pq_R = 0;
-  	bool RCAC_Aq_ON=1;
-	matrix::SquareMatrix<float, 3> P_Pq_R;
-	matrix::Matrix<float, 3,3> phi_k_Pq_R, phi_km1_Pq_R;
-	matrix::Matrix<float, 3,1> theta_k_Pq_R;
-  	matrix::Matrix<float, 3,1> z_k_Pq_R, z_km1_Pq_R,u_k_Pq_R, u_km1_Pq_R;
-	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
-	float alpha_P = 1.0f;
-	float alpha_N = 1.0f;
 };

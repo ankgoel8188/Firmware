@@ -214,7 +214,7 @@ private:
 	matrix::Vector3f _pos_sp{}; /**< desired position */
 	matrix::Vector3f _vel_sp{}; /**< desired velocity */
 	matrix::Vector3f _acc_sp{}; /**< desired acceleration: not supported yet */
-	matrix::Vector3f _thr_sp{}; /**< desired thrust */
+        matrix::Vector3f _thr_sp{}; /**< desired thrust */
 	float _yaw_sp{}; /**< desired yaw */
 	float _yawspeed_sp{}; /** desired yaw-speed */
 	matrix::Vector3f _thr_int{}; /**< thrust integral term */
@@ -225,7 +225,7 @@ private:
 
 
 	int ii_Pr_R = 0;
-        bool RCAC_Pr_ON=1;
+  	bool RCAC_Pr_ON=0;
 	matrix::SquareMatrix<float, 3> P_Pr_R;
 	matrix::Matrix<float, 3,3> phi_k_Pr_R, phi_km1_Pr_R;
 	matrix::Matrix<float, 3,1> theta_k_Pr_R;
@@ -233,7 +233,7 @@ private:
 	matrix::SquareMatrix<float, 3> Gamma_Pr_R, I3, N1_Pr;
 
 	int ii_Pv_R = 0;
-        bool RCAC_Pv_ON=1;
+  	bool RCAC_Pv_ON=0;
 	matrix::SquareMatrix<float, 9> P_Pv_R;
 	matrix::Matrix<float, 3,9> phi_k_Pv_R, phi_km1_Pv_R;
 	matrix::Matrix<float, 9,1> theta_k_Pv_R;
@@ -263,6 +263,18 @@ private:
 	matrix::Matrix<float, 1,1> Gamma_z_R;
 
 	matrix::SquareMatrix<float, 2> testMat;
+
+
+	/*int ii_R=0;
+  	matrix::SquareMatrix<float, 3> P_R;
+	matrix::Matrix<float,1, 3> dummy_R;
+  	matrix::Matrix<float, 1,3> phi_k_R, phi_km1_R;
+	matrix::Matrix<float, 3,1> theta_k_R;
+  	matrix::Matrix<float, 1,1> z_k_R, z_km1_R,u_k_R, u_km1_R;
+	matrix::Matrix<float, 1,1> Gamma_R;
+	*/
+
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_THR_MAX>) _param_mpc_thr_max,
 		(ParamFloat<px4::params::MPC_THR_HOVER>) _param_mpc_thr_hover,
@@ -272,9 +284,9 @@ private:
 		(ParamFloat<px4::params::MPC_Z_VEL_MAX_DN>) _param_mpc_z_vel_max_dn,
 		(ParamFloat<px4::params::MPC_Z_VEL_MAX_UP>) _param_mpc_z_vel_max_up,
 		(ParamFloat<px4::params::MPC_TILTMAX_AIR>)
-		_param_mpc_tiltmax_air, // maximum tilt for any position controlled mode in degrees
+		_param_mpc_tiltmax_air, // maximum tilt for any position controlled mode in radians
 		(ParamFloat<px4::params::MPC_MAN_TILT_MAX>)
-		_param_mpc_man_tilt_max, // maximum til for stabilized/altitude mode in degrees
+		_param_mpc_man_tilt_max, // maximum til for stabilized/altitude mode in radians
 		(ParamFloat<px4::params::MPC_Z_P>) _param_mpc_z_p,
 		(ParamFloat<px4::params::MPC_Z_VEL_P>) _param_mpc_z_vel_p,
 		(ParamFloat<px4::params::MPC_Z_VEL_I>) _param_mpc_z_vel_i,

@@ -37,6 +37,7 @@
 
 #include <AttitudeControl.hpp>
 
+
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 
@@ -57,7 +58,7 @@ void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_g
 	_proportional_gain(2) = roll_pitch_gain;
 }
 
-matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, const float yawspeed_feedforward)
+matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward)
 {
 	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
 	q.normalize();
@@ -95,13 +96,12 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	const Vector3f eq = 2.f * math::signNoZero(qe(0)) * qe.imag();
 
 	// calculate angular rates setpoint
-	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);
+	matrix::Vector3f rate_setpoint = 1.0f*eq.emult(_proportional_gain);
 
-	
+
 	if (RCAC_Aq_ON)
 	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Pq_ON)
 	{
-		// cout << "Attitude controller" << "\n";
 		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
 		ii_Pq_R = ii_Pq_R + 1;
 		if (ii_Pq_R == 1)
@@ -145,12 +145,6 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 			<< theta_k_Pq_R(0,0) << "\t"
 			<< theta_k_Pq_R(1,0) << "\t"
 			<< theta_k_Pq_R(2,0) << "\t"
-			<< _proportional_gain(0) << "\t"
-			<< _proportional_gain(1) << "\t"
-			<< _proportional_gain(2) << "\t"
-			<< eq(0) << "\t"
-			<< eq(1) << "\t"
-			<< eq(2) << "\t"
 			<< P_Pq_R(0,0)
 			<< "\n";
 		}
@@ -184,8 +178,7 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 
 	}
 
-	
-
+	// rate_setpoint = eq;
 	// Feed forward the yaw setpoint rate.
 	// yaw_sp_move_rate is the feed forward commanded rotation around the world z-axis,
 	// but we need to apply it in the body frame (because _rates_sp is expressed in the body frame).
@@ -195,6 +188,12 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	// such that it can be added to the rates setpoint.
 	rate_setpoint += q.inversed().dcm_z() * yawspeed_feedforward;
 
+	/*cout 	<< rate_setpoint(0) << "\t"
+		<< rate_setpoint(1) << "\t"
+		<< rate_setpoint(2) << "\t"
+		<< _proportional_gain(0) << "\t"
+		<< _proportional_gain(1) << "\t"
+		<< _proportional_gain(2) << "\n"; */
 	// limit rates
 	for (int i = 0; i < 3; i++) {
 		rate_setpoint(i) = math::constrain(rate_setpoint(i), -_rate_limit(i), _rate_limit(i));

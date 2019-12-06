@@ -45,18 +45,12 @@
 
 #include "mc_att_control.hpp"
 
-
 #include <conversion/rotation.h>
 #include <drivers/drv_hrt.h>
 #include <lib/ecl/geo/geo.h>
 #include <circuit_breaker/circuit_breaker.h>
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
-
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
 
 using namespace matrix;
 
@@ -364,13 +358,8 @@ MulticopterAttitudeControl::control_attitude()
 
 	// physical thrust axis is the negative of body z axis
 	_thrust_sp = -_v_att_sp.thrust_body[2];
-	const bool landed = _vehicle_land_detected.maybe_landed || _vehicle_land_detected.landed;
-	if (!landed)
-	{
-		_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate);
-	}
 
-	
+	_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate);
 }
 
 /*
@@ -389,38 +378,6 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 	const bool landed = _vehicle_land_detected.maybe_landed || _vehicle_land_detected.landed;
 	_rate_control.setSaturationStatus(_saturation_status);
 	_att_control = _rate_control.update(rates, _rates_sp, dt, landed);
-
-	if (!landed*0)
-	{
-	cout 	<< dt << "\t" 
-		<< _att_control(0) << "\t"
-		<< _att_control(1) << "\t"
-		<< _att_control(2) << "\t"
-		<< landed << "\n";
-	}
-	if (!landed)
-	{
-		//cout << _v_att.timestamp << "\t" << hrt_absolute_time() <<"\n";
-		ofstream State_ATT_Data("States_Att.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-		if (State_ATT_Data.is_open())
-		{
-			State_ATT_Data << _v_att.timestamp << "\t"
-				   // << _v_att.rollspeed << "\t"
-				   // << _v_att.pitchspeed << "\t"
-				   // << _v_att.yawspeed << "\t"
-				   << _v_att.q[0] << "\t"
-				   << _v_att.q[1] << "\t"
-				   << _v_att.q[2] << "\t"
-				   << _v_att.q[3] << "\t"
-				   << Eulerf(Quatf(_v_att.q)).phi() << "\t"
-				   << Eulerf(Quatf(_v_att.q)).theta() << "\t"
-				   << Eulerf(Quatf(_v_att.q)).psi() << "\t"
-				   << "\n"
-				   ;
-			State_ATT_Data.close();
-		}
-	}
-	
 }
 
 void

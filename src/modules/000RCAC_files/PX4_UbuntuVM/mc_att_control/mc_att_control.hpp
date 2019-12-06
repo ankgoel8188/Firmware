@@ -198,8 +198,6 @@ private:
 	bool _reset_yaw_sp{true};
 	float _attitude_dt{0.0f};
 
-	
-
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MC_ROLL_P>) _param_mc_roll_p,
 		(ParamFloat<px4::params::MC_ROLLRATE_P>) _param_mc_rollrate_p,

@@ -124,16 +124,4 @@ private:
 	math::LowPassFilter2pVector3f _lp_filters_d{0.f, 0.f}; ///< low-pass filters for D-term (roll, pitch & yaw)
 	bool _mixer_saturation_positive[3] {};
 	bool _mixer_saturation_negative[3] {};
-
-	int ii_AC_R = 0;
-  	bool RCAC_Aw_ON=1;
-	matrix::SquareMatrix<float, 12> P_AC_R;
-	matrix::Matrix<float, 3,12> phi_k_AC_R, phi_km1_AC_R;
-	matrix::Matrix<float, 12,1> theta_k_AC_R;
-  	matrix::Matrix<float, 3,1> z_k_AC_R, z_km1_AC_R,u_k_AC_R, u_km1_AC_R;
-
-	matrix::SquareMatrix<float, 3> Gamma_AC_R, I3, N1_Aw;
-
-	float alpha_P = 1.0f;
-	float alpha_N = 1.0f;
 };

@@ -73,12 +73,7 @@
 
 #include <float.h>
 
-#include <fstream>
-#include <stdio.h>
-#include <iostream>
-
 using namespace time_literals;
-using namespace std;
 
 /**
  * Multicopter position control app start / stop handling function
@@ -531,15 +526,6 @@ MulticopterPositionControl::Run()
 	}
 
 	perf_begin(_cycle_perf);
-	
-	// remove( "RCAC_data.txt" );
-	// remove( "RCAC_AC_data.txt" );
-	remove( "States.txt" );
-	remove( "States_Att.txt" );
-	remove( "RCAC_A_q.txt" );
-	remove( "RCAC_A_w.txt" );
-	remove( "RCAC_P_r.txt" );
-	remove( "RCAC_P_v.txt" );
 
 	if (_local_pos_sub.update(&_local_pos)) {
 
@@ -618,36 +604,6 @@ MulticopterPositionControl::Run()
 				if (!PX4_ISFINITE(setpoint.z) && !PX4_ISFINITE(setpoint.vz) && !PX4_ISFINITE(setpoint.thrust[2])) {
 					failsafe(setpoint, _states, true, !was_in_failsafe);
 				}
-				if (1) //
-				{
-					ofstream State_Data("States.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-					if (State_Data.is_open())
-					{
-
-						State_Data << _states.position(0) << "\t"
-								   << _states.position(1) << "\t"
-								   << _states.position(2) << "\t"
-								   << _states.velocity(0) << "\t"
-								   << _states.velocity(1) << "\t"
-								   << _states.velocity(2) << "\t"
-								   << _states.yaw << "\t"
-								   << setpoint.x << "\t"
-								   << setpoint.y << "\t"
-								   << setpoint.z << "\t"
-								   << setpoint.vx << "\t"
-								   << setpoint.vy << "\t"
-								   << setpoint.vz << "\t"
-								   << setpoint.timestamp << "\t"
-								   << setpoint.yaw << "\t"
-								   << setpoint.yawspeed << "\t"
-								   << setpoint.thrust[0] << "\t"
-								   << setpoint.thrust[1] << "\t"
-								   << setpoint.thrust[2] << "\n"
-								   ;
-						State_Data.close();
-					}
-				}
-				//cout << setpoint.x << "\n";
 			}
 
 			// publish trajectory setpoint
