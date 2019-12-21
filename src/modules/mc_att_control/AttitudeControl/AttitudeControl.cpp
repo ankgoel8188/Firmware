@@ -57,7 +57,7 @@ void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_g
 	_proportional_gain(2) = roll_pitch_gain;
 }
 
-matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, const float yawspeed_feedforward)
+matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, const float yawspeed_feedforward,const bool landed)
 {
 	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
 	q.normalize();
@@ -97,8 +97,13 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	// calculate angular rates setpoint
 	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);
 
+	if (landed)
+	{
+		ii_Pq_R = 0;
+	}
+
 	
-	if (RCAC_Aq_ON)
+	if ((RCAC_Aq_ON) && (!landed))
 	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Pq_ON)
 	{
 		// cout << "Attitude controller" << "\n";
@@ -106,7 +111,7 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		ii_Pq_R = ii_Pq_R + 1;
 		if (ii_Pq_R == 1)
 		{
-			P_Pq_R = eye<float, 3>() * 0.010 * 100.0f*alpha_P;
+			P_Pq_R = eye<float, 3>() * 0.010 * 100.0f*alpha_P * 0.01;
 			N1_Pq = eye<float, 3>() * (1.0f) * alpha_N;
 			I3 = eye<float, 3>();
 			phi_k_Pq_R.setZero();
@@ -119,6 +124,9 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 			Gamma_Pq_R.setZero();
 
 			theta_k_Pq_R = 0.0f*_proportional_gain;
+			theta_k_Pq_PID(0,0) = _proportional_gain(0);
+			theta_k_Pq_PID(1,0) = _proportional_gain(1);
+			theta_k_Pq_PID(2,0) = _proportional_gain(2);
 
 		}
 
@@ -136,26 +144,27 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		theta_k_Pq_R 	= theta_k_Pq_R + (P_Pq_R * phi_km1_Pq_R.T()) * N1_Pq *
 				 (z_k_Pq_R + N1_Pq*(phi_km1_Pq_R * theta_k_Pq_R - u_km1_Pq_R) );
 
-		u_k_Pq_R 	= phi_k_Pq_R * theta_k_Pq_R;
+		u_k_Pq_R 	= phi_k_Pq_R * (1.0f*theta_k_Pq_R+1.0f*theta_k_Pq_PID);
 		u_km1_Pq_R 	= u_k_Pq_R;
 		phi_km1_Pq_R 	= phi_k_Pq_R;
-		if (ii_Pq_R%1000==0)
+		if (ii_Pq_R%100==0)
 		{
 		cout 	<< ii_Pq_R << "\t"
 			<< theta_k_Pq_R(0,0) << "\t"
 			<< theta_k_Pq_R(1,0) << "\t"
 			<< theta_k_Pq_R(2,0) << "\t"
-			<< _proportional_gain(0) << "\t"
-			<< _proportional_gain(1) << "\t"
-			<< _proportional_gain(2) << "\t"
+			// << _proportional_gain(0) << "\t"
+			// << _proportional_gain(1) << "\t"
+			// << _proportional_gain(2) << "\t"
 			<< eq(0) << "\t"
 			<< eq(1) << "\t"
 			<< eq(2) << "\t"
-			<< P_Pq_R(0,0)
+			<< P_Pq_R(0,0) << "\t"
 			<< "\n";
 		}
 		rate_setpoint = u_k_Pq_R;
-
+		// cout << "RC" << "\t" << ii_Pq_R << "\n" ;
+		
 		if (1) //
 		{
 			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";

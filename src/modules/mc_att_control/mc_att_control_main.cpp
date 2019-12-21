@@ -365,9 +365,9 @@ MulticopterAttitudeControl::control_attitude()
 	// physical thrust axis is the negative of body z axis
 	_thrust_sp = -_v_att_sp.thrust_body[2];
 	const bool landed = _vehicle_land_detected.maybe_landed || _vehicle_land_detected.landed;
-	if (!landed)
+	// if (!landed) //Ankit:Removed this check coz landed is used in the update function to reset RCAC gains
 	{
-		_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate);
+		_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate,landed);
 	}
 
 	

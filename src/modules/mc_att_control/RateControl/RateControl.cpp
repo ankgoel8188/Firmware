@@ -127,21 +127,35 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 				u_km1_AC_R.setZero();
 				Gamma_AC_R.setZero();
 
+				theta_k_Ac_PID(0,0) = _gain_p(0);
+				theta_k_Ac_PID(1,0) = _gain_i(0);
+				theta_k_Ac_PID(2,0) = _gain_d(0);
+				theta_k_Ac_PID(3,0) = _gain_ff(0);
+				theta_k_Ac_PID(4,0) = _gain_p(1);
+				theta_k_Ac_PID(5,0) = _gain_i(1);
+				theta_k_Ac_PID(6,0) = _gain_d(1);
+				theta_k_Ac_PID(7,0) = _gain_ff(1);
+				theta_k_Ac_PID(8,0) = _gain_p(2);
+				theta_k_Ac_PID(9,0) = _gain_i(2);
+				theta_k_Ac_PID(10,0) = _gain_d(2);
+				theta_k_Ac_PID(11,0) = _gain_ff(2);
+
+
 			}
 
 			phi_k_AC_R = phi_k_AC_R*0.0f;
 			phi_k_AC_R(0, 0) = rate_error(0);
-			phi_k_AC_R(0, 1) = _rate_int(0);
+			phi_k_AC_R(0, 1) = _rate_int(0); //_gain_i(0);
 			phi_k_AC_R(0, 2) = rate_d(0)*0.0f;; //(rates_filtered(0) - _rates_prev_filtered(0))/dt;
 			phi_k_AC_R(0, 3) = rate_sp(0)*0.0f;
 
 			phi_k_AC_R(1, 4) = rate_error(1);
-			phi_k_AC_R(1, 5) = _rate_int(1);
+			phi_k_AC_R(1, 5) = _rate_int(1); //_gain_i(1);
 			phi_k_AC_R(1, 6) = rate_d(1)*0.0f;; //(rates_filtered(1) - _rates_prev_filtered(1))/dt;
 			phi_k_AC_R(1, 7) = rate_sp(1)*0.0f;
 
 			phi_k_AC_R(2, 8) = rate_error(2);
-			phi_k_AC_R(2, 9) = _rate_int(2);
+			phi_k_AC_R(2, 9) = _rate_int(2); //_gain_i(2);
 			phi_k_AC_R(2, 10) = rate_d(2)*0.0f; //(rates_filtered(2) - _rates_prev_filtered(2))/dt;
 			phi_k_AC_R(2, 11) = rate_sp(2)*0.0f;
 
@@ -155,21 +169,18 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			P_AC_R 		= P_AC_R - (P_AC_R * phi_km1_AC_R.T()) * Gamma_AC_R * (phi_km1_AC_R * P_AC_R);
 			theta_k_AC_R 	= theta_k_AC_R + (P_AC_R * phi_km1_AC_R.T()) * N1_Aw *
 					 (z_k_AC_R + N1_Aw *(phi_km1_AC_R * theta_k_AC_R - u_km1_AC_R) );
-			u_k_AC_R 	= phi_k_AC_R * theta_k_AC_R;
+			u_k_AC_R 	= phi_k_AC_R * (1.0f*theta_k_AC_R+0.0f*theta_k_Ac_PID);
 			u_km1_AC_R 	= u_k_AC_R;
 			phi_km1_AC_R 	= phi_k_AC_R;
 
 
-			/*cout << ii_AC_R << "\t" << u_k_AC_R(0, 0)
-					<< "\t" << u_k_AC_R(1, 0)
-					<< "\t" << u_k_AC_R(2, 0)
-					<< "\t" << z_k_AC_R(0, 0)
-					<< "\t" << z_k_AC_R(1, 0)
-					<< "\t" << z_k_AC_R(2, 0)
-					<< "\n";
-					*/
-			// _att_control = u_k_AC_R;
-			torque = u_k_AC_R;
+			torque = torque+u_k_AC_R;
+
+
+
+
+
+
 			// cout 	<< _gain_p(0) << "\t"
 			// 		<< _gain_i(0) << "\t"
 			// 		<< _gain_d(0) << "\t"
@@ -200,6 +211,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			// << torque(0) << "\t"
 			// << torque(1) << "\t"
 			// << torque(2) << "\n";
+			// cout << "AC" << "\t" << ii_AC_R << "\n" ;
 			if (1) //
 			{
 				ofstream RCAC_A_w("RCAC_A_w.txt", std::fstream::in | std::fstream::out | std::fstream::app);
@@ -250,6 +262,11 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			}
 		}
 	// update integral only if we are not landed
+	if (landed)
+	{
+		ii_AC_R = 0;
+		// ii_Pq_R = 0;
+	}
 	if (!landed) {
 		updateIntegral(rate_error, dt);
 	}

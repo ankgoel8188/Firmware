@@ -75,7 +75,7 @@ public:
 	 * @param yawspeed_feedforward [rad/s] yaw feed forward angular rate in world frame
 	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
 	 */
-	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward);
+	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward,const bool landed);
 
 private:
 	matrix::Vector3f _proportional_gain;
@@ -86,7 +86,7 @@ private:
   	bool RCAC_Aq_ON=1;
 	matrix::SquareMatrix<float, 3> P_Pq_R;
 	matrix::Matrix<float, 3,3> phi_k_Pq_R, phi_km1_Pq_R;
-	matrix::Matrix<float, 3,1> theta_k_Pq_R;
+	matrix::Matrix<float, 3,1> theta_k_Pq_R,theta_k_Pq_PID;
   	matrix::Matrix<float, 3,1> z_k_Pq_R, z_km1_Pq_R,u_k_Pq_R, u_km1_Pq_R;
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
 	float alpha_P = 1.0f;

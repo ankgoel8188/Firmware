@@ -225,7 +225,7 @@ private:
 
 
 	int ii_Pr_R = 0;
-        bool RCAC_Pr_ON=1;
+    bool RCAC_Pr_ON=1;
 	matrix::SquareMatrix<float, 3> P_Pr_R;
 	matrix::Matrix<float, 3,3> phi_k_Pr_R, phi_km1_Pr_R;
 	matrix::Matrix<float, 3,1> theta_k_Pr_R;
@@ -233,16 +233,18 @@ private:
 	matrix::SquareMatrix<float, 3> Gamma_Pr_R, I3, N1_Pr;
 
 	int ii_Pv_R = 0;
-        bool RCAC_Pv_ON=1;
+	bool RCAC_Pv_ON=1;
 	matrix::SquareMatrix<float, 9> P_Pv_R;
 	matrix::Matrix<float, 3,9> phi_k_Pv_R, phi_km1_Pv_R;
-	matrix::Matrix<float, 9,1> theta_k_Pv_R;
+	matrix::Matrix<float, 9,1> theta_k_Pv_R,theta_k_Pv_PID;
   	matrix::Matrix<float, 3,1> z_k_Pv_R, z_km1_Pv_R,u_k_Pv_R, u_km1_Pv_R;
 	matrix::SquareMatrix<float, 3> Gamma_Pv_R, N1_Pv;
 
 	float alpha_P = 1.0f;
 	float alpha_N = 1.0f;
 
+	matrix::Vector3f Pv_intg;
+	
 	int ii_R = 0;
   	bool RCAC_ON=0;
 	matrix::SquareMatrix<float, 3> P_x_R;
