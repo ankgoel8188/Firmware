@@ -52,6 +52,10 @@
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
 #define TPA_RATE_LOWER_LIMIT 0.05f
 
 #define AXIS_INDEX_ROLL 0
@@ -60,7 +64,7 @@
 #define AXIS_COUNT 3
 
 using namespace matrix;
-
+using namespace std;
 
 int MulticopterAttitudeControl::print_usage(const char *reason)
 {
@@ -584,7 +588,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt)
 		rates(1) = _sensor_gyro.y;
 		rates(2) = _sensor_gyro.z;
 	}
-
+	rates(1) = rates(1) + 0.01f;
 	// rotate corrected measurements from sensor to body frame
 	rates = _board_rotation * rates;
 
@@ -607,7 +611,147 @@ MulticopterAttitudeControl::control_attitude_rates(float dt)
 		       _rates_int -
 		       rates_d_scaled.emult(rates_filtered - _rates_prev_filtered) / dt +
 		       _rate_ff.emult(_rates_sp);
+	/*cout << dt << "\t"
+		<< _sensor_bias.gyro_x_bias << "\t"
+		<< _sensor_bias.gyro_y_bias << "\t"
+		<< _sensor_bias.gyro_z_bias << "\t"
+		<< _selected_gyro <<  "\t"
+		<< _sensor_correction.gyro_offset_0[1] << "\t"
+		<< _sensor_correction.gyro_scale_0[1] << "\t"
+		"\n";*/
+	if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && _v_att.timestamp)
+	{
+		//cout << _v_att.timestamp << "\t" << hrt_absolute_time() <<"\n";
+		ofstream State_ATT_Data("States_Att.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+		if (State_ATT_Data.is_open())
+		{
+			State_ATT_Data << _v_att.timestamp << "\t"
+				   << _v_att.rollspeed << "\t"
+				   << _v_att.pitchspeed << "\t"
+				   << _v_att.yawspeed << "\t"
+				   << _v_att.q[0] << "\t"
+				   << _v_att.q[1] << "\t"
+				   << _v_att.q[2] << "\t"
+				   << _v_att.q[3] << "\t"
+				   << Eulerf(Quatf(_v_att.q)).phi() << "\t"
+				   << Eulerf(Quatf(_v_att.q)).theta() << "\t"
+				   << Eulerf(Quatf(_v_att.q)).psi() << "\t"
+				   << "\n"
+				   ;
+			State_ATT_Data.close();
+		}
+	}
 
+	//if (dt > 0.001f)
+	if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Aw_ON)
+		{
+
+			// My shit here
+			ii_AC_R = ii_AC_R + 1;
+			if (ii_AC_R == 1)
+			{
+				P_AC_R = eye<float, 12>() * 0.010*alpha_P;
+				N1_Aw = eye<float, 3>() * (1.0) * alpha_N ;
+				I3 = eye<float, 3>();
+				phi_k_AC_R.setZero();
+				phi_km1_AC_R.setZero();
+				theta_k_AC_R.setZero();
+				z_k_AC_R.setZero();
+				z_km1_AC_R.setZero();
+				u_k_AC_R.setZero();
+				u_km1_AC_R.setZero();
+				Gamma_AC_R.setZero();
+
+			}
+
+			phi_k_AC_R(0, 0) = rates_err(0);
+			phi_k_AC_R(0, 1) = _rates_int(0);
+			phi_k_AC_R(0, 2) = (rates_filtered(0) - _rates_prev_filtered(0))/dt;
+			phi_k_AC_R(0, 3) = _rates_sp(0);
+
+			phi_k_AC_R(1, 4) = rates_err(1);
+			phi_k_AC_R(1, 5) = _rates_int(1);
+			phi_k_AC_R(1, 6) = (rates_filtered(1) - _rates_prev_filtered(1))/dt;
+			phi_k_AC_R(1, 7) = _rates_sp(1);
+
+			phi_k_AC_R(2, 8) = rates_err(2);
+			phi_k_AC_R(2, 9) = _rates_int(2);
+			phi_k_AC_R(2, 10) = (rates_filtered(2) - _rates_prev_filtered(2))/dt;
+			phi_k_AC_R(2, 11) = _rates_sp(2);
+
+
+
+			z_k_AC_R = rates_err;
+
+
+			Gamma_AC_R 	= phi_km1_AC_R * P_AC_R * phi_km1_AC_R.T() + I3;
+			Gamma_AC_R 	= Gamma_AC_R.I();
+			P_AC_R 		= P_AC_R - (P_AC_R * phi_km1_AC_R.T()) * Gamma_AC_R * (phi_km1_AC_R * P_AC_R);
+			theta_k_AC_R 	= theta_k_AC_R + (P_AC_R * phi_km1_AC_R.T()) * N1_Aw *
+					 (z_k_AC_R + N1_Aw *(phi_km1_AC_R * theta_k_AC_R - u_km1_AC_R) );
+			u_k_AC_R 	= phi_k_AC_R * theta_k_AC_R;
+			u_km1_AC_R 	= u_k_AC_R;
+			phi_km1_AC_R 	= phi_k_AC_R;
+
+
+			/*cout << ii_AC_R << "\t" << u_k_AC_R(0, 0)
+					<< "\t" << u_k_AC_R(1, 0)
+					<< "\t" << u_k_AC_R(2, 0)
+					<< "\t" << z_k_AC_R(0, 0)
+					<< "\t" << z_k_AC_R(1, 0)
+					<< "\t" << z_k_AC_R(2, 0)
+					<< "\n";
+					*/
+			_att_control = u_k_AC_R;
+			if (1) //
+			{
+				ofstream RCAC_A_w("RCAC_A_w.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+				if (RCAC_A_w.is_open())
+				{
+					//cout << "Writing RCAC_Att_data.txt \n";
+					RCAC_A_w << ii_AC_R << "\t"
+							  << dt << "\t"
+							  << z_k_AC_R(0, 0) << "\t"
+							  << z_k_AC_R(1, 0) << "\t"
+							  << z_k_AC_R(2, 0) << "\t"
+							  << _rates_sp(0) << "\t"
+							  << _rates_sp(1) << "\t"
+							  << _rates_sp(2) << "\t"
+							  << rates(0) << "\t"
+							  << rates(1) << "\t"
+							  << rates(2) << "\t"
+							  << u_k_AC_R(0, 0) << "\t"
+							  << u_k_AC_R(1, 0) << "\t"
+							  << u_k_AC_R(2, 0) << "\t"
+							  << theta_k_AC_R(0, 0) << "\t"
+							  << theta_k_AC_R(1, 0) << "\t"
+							  << theta_k_AC_R(2, 0) << "\t"
+							  << theta_k_AC_R(3, 0) << "\t"
+							  << theta_k_AC_R(4, 0) << "\t"
+							  << theta_k_AC_R(5, 0) << "\t"
+							  << theta_k_AC_R(6, 0) << "\t"
+							  << theta_k_AC_R(7, 0) << "\t"
+							  << theta_k_AC_R(8, 0) << "\t"
+							  << theta_k_AC_R(9, 0) << "\t"
+							  << theta_k_AC_R(10, 0) << "\t"
+							  << theta_k_AC_R(11, 0) << "\t"
+							  << rates_p_scaled(0) << "\t"
+							  << rates_i_scaled(0) << "\t"
+							  << rates_d_scaled(0) << "\t"
+							  << _rate_ff(0) << "\t"
+							  << rates_p_scaled(1) << "\t"
+							  << rates_i_scaled(1) << "\t"
+							  << rates_d_scaled(1) << "\t"
+							  << _rate_ff(1) << "\t"
+							  << rates_p_scaled(2) << "\t"
+							  << rates_i_scaled(2) << "\t"
+							  << rates_d_scaled(2) << "\t"
+							  << _rate_ff(2) << "\t"
+							  << "\n";
+					RCAC_A_w.close();
+				}
+			}
+		}
 	_rates_prev = rates;
 	_rates_prev_filtered = rates_filtered;
 
@@ -666,6 +810,9 @@ MulticopterAttitudeControl::publish_rates_setpoint()
 	_v_rates_sp.thrust_body[2] = -_thrust_sp;
 	_v_rates_sp.timestamp = hrt_absolute_time();
 	orb_publish_auto(ORB_ID(vehicle_rates_setpoint), &_v_rates_sp_pub, &_v_rates_sp, nullptr, ORB_PRIO_DEFAULT);
+	//cout << _v_rates_sp.roll << "\t"
+	//	 << _v_rates_sp.pitch << "\t"
+	//	 << _v_rates_sp.yaw << "\n" ;
 }
 
 void

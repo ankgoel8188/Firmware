@@ -214,6 +214,19 @@ private:
 	float _man_yaw_sp{0.f};				/**< current yaw setpoint in manual mode */
 	bool _gear_state_initialized{false};		/**< true if the gear state has been initialized */
 
+
+	int ii_AC_R = 0;
+  	bool RCAC_Aw_ON=0;
+	matrix::SquareMatrix<float, 12> P_AC_R;
+	matrix::Matrix<float, 3,12> phi_k_AC_R, phi_km1_AC_R;
+	matrix::Matrix<float, 12,1> theta_k_AC_R;
+  	matrix::Matrix<float, 3,1> z_k_AC_R, z_km1_AC_R,u_k_AC_R, u_km1_AC_R;
+
+	matrix::SquareMatrix<float, 3> Gamma_AC_R, I3, N1_Aw;
+
+	float alpha_P = 1.0f;
+	float alpha_N = 1.0f;
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MC_ROLL_P>) _param_mc_roll_p,
 		(ParamFloat<px4::params::MC_ROLLRATE_P>) _param_mc_rollrate_p,
