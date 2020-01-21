@@ -227,6 +227,7 @@ void PositionControl::_positionController()
 
 	if (RCAC_Pr_ON)
 	{
+		// Adding a stupid comment to test git transfer 
 		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
 		ii_Pr_R = ii_Pr_R + 1;
 		if (ii_Pr_R == 1)
