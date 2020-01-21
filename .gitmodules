@@ -16,7 +16,7 @@
 	branch = px4
 [submodule "Tools/jMAVSim"]
 	path = Tools/jMAVSim
-	url = https://github.com/PX4/jMAVSim.git
+	url = git@github.com:sairavela/jmavsim.git
 	branch = master
 [submodule "Tools/sitl_gazebo"]
 	path = Tools/sitl_gazebo
