@@ -297,7 +297,7 @@ MulticopterPositionControl::MulticopterPositionControl() :
 {
 	// fetch initial parameter values
 	parameters_update(true);
-
+	
 	// set failsafe hysteresis
 	_failsafe_land_hysteresis.set_hysteresis_time_from(false, LOITER_TIME_BEFORE_DESCEND);
 }
@@ -322,7 +322,15 @@ MulticopterPositionControl::init()
 	_local_pos_sub.set_interval_us(20_ms); // 50 Hz max update rate
 
 	_time_stamp_last_loop = hrt_absolute_time();
-
+	cout << "Removed files" << "\n";
+	// remove( "RCAC_data.txt" );
+	// remove( "RCAC_AC_data.txt" );
+	remove( "States.txt" );
+	remove( "States_Att.txt" );
+	remove( "RCAC_A_q.txt" );
+	remove( "RCAC_A_w.txt" );
+	remove( "RCAC_P_r.txt" );
+	remove( "RCAC_P_v.txt" );
 	return true;
 }
 
@@ -531,15 +539,8 @@ MulticopterPositionControl::Run()
 	}
 
 	perf_begin(_cycle_perf);
-	
-	// remove( "RCAC_data.txt" );
-	// remove( "RCAC_AC_data.txt" );
-	remove( "States.txt" );
-	remove( "States_Att.txt" );
-	remove( "RCAC_A_q.txt" );
-	remove( "RCAC_A_w.txt" );
-	remove( "RCAC_P_r.txt" );
-	remove( "RCAC_P_v.txt" );
+
+
 
 	if (_local_pos_sub.update(&_local_pos)) {
 
@@ -763,6 +764,7 @@ MulticopterPositionControl::Run()
 			}
 
 			_old_landing_gear_position = gear.landing_gear;
+			
 
 		} else {
 			// no flighttask is active: set attitude setpoint to idle
@@ -775,10 +777,13 @@ MulticopterPositionControl::Run()
 			q_sp.copyTo(_att_sp.q_d);
 			_att_sp.q_d_valid = true;
 			_att_sp.thrust_body[2] = 0.0f;
+
+
 		}
 	}
 
 	perf_end(_cycle_perf);
+
 }
 
 void
