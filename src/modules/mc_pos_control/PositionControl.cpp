@@ -37,15 +37,19 @@
 
 #include "PositionControl.hpp"
 #include <float.h>
+#include <stdio.h>
+#include <iostream>
 #include <mathlib/mathlib.h>
 #include "Utility/ControlMath.hpp"
 #include <px4_defines.h>
 
+#include <fstream>
 using namespace matrix;
+using namespace std;
 
-PositionControl::PositionControl(ModuleParams *parent) :
-	ModuleParams(parent)
-{}
+PositionControl::PositionControl(ModuleParams *parent) : ModuleParams(parent)
+{
+}
 
 void PositionControl::updateState(const PositionControlStates &states)
 {
@@ -53,11 +57,20 @@ void PositionControl::updateState(const PositionControlStates &states)
 	_vel = states.velocity;
 	_yaw = states.yaw;
 	_vel_dot = states.acceleration;
+
+	/*
+	//_vel(1) = _vel(1)-0.1f;
+	_pos(1) = _pos(1)-1.0f;
+	// cout << "Printing " << _pos(0) << "\t" << _pos(1) << "\t" << _pos(2) << "\n";
+	cout << "Printing " << _vel(1) << "\t" << states.velocity(1) << "\n";
+	cout << "Printing " << _pos(1) << "\t" << states.position(1) << "\n";
+	*/
 }
 
 void PositionControl::_setCtrlFlag(bool value)
 {
-	for (int i = 0; i <= 2; i++) {
+	for (int i = 0; i <= 2; i++)
+	{
 		_ctrl_pos[i] = _ctrl_vel[i] = value;
 	}
 }
@@ -77,24 +90,26 @@ bool PositionControl::updateSetpoint(const vehicle_local_position_setpoint_s &se
 
 	// If full manual is required (thrust already generated), don't run position/velocity
 	// controller and just return thrust.
-	_skip_controller = PX4_ISFINITE(_thr_sp(0)) && PX4_ISFINITE(_thr_sp(1))
-			   && PX4_ISFINITE(_thr_sp(2));
+	_skip_controller = PX4_ISFINITE(_thr_sp(0)) && PX4_ISFINITE(_thr_sp(1)) && PX4_ISFINITE(_thr_sp(2));
 
 	return mapping_succeeded;
 }
 
 void PositionControl::generateThrustYawSetpoint(const float dt)
 {
-	if (_skip_controller) {
+	if (_skip_controller)
+	{
 
 		// Already received a valid thrust set-point.
 		// Limit the thrust vector.
 		float thr_mag = _thr_sp.length();
 
-		if (thr_mag > _param_mpc_thr_max.get()) {
+		if (thr_mag > _param_mpc_thr_max.get())
+		{
 			_thr_sp = _thr_sp.normalized() * _param_mpc_thr_max.get();
-
-		} else if (thr_mag < _param_mpc_manthr_min.get() && thr_mag > FLT_EPSILON) {
+		}
+		else if (thr_mag < _param_mpc_manthr_min.get() && thr_mag > FLT_EPSILON)
+		{
 			_thr_sp = _thr_sp.normalized() * _param_mpc_manthr_min.get();
 		}
 
@@ -102,8 +117,9 @@ void PositionControl::generateThrustYawSetpoint(const float dt)
 		_pos_sp = _pos;
 		_vel_sp = _vel;
 		_acc_sp = _acc;
-
-	} else {
+	}
+	else
+	{
 		_positionController();
 		_velocityController(dt);
 	}
@@ -120,12 +136,15 @@ bool PositionControl::_interfaceMapping()
 	// States and setpoints which are integrals of the reference setpoint are set to 0.
 	// For instance: reference is velocity-setpoint -> position and position-setpoint = 0
 	//               reference is thrust-setpoint -> position, velocity, position-/velocity-setpoint = 0
-	for (int i = 0; i <= 2; i++) {
+	for (int i = 0; i <= 2; i++)
+	{
 
-		if (PX4_ISFINITE(_pos_sp(i))) {
+		if (PX4_ISFINITE(_pos_sp(i)))
+		{
 			// Position control is required
 
-			if (!PX4_ISFINITE(_vel_sp(i))) {
+			if (!PX4_ISFINITE(_vel_sp(i)))
+			{
 				// Velocity is not used as feedforward term.
 				_vel_sp(i) = 0.0f;
 			}
@@ -134,11 +153,13 @@ bool PositionControl::_interfaceMapping()
 			_thr_sp(i) = NAN;
 
 			// to run position control, we require valid position and velocity
-			if (!PX4_ISFINITE(_pos(i)) || !PX4_ISFINITE(_vel(i))) {
+			if (!PX4_ISFINITE(_pos(i)) || !PX4_ISFINITE(_vel(i)))
+			{
 				failsafe = true;
 			}
-
-		} else if (PX4_ISFINITE(_vel_sp(i))) {
+		}
+		else if (PX4_ISFINITE(_vel_sp(i)))
+		{
 
 			// Velocity controller is active without position control.
 			// Set integral states and setpoints to 0
@@ -149,11 +170,13 @@ bool PositionControl::_interfaceMapping()
 			_thr_sp(i) = NAN;
 
 			// to run velocity control, we require valid velocity
-			if (!PX4_ISFINITE(_vel(i))) {
+			if (!PX4_ISFINITE(_vel(i)))
+			{
 				failsafe = true;
 			}
-
-		} else if (PX4_ISFINITE(_thr_sp(i))) {
+		}
+		else if (PX4_ISFINITE(_thr_sp(i)))
+		{
 
 			// Thrust setpoint was generated from sticks directly.
 			// Set all integral states and setpoints to 0
@@ -165,41 +188,49 @@ bool PositionControl::_interfaceMapping()
 			_thr_int(i) = 0.0f;
 			// Don't require velocity derivative.
 			_vel_dot(i) = 0.0f;
-
-		} else {
+		}
+		else
+		{
 			// nothing is valid. do failsafe
 			failsafe = true;
 		}
 	}
 
 	// ensure that vel_dot is finite, otherwise set to 0
-	if (!PX4_ISFINITE(_vel_dot(0)) || !PX4_ISFINITE(_vel_dot(1))) {
+	if (!PX4_ISFINITE(_vel_dot(0)) || !PX4_ISFINITE(_vel_dot(1)))
+	{
 		_vel_dot(0) = _vel_dot(1) = 0.0f;
 	}
 
-	if (!PX4_ISFINITE(_vel_dot(2))) {
+	if (!PX4_ISFINITE(_vel_dot(2)))
+	{
 		_vel_dot(2) = 0.0f;
 	}
 
-	if (!PX4_ISFINITE(_yawspeed_sp)) {
+	if (!PX4_ISFINITE(_yawspeed_sp))
+	{
 		// Set the yawspeed to 0 since not used.
 		_yawspeed_sp = 0.0f;
 	}
 
-	if (!PX4_ISFINITE(_yaw_sp)) {
+	if (!PX4_ISFINITE(_yaw_sp))
+	{
 		// Set the yaw-sp equal the current yaw.
 		// That is the best we can do and it also
 		// agrees with FlightTask-interface definition.
-		if (PX4_ISFINITE(_yaw)) {
+		if (PX4_ISFINITE(_yaw))
+		{
 			_yaw_sp = _yaw;
-
-		} else {
+		}
+		else
+		{
 			failsafe = true;
 		}
 	}
 
 	// check failsafe
-	if (failsafe) {
+	if (failsafe)
+	{
 		// point the thrust upwards
 		_thr_sp(0) = _thr_sp(1) = 0.0f;
 		// throttle down such that vehicle goes down with
@@ -215,14 +246,107 @@ bool PositionControl::_interfaceMapping()
 void PositionControl::_positionController()
 {
 	// P-position controller
-	const Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(),
-					 _param_mpc_z_p.get()));
+	// const Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(), _param_mpc_z_p.get()));
+	Vector3f vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(), _param_mpc_z_p.get()));
+
+	if (RCAC_Pr_ON)
+	{
+		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
+		ii_Pr_R = ii_Pr_R + 1;
+		if (ii_Pr_R == 1)
+		{
+			P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+			N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
+			I3 = eye<float, 3>();
+			phi_k_Pr_R.setZero();
+			phi_km1_Pr_R.setZero();
+			theta_k_Pr_R.setZero();
+			z_k_Pr_R.setZero();
+			z_km1_Pr_R.setZero();
+			u_k_Pr_R.setZero();
+			u_km1_Pr_R.setZero();
+			Gamma_Pr_R.setZero();
+
+			theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
+						_param_mpc_xy_p.get(),
+						_param_mpc_z_p.get());
+
+		}
+
+		phi_k_Pr_R(0, 0) = _pos_sp(0) - _pos(0);
+		phi_k_Pr_R(1, 1) = _pos_sp(1) - _pos(1);
+		phi_k_Pr_R(2, 2) = _pos_sp(2) - _pos(2);
+
+		z_k_Pr_R = (_pos_sp - _pos);
+
+		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
+		Gamma_Pr_R 	= Gamma_Pr_R.I();
+		P_Pr_R 		= P_Pr_R - (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
+		//theta_k_Pr_R 	= theta_k_Pr_R + (P_Pr_R * phi_km1_Pr_R.T()) *
+		//		 (z_k_Pr_R + (-1.0f)*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) * (-1.0f));
+		theta_k_Pr_R 	= theta_k_Pr_R + (P_Pr_R * phi_km1_Pr_R.T()) * N1_Pr *
+				 (z_k_Pr_R + N1_Pr*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) );
+
+		u_k_Pr_R 	= phi_k_Pr_R * theta_k_Pr_R;
+		u_km1_Pr_R 	= u_k_Pr_R;
+		phi_km1_Pr_R 	= phi_k_Pr_R;
+
+		// cout 	<< theta_k_Pr_R(0,0) << "\t"
+		// 	<< theta_k_Pr_R(1,0) << "\t"
+		// 	<< theta_k_Pr_R(2,0) << "\n";
+
+
+
+		vel_sp_position = u_k_Pr_R;
+
+		if (1) //
+		{
+			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
+			ofstream RCAC_P_r("RCAC_P_r.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+			if (RCAC_P_r.is_open())
+			{
+				RCAC_P_r << ii_Pr_R << "\t"
+						<< z_k_Pr_R(0,0) << "\t"
+						<< z_k_Pr_R(1,0) << "\t"
+						<< z_k_Pr_R(2,0) << "\t"
+						<< _pos_sp(0) << "\t"
+						<< _pos_sp(1) << "\t"
+						<< _pos_sp(2) << "\t"
+						<< _pos(0) << "\t"
+						<< _pos(1) << "\t"
+						<< _pos(2) << "\t"
+						<< theta_k_Pr_R(0,0) << "\t"
+						<< theta_k_Pr_R(1,0) << "\t"
+						<< theta_k_Pr_R(2,0) << "\t"
+						<< u_k_Pr_R(0,0) << "\t"
+						<< u_k_Pr_R(1,0) << "\t"
+						<< u_k_Pr_R(2,0) << "\t"
+						//
+						<< _param_mpc_xy_p.get() << "\t"
+						<< _param_mpc_xy_p.get() << "\t"
+						<< _param_mpc_z_p.get() << "\t"
+						<< "\n";
+				RCAC_P_r.close();
+			}
+		}
+	}
+
 	_vel_sp = vel_sp_position + _vel_sp;
+
+
+	//cout 	<< _param_mpc_xy_p.get() << "\t"
+	//		<< _param_mpc_xy_p.get() << "\t"
+	//		<< _param_mpc_z_p.get() << "\n" ;
+	/*cout 	<< (_pos_sp(0)-_pos(0))*_param_mpc_xy_p.get() << "\t"
+			<< vel_sp_position(0) << "\t"
+			<< (_pos_sp(2)-_pos(2))*_param_mpc_z_p.get() << "\t"
+			<< vel_sp_position(2) << "\n" ;
+	*/
 
 	// Constrain horizontal velocity by prioritizing the velocity component along the
 	// the desired position setpoint over the feed-forward term.
 	const Vector2f vel_sp_xy = ControlMath::constrainXY(Vector2f(vel_sp_position),
-				   Vector2f(_vel_sp - vel_sp_position), _param_mpc_xy_vel_max.get());
+		Vector2f(_vel_sp - vel_sp_position), _param_mpc_xy_vel_max.get());
 	_vel_sp(0) = vel_sp_xy(0);
 	_vel_sp(1) = vel_sp_xy(1);
 	// Constrain velocity in z-direction.
@@ -256,10 +380,340 @@ void PositionControl::_velocityController(const float &dt)
 	// 	 NE-direction is also limited by the maximum tilt.
 
 	const Vector3f vel_err = _vel_sp - _vel;
-
+	float thrust_desired_D = 0.0;
 	// Consider thrust in D-direction.
-	float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) +  _param_mpc_z_vel_d.get() * _vel_dot(2) + _thr_int(
-					 2) - _param_mpc_thr_hover.get();
+	// cout 	<< 111 << "\n";
+	if (!RCAC_Pv_ON)
+	{
+		// float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) + _param_mpc_z_vel_d.get() * _vel_dot(2) + _thr_int(2) - _param_mpc_thr_hover.get();
+		ii_R = ii_R + 1;
+		/*int Gain = 1;
+		if ((ii_R>1500) && (0))
+		{
+			Gain = -1;
+			cout << "Flipped \n";
+		}*/
+		thrust_desired_D = 1*(_param_mpc_z_vel_p.get() * vel_err(2) +
+				1*_param_mpc_z_vel_d.get() * _vel_dot(2) +
+				1*_thr_int(2) -
+				1*_param_mpc_thr_hover.get());
+		// cout << _vel_sp(2) << "\t" << _vel(2) << "\t" << thrust_desired_D << "\n";
+		cout 	<< RCAC_Pv_ON << "\t" << thrust_desired_D << "\n";
+		if (0) //
+			{
+				ofstream PX4_PID_Data("PX4_PID_Data.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+				if (PX4_PID_Data.is_open())
+				{
+
+					PX4_PID_Data << 1 << "\t"
+							  << dt << "\t"
+							  << vel_err(2) << "\t"
+							  << vel_err(2) << "\t"
+							  << 0 << "\t"
+							  << _thr_int(2) << "\t"
+							  << _param_mpc_z_vel_p.get() << "\t"
+							  << _param_mpc_z_vel_d.get() << "\t"
+							  << _param_mpc_z_vel_i.get() << "\t"
+							  << thrust_desired_D << "\t"
+							  << _vel_sp(2) << "\t"
+							  << _vel(2) << "\t"
+							  << "\n";
+					PX4_PID_Data.close();
+				}
+			}
+	}
+	else
+	{
+		if (dt > 0.01f)
+		{
+			// My shit here
+			ii_R = ii_R + 1;
+			/*cout << "Printing " << ii_R << " " << vel_err(0) << " "
+						<< vel_err(1) << " "
+						<< vel_err(2) << " "
+						//<< _vel_sp(0) << " "
+						//<< _vel_sp(1) << " "
+						//<< _vel_sp(2) << " "
+						<< _param_mpc_xy_vel_p.get() << " "
+						<< _param_mpc_xy_vel_d.get() << " "
+						<< _param_mpc_z_vel_i.get() << " "
+	                                        << thrust_desired_D << " "
+	  					<< dt  << " \n";   //Ankit Aug13
+	*/
+			// if (ii_R == 1)
+			// {
+
+			// 	P_x_R = eye<float, 3>() * 0.010;
+			// 	P_y_R = eye<float, 3>() * 0.010;
+			// 	P_z_R = eye<float, 3>() * 0.010;
+
+			// 	testMat = eye<float,2>()*10;
+
+			// 	cout << testMat(0,0) << "\n";
+
+			// 	testMat = testMat.I();
+			// 	cout << testMat(0,0) << "\n";
+
+			// 	phi_k_x_R.setZero();
+			// 	phi_k_y_R.setZero();
+			// 	phi_k_z_R.setZero();
+			// 	phi_km1_x_R.setZero();
+			// 	phi_km1_y_R.setZero();
+			// 	phi_km1_z_R.setZero();
+
+			// 	theta_k_x_R.setZero();
+			// 	theta_k_y_R.setZero();
+			// 	theta_k_z_R.setZero();
+
+			// 	z_k_x_R.setZero();
+			// 	z_k_y_R.setZero();
+			// 	z_k_z_R.setZero();
+
+			// 	z_km1_x_R.setZero();
+			// 	z_km1_y_R.setZero();
+			// 	z_km1_z_R.setZero();
+
+			// 	u_k_x_R.setZero();
+			// 	u_k_y_R.setZero();
+			// 	u_k_z_R.setZero();
+
+			// 	u_km1_x_R.setZero();
+			// 	u_km1_y_R.setZero();
+			// 	u_km1_z_R.setZero();
+
+			// 	Gamma_x_R.setZero();
+			// 	Gamma_y_R.setZero();
+			// 	Gamma_z_R.setZero();
+			// }
+			// //thrust_desired_D = -.13;
+
+			// // phi_k_x_R(0, 0) = vel_err(2);
+			// // phi_k_x_R(0, 1) = _vel_dot(2) * 0;
+			// // phi_k_x_R(0, 2) = phi_k_x_R(0, 2) + vel_err(2) * dt;
+			// // phi_k_x_R(0, 2) = _thr_int(2);
+
+
+			// phi_k_x_R(0, 0) = vel_err(0);
+			// phi_k_x_R(0, 1) = _vel_dot(0) * 0;
+			// phi_k_x_R(0, 2) = _thr_int(0);
+
+			// phi_k_y_R(0, 0) = vel_err(1);
+			// phi_k_y_R(0, 1) = _vel_dot(1) * 0;
+			// phi_k_y_R(0, 2) = _thr_int(1);
+
+			// phi_k_z_R(0, 0) = vel_err(2);
+			// phi_k_z_R(0, 1) = _vel_dot(2) * 0;
+			// phi_k_z_R(0, 2) = _thr_int(2);
+
+
+
+			// z_k_x_R(0, 0) = vel_err(0);
+			// z_k_y_R(0, 0) = vel_err(1);
+			// z_k_z_R(0, 0) = vel_err(2);
+
+			// Gamma_x_R 	= phi_km1_x_R * P_x_R * phi_km1_x_R.T() + 1;
+			// P_x_R 		= P_x_R - (P_x_R * phi_km1_x_R.T()) * (phi_km1_x_R * P_x_R) / Gamma_x_R(0, 0);
+			// theta_k_x_R 	= theta_k_x_R + (P_x_R * phi_km1_x_R.T()) *
+			// 		 (z_k_x_R + (-1.0f)*(phi_km1_x_R * theta_k_x_R - u_km1_x_R) * (-1.0f));
+			// u_k_x_R 	= phi_k_x_R * theta_k_x_R;
+			// u_km1_x_R 	= u_k_x_R;
+			// phi_km1_x_R 	= phi_k_x_R;
+
+
+			// Gamma_y_R 	= phi_km1_y_R * P_y_R * phi_km1_y_R.T() + 1;
+			// P_y_R 		= P_y_R - (P_y_R * phi_km1_y_R.T()) * (phi_km1_y_R * P_y_R) / Gamma_y_R(0, 0);
+			// theta_k_y_R 	= theta_k_y_R + (P_y_R * phi_km1_y_R.T()) *
+			// 		 (z_k_y_R + (-1.0f)*(phi_km1_y_R * theta_k_y_R - u_km1_y_R) * (-1.0f));
+			// u_k_y_R 	= phi_k_y_R * theta_k_y_R;
+			// u_km1_y_R 	= u_k_y_R;
+			// phi_km1_y_R 	= phi_k_y_R;
+
+			// Gamma_z_R 	= phi_km1_z_R * P_z_R * phi_km1_z_R.T() + 1;
+			// P_z_R 		= P_z_R - (P_z_R * phi_km1_z_R.T()) * (phi_km1_z_R * P_z_R) / Gamma_z_R(0, 0);
+			// theta_k_z_R 	= theta_k_z_R + (P_z_R * phi_km1_z_R.T()) *
+			// 		 (z_k_z_R + (-1.0f)*(phi_km1_z_R * theta_k_z_R - u_km1_z_R) * (-1.0f));
+			// u_k_z_R 	= phi_k_z_R * theta_k_z_R;
+			// u_km1_z_R 	= u_k_z_R;
+			// phi_km1_z_R 	= phi_k_z_R;
+
+
+			// thrust_desired_D = u_k_z_R(0, 0);
+
+			/*cout << ii_R << "\t" << u_k_x_R(0, 0)
+					<< "\t" << u_k_y_R(0, 0)
+					<< "\t" << u_k_z_R(0, 0)
+					<< "\t" << z_k_x_R(0, 0)
+					<< "\t" << z_k_y_R(0, 0)
+					<< "\t" << z_k_z_R(0, 0)
+					<< "\n"; */
+
+			ii_Pv_R = ii_Pv_R + 1;
+			if (ii_Pv_R == 1)
+			{
+				P_Pv_R = eye<float, 9>() * 0.010 * alpha_P;
+				N1_Pv = eye<float, 3>() * (1.0f) * alpha_N;
+				I3 = eye<float, 3>();
+				phi_k_Pv_R.setZero();
+				phi_km1_Pv_R.setZero();
+				theta_k_Pv_R.setZero();
+				z_k_Pv_R.setZero();
+				z_km1_Pv_R.setZero();
+				u_k_Pv_R.setZero();
+				u_km1_Pv_R.setZero();
+				Gamma_Pv_R.setZero();
+				// theta_k_Pv_R = 0.0f*Vector3f(_param_mpc_z_vel_p.get(),
+				// 			_param_mpc_z_vel_i.get(),
+				// 			_param_mpc_z_vel_d.get());
+
+			}
+
+			phi_k_Pv_R(0, 0) = vel_err(0);;
+			phi_k_Pv_R(0, 1) = _thr_int(0);
+			phi_k_Pv_R(0, 2) = _vel_dot(0) * 0;
+
+			phi_k_Pv_R(1, 3) = vel_err(1);;
+			phi_k_Pv_R(1, 4) = _thr_int(1);
+			phi_k_Pv_R(1, 5) = _vel_dot(1) * 0;
+
+			phi_k_Pv_R(2, 6) = vel_err(2);;
+			phi_k_Pv_R(2, 7) = _thr_int(2);
+			phi_k_Pv_R(2, 8) = _vel_dot(2) * 0;
+
+			z_k_Pv_R 	= vel_err;
+
+			Gamma_Pv_R 	= phi_km1_Pv_R * P_Pv_R * phi_km1_Pv_R.T() + I3;
+			Gamma_Pv_R 	= Gamma_Pv_R.I();
+			P_Pv_R 		= P_Pv_R - (P_Pv_R * phi_km1_Pv_R.T()) * Gamma_Pv_R * (phi_km1_Pv_R * P_Pv_R);
+			//theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) *
+			//		 (z_k_Pv_R + (-1.0f)*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) * (-1.0f));
+			theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) * N1_Pv *
+					(z_k_Pv_R + N1_Pv*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) );
+
+			u_k_Pv_R 	= phi_k_Pv_R * theta_k_Pv_R;
+			u_km1_Pv_R 	= u_k_Pv_R;
+			phi_km1_Pv_R 	= phi_k_Pv_R;
+
+			// cout 	<< theta_k_Pv_R(6,0) << "\t"
+			// 	<< theta_k_Pv_R(7,0) << "\t"
+			// 	<< theta_k_Pv_R(8,0) << "\t"
+			// 	<< u_k_Pv_R(2,0) << "\t"
+			// 	<< theta_k_z_R(0,0) << "\t"
+			// 	<< theta_k_z_R(1,0) << "\t"
+			// 	<< theta_k_z_R(2,0) << "\t"
+			// 	<< u_km1_z_R(0,0) << "\n";
+				//<< u_k_Pv_R(1,0) << "\t"
+
+
+			thrust_desired_D = u_k_Pv_R(2,0);
+
+			if (1) //
+			{
+				//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
+				ofstream RCAC_P_v("RCAC_P_v.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+				if (RCAC_P_v.is_open())
+				{
+					RCAC_P_v << ii_Pv_R << "\t"
+							<< dt << "\t"
+							<< z_k_Pv_R(0,0) << "\t"
+							<< z_k_Pv_R(1,0) << "\t"
+							<< z_k_Pv_R(2,0) << "\t"
+							<< _vel_sp(0) << "\t"
+							<< _vel_sp(1) << "\t"
+							<< _vel_sp(2) << "\t"
+							<< _vel(0) << "\t"
+							<< _vel(1) << "\t"
+							<< _vel(2) << "\t"
+							<< theta_k_Pv_R(0,0) << "\t"
+							<< theta_k_Pv_R(1,0) << "\t"
+							<< theta_k_Pv_R(2,0) << "\t"
+							<< theta_k_Pv_R(3,0) << "\t"
+							<< theta_k_Pv_R(4,0) << "\t"
+							<< theta_k_Pv_R(5,0) << "\t"
+							<< theta_k_Pv_R(6,0) << "\t"
+							<< theta_k_Pv_R(7,0) << "\t"
+							<< theta_k_Pv_R(8,0) << "\t"
+							<< u_k_Pv_R(0,0) << "\t"
+							<< u_k_Pv_R(1,0) << "\t"
+							<< u_k_Pv_R(2,0) << "\t"
+							//
+							<< _param_mpc_z_vel_p.get() << "\t"
+							<< _param_mpc_z_vel_i.get() << "\t"
+							<< _param_mpc_z_vel_d.get() << "\t"
+							<< _param_mpc_xy_vel_p.get() << "\t"
+							<< _param_mpc_xy_vel_i.get() << "\t"
+							<< _param_mpc_xy_vel_d.get() << "\t"
+							<< "\n";
+					RCAC_P_v.close();
+				}
+			}
+
+
+			if (0) //
+			{
+				//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
+				ofstream RCAC_Data("RCAC_data.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+				if (RCAC_Data.is_open())
+				{
+					RCAC_Data << ii_R << "\t"
+							  << dt << "\t"
+							  << z_k_x_R(0, 0) << "\t"
+							  << phi_k_x_R(0, 0) << "\t"
+							  << phi_k_x_R(0, 1) << "\t"
+							  << phi_k_x_R(0, 2) << "\t"
+							  << theta_k_x_R(0, 0) << "\t"
+							  << theta_k_x_R(1, 0) << "\t"
+							  << theta_k_x_R(2, 0) << "\t"
+							  << u_k_x_R(0, 0) << "\t"
+							  << _vel_sp(0) << "\t"
+							  << _vel(0) << "\t"
+							  //
+  							  << z_k_y_R(0, 0) << "\t"
+							  << phi_k_y_R(0, 0) << "\t"
+							  << phi_k_y_R(0, 1) << "\t"
+							  << phi_k_y_R(0, 2) << "\t"
+							  << theta_k_y_R(0, 0) << "\t"
+							  << theta_k_y_R(1, 0) << "\t"
+							  << theta_k_y_R(2, 0) << "\t"
+							  << u_k_y_R(0, 0) << "\t"
+							  << _vel_sp(1) << "\t"
+							  << _vel(1) << "\t"
+							  //
+							  << z_k_z_R(0, 0) << "\t"
+							  << phi_k_z_R(0, 0) << "\t"
+							  << phi_k_z_R(0, 1) << "\t"
+							  << phi_k_z_R(0, 2) << "\t"
+							  << theta_k_z_R(0, 0) << "\t"
+							  << theta_k_z_R(1, 0) << "\t"
+							  << theta_k_z_R(2, 0) << "\t"
+							  << u_k_z_R(0, 0) << "\t"
+							  << _vel_sp(2) << "\t"
+							  << _vel(2) << "\t"
+							  //
+							  << _param_mpc_z_vel_p.get() << "\t"
+							  << _param_mpc_z_vel_i.get() << "\t"
+							  << _param_mpc_z_vel_d.get() << "\t"
+							  << _param_mpc_xy_vel_p.get() << "\t"
+							  << _param_mpc_xy_vel_i.get() << "\t"
+							  << _param_mpc_xy_vel_d.get() << "\t"
+							  << "\n";
+					RCAC_Data.close();
+				}
+			}
+		}
+		else
+		{
+			thrust_desired_D = u_k_z_R(0, 0);
+			thrust_desired_D = u_k_Pv_R(2,0);
+		}
+		// cout << ii_R << " " << dt << " " << _vel_sp(2) << "    " << u_k_x_R(0, 0) << " " << theta_k_x_R(0, 0) << " " <<
+		// theta_k_x_R(1, 0) << " " <<
+		// theta_k_x_R(2, 0) << "\n";
+	}
+
+
+
+
+
 
 	// The Thrust limits are negated and swapped due to NED-frame.
 	float uMax = -_param_mpc_thr_min.get();
@@ -270,9 +724,10 @@ void PositionControl::_velocityController(const float &dt)
 
 	// Apply Anti-Windup in D-direction.
 	bool stop_integral_D = (thrust_desired_D >= uMax && vel_err(2) >= 0.0f) ||
-			       (thrust_desired_D <= uMin && vel_err(2) <= 0.0f);
+						   (thrust_desired_D <= uMin && vel_err(2) <= 0.0f);
 
-	if (!stop_integral_D) {
+	if (!stop_integral_D)
+	{
 		_thr_int(2) += vel_err(2) * _param_mpc_z_vel_i.get() * dt;
 
 		// limit thrust integral
@@ -281,19 +736,35 @@ void PositionControl::_velocityController(const float &dt)
 
 	// Saturate thrust setpoint in D-direction.
 	_thr_sp(2) = math::constrain(thrust_desired_D, uMin, uMax);
-
-	if (PX4_ISFINITE(_thr_sp(0)) && PX4_ISFINITE(_thr_sp(1))) {
+	//_thr_sp(2) = thrust_desired_D;
+	//cout << thrust_desired_D << "\t" << _thr_sp(2) << "\n";
+	if (PX4_ISFINITE(_thr_sp(0)) && PX4_ISFINITE(_thr_sp(1)))
+	{
 		// Thrust set-point in NE-direction is already provided. Only
 		// scaling by the maximum tilt is required.
 		float thr_xy_max = fabsf(_thr_sp(2)) * tanf(_constraints.tilt);
 		_thr_sp(0) *= thr_xy_max;
 		_thr_sp(1) *= thr_xy_max;
-
-	} else {
+	}
+	else
+	{
 		// PID-velocity controller for NE-direction.
 		Vector2f thrust_desired_NE;
 		thrust_desired_NE(0) = _param_mpc_xy_vel_p.get() * vel_err(0) + _param_mpc_xy_vel_d.get() * _vel_dot(0) + _thr_int(0);
 		thrust_desired_NE(1) = _param_mpc_xy_vel_p.get() * vel_err(1) + _param_mpc_xy_vel_d.get() * _vel_dot(1) + _thr_int(1);
+
+		//thrust_desired_NE(0) = 0.0f;
+		//thrust_desired_NE(1) = 0.0f;
+		if ( (RCAC_Pv_ON) && (0) )
+		{
+			//thrust_desired_NE(0) = u_k_x_R(0, 0);
+			//thrust_desired_NE(1) = u_k_y_R(0, 0);
+			thrust_desired_NE(0) = u_k_Pv_R(0, 0);
+			thrust_desired_NE(1) = u_k_Pv_R(1, 0);
+
+
+		}
+
 
 		// Get maximum allowed thrust in NE based on tilt and excess thrust.
 		float thrust_max_NE_tilt = fabsf(_thr_sp(2)) * tanf(_constraints.tilt);
@@ -304,7 +775,8 @@ void PositionControl::_velocityController(const float &dt)
 		_thr_sp(0) = thrust_desired_NE(0);
 		_thr_sp(1) = thrust_desired_NE(1);
 
-		if (thrust_desired_NE * thrust_desired_NE > thrust_max_NE * thrust_max_NE) {
+		if (thrust_desired_NE * thrust_desired_NE > thrust_max_NE * thrust_max_NE)
+		{
 			float mag = thrust_desired_NE.length();
 			_thr_sp(0) = thrust_desired_NE(0) / mag * thrust_max_NE;
 			_thr_sp(1) = thrust_desired_NE(1) / mag * thrust_max_NE;
@@ -331,20 +803,23 @@ void PositionControl::updateConstraints(const vehicle_constraints_s &constraints
 	// For safety check if adjustable constraints are below global constraints. If they are not stricter than global
 	// constraints, then just use global constraints for the limits.
 
-	if (!PX4_ISFINITE(constraints.tilt)
-	    || !(constraints.tilt < math::max(_param_mpc_tiltmax_air.get(), _param_mpc_man_tilt_max.get()))) {
+	if (!PX4_ISFINITE(constraints.tilt) || !(constraints.tilt < math::max(_param_mpc_tiltmax_air.get(), _param_mpc_man_tilt_max.get())))
+	{
 		_constraints.tilt = math::max(_param_mpc_tiltmax_air.get(), _param_mpc_man_tilt_max.get());
 	}
 
-	if (!PX4_ISFINITE(constraints.speed_up) || !(constraints.speed_up < _param_mpc_z_vel_max_up.get())) {
+	if (!PX4_ISFINITE(constraints.speed_up) || !(constraints.speed_up < _param_mpc_z_vel_max_up.get()))
+	{
 		_constraints.speed_up = _param_mpc_z_vel_max_up.get();
 	}
 
-	if (!PX4_ISFINITE(constraints.speed_down) || !(constraints.speed_down < _param_mpc_z_vel_max_dn.get())) {
+	if (!PX4_ISFINITE(constraints.speed_down) || !(constraints.speed_down < _param_mpc_z_vel_max_dn.get()))
+	{
 		_constraints.speed_down = _param_mpc_z_vel_max_dn.get();
 	}
 
-	if (!PX4_ISFINITE(constraints.speed_xy) || !(constraints.speed_xy < _param_mpc_xy_vel_max.get())) {
+	if (!PX4_ISFINITE(constraints.speed_xy) || !(constraints.speed_xy < _param_mpc_xy_vel_max.get()))
+	{
 		_constraints.speed_xy = _param_mpc_xy_vel_max.get();
 	}
 }
