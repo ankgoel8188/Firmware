@@ -186,6 +186,8 @@ private:
 
 	bool _in_failsafe = false; /**< true if failsafe was entered within current cycle */
 
+    bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
+
 	/** Timeout in us for trajectory data to get considered invalid */
 	static constexpr uint64_t TRAJECTORY_STREAM_TIMEOUT_US = 500_ms;
 	/** number of tries before switching to a failsafe flight task */
@@ -617,7 +619,7 @@ MulticopterPositionControl::Run()
 				if (!PX4_ISFINITE(setpoint.z) && !PX4_ISFINITE(setpoint.vz) && !PX4_ISFINITE(setpoint.thrust[2])) {
 					failsafe(setpoint, _states, true, !was_in_failsafe);
 				}
-				if (1) //
+                if (_rcac_logging) //
 				{
 					ofstream State_Data("States.txt", std::fstream::in | std::fstream::out | std::fstream::app);
 					if (State_Data.is_open())
@@ -646,7 +648,6 @@ MulticopterPositionControl::Run()
 						State_Data.close();
 					}
 				}
-				//cout << setpoint.x << "\n";
 			}
 
 			// publish trajectory setpoint
