@@ -674,6 +674,10 @@ MulticopterPositionControl::Run()
 				// prevent any integrator windup
 				_control.resetIntegralXY();
 				_control.resetIntegralZ();
+
+                // TODO: (@ankit) refactor resetting RCAC integrators here (unless rampup
+                // debate concludes otherwise) - if so, the subsequent if conditional.
+
 				// reactivate the task which will reset the setpoint to current state
 				_flight_tasks.reActivate();
 			}
