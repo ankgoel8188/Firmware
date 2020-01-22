@@ -389,7 +389,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 	_rate_control.setSaturationStatus(_saturation_status);
 	_att_control = _rate_control.update(rates, _rates_sp, dt, landed);
 
-	if (!landed*0)
+    if (!landed && 0) // TODO: Fix the logic
 	{
 	cout 	<< dt << "\t" 
 		<< _att_control(0) << "\t"
