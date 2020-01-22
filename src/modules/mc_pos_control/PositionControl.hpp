@@ -225,7 +225,7 @@ private:
 
 
 	int ii_Pr_R = 0;
-    bool RCAC_Pr_ON=1;
+    bool RCAC_Pr_ON=0;
 	matrix::SquareMatrix<float, 3> P_Pr_R;
 	matrix::Matrix<float, 3,3> phi_k_Pr_R, phi_km1_Pr_R;
 	matrix::Matrix<float, 3,1> theta_k_Pr_R;
@@ -236,7 +236,7 @@ private:
     matrix::SquareMatrix<float, 3> I3, N1_Pr;
 
 	int ii_Pv_R = 0;
-	bool RCAC_Pv_ON=1;
+    bool RCAC_Pv_ON=0;
     bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
 
 	matrix::SquareMatrix<float, 9> P_Pv_R;

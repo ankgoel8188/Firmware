@@ -83,7 +83,7 @@ private:
 	float _yaw_w = 0.0f; /**< yaw weight [0,1] to prioritize roll and pitch */
 
 	int ii_Pq_R = 0;
-  	bool RCAC_Aq_ON=1;
+    bool RCAC_Aq_ON=0;
 	matrix::SquareMatrix<float, 3> P_Pq_R;
 	matrix::Matrix<float, 3,3> phi_k_Pq_R, phi_km1_Pq_R;
 	matrix::Matrix<float, 3,1> theta_k_Pq_R,theta_k_Pq_PID;
