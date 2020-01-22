@@ -252,52 +252,34 @@ void PositionControl::_positionController()
 
 	if (RCAC_Pr_ON)
 	{
-		// Adding a stupid comment to test git transfer 
 		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
 
         z_k_Pr_R = (_pos_sp - _pos);
-
         // Regressor
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; i++) {
             phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
+        }
 
 		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
 		Gamma_Pr_R 	= Gamma_Pr_R.I();
 		
 
-		// if (abs(z_k_Pr_R(2,0))<0.5f)
-		{
-		P_Pr_R 		= P_Pr_R - (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
-		//theta_k_Pr_R 	= theta_k_Pr_R + (P_Pr_R * phi_km1_Pr_R.T()) *
-		//		 (z_k_Pr_R + (-1.0f)*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) * (-1.0f));
-		theta_k_Pr_R 	= theta_k_Pr_R + (P_Pr_R * phi_km1_Pr_R.T()) * N1_Pr *
+        P_Pr_R 	-= (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
+
+        theta_k_Pr_R += (P_Pr_R * phi_km1_Pr_R.T()) * N1_Pr *
 				 (z_k_Pr_R + N1_Pr*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) );
 		u_km1_Pr_R 		= phi_k_Pr_R * theta_k_Pr_R;
 		phi_km1_Pr_R 	= phi_k_Pr_R;
-		}
-		u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+1.0f*Vector3f(_param_mpc_xy_p.get(),
+
+        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+1.0f*Vector3f(_param_mpc_xy_p.get(),
 																_param_mpc_xy_p.get(),
 																_param_mpc_z_p.get()));
-		u_km1_Pr_R 	= u_k_Pr_R;
-		phi_km1_Pr_R 	= phi_k_Pr_R;
+        // TODO: Test Performance
+        // u_km1_Pr_R 	= u_k_Pr_R;
 
-		// cout 	<< theta_k_Pr_R(0,0) << "\t"
-		// 	<< theta_k_Pr_R(1,0) << "\t"
-		// 	<< theta_k_Pr_R(2,0) << "\n";
-
-
-		// cout 	<< ii_Pr_R << "\t"
-		// 		// << theta_k_Pr_R(0,0) << "\t"
-		// 		// << theta_k_Pr_R(1,0) << "\t"
-		// 		<< theta_k_Pr_R(2,0) << "\t"
-		// 		// << P_Pr_R(0,1)+P_Pr_R(0,2)+
-		// 		//    P_Pr_R(1,0)+P_Pr_R(1,2)+
-		// 		//    P_Pr_R(2,0)+P_Pr_R(2,1) << "\t"
-		// 		<< P_Pr_R(2,2) << "\t" 
-		// 		<< "\n";
 		vel_sp_position = u_k_Pr_R;
 
-		if (1) //
+        if (_rcac_logging)
 		{
 			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
 			ofstream RCAC_P_r("RCAC_P_r.txt", std::fstream::in | std::fstream::out | std::fstream::app);
