@@ -50,7 +50,32 @@ using namespace std;
 
 PositionControl::PositionControl(ModuleParams *parent) :
 	ModuleParams(parent)
-{}
+{
+    // Quasi-constants. TODO: Optimize later.
+    I3 = eye<float, 3>();
+    N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
+
+    init_RCAC();
+}
+
+void PositionControl::init_RCAC() {
+    P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+
+    // I3 = eye<float, 3>();
+    phi_k_Pr_R.setZero();
+    phi_km1_Pr_R.setZero();
+    theta_k_Pr_R.setZero();
+    z_k_Pr_R.setZero();
+    z_km1_Pr_R.setZero();
+    u_k_Pr_R.setZero();
+    u_km1_Pr_R.setZero();
+    Gamma_Pr_R.setZero();
+
+    theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
+                _param_mpc_xy_p.get(),
+                _param_mpc_z_p.get());
+
+}
 
 void PositionControl::updateState(const PositionControlStates &states)
 {
@@ -229,32 +254,12 @@ void PositionControl::_positionController()
 	{
 		// Adding a stupid comment to test git transfer 
 		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
-		ii_Pr_R = ii_Pr_R + 1;
-		if (ii_Pr_R == 1)
-		{
-			P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
-			N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
-			I3 = eye<float, 3>();
-			phi_k_Pr_R.setZero();
-			phi_km1_Pr_R.setZero();
-			theta_k_Pr_R.setZero();
-			z_k_Pr_R.setZero();
-			z_km1_Pr_R.setZero();
-			u_k_Pr_R.setZero();
-			u_km1_Pr_R.setZero();
-			Gamma_Pr_R.setZero();
 
-			theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
-						_param_mpc_xy_p.get(),
-						_param_mpc_z_p.get());
+        z_k_Pr_R = (_pos_sp - _pos);
 
-		}
-
-		phi_k_Pr_R(0, 0) = _pos_sp(0) - _pos(0);
-		phi_k_Pr_R(1, 1) = _pos_sp(1) - _pos(1);
-		phi_k_Pr_R(2, 2) = _pos_sp(2) - _pos(2);
-
-		z_k_Pr_R = (_pos_sp - _pos);
+        // Regressor
+        for (int i=0; i<3; i++)
+            phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
 
 		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
 		Gamma_Pr_R 	= Gamma_Pr_R.I();
@@ -373,8 +378,7 @@ void PositionControl::_velocityController(const float &dt)
 	if (!RCAC_Pv_ON)
 	{
 		// float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) + _param_mpc_z_vel_d.get() * _vel_dot(2) + _thr_int(2) - _param_mpc_thr_hover.get();
-		ii_R = ii_R + 1;
-		/*int Gain = 1;
+        /*int Gain = 1;
 		if ((ii_R>1500) && (0))
 		{
 			Gain = -1;
@@ -429,8 +433,7 @@ void PositionControl::_velocityController(const float &dt)
 	{
 		if (dt > 0.01f)
 		{
-			// My shit here
-			ii_R = ii_R + 1;
+            // RCAC shit here :)
 			/*cout << "Printing " << ii_R << " " << vel_err(0) << " "
 						<< vel_err(1) << " "
 						<< vel_err(2) << " "

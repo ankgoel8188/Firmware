@@ -230,7 +230,10 @@ private:
 	matrix::Matrix<float, 3,3> phi_k_Pr_R, phi_km1_Pr_R;
 	matrix::Matrix<float, 3,1> theta_k_Pr_R;
   	matrix::Matrix<float, 3,1> z_k_Pr_R, z_km1_Pr_R,u_k_Pr_R, u_km1_Pr_R;
-	matrix::SquareMatrix<float, 3> Gamma_Pr_R, I3, N1_Pr;
+    matrix::SquareMatrix<float, 3> Gamma_Pr_R;
+
+    // const TODO: make really const.
+    matrix::SquareMatrix<float, 3> I3, N1_Pr;
 
 	int ii_Pv_R = 0;
 	bool RCAC_Pv_ON=1;
@@ -244,28 +247,8 @@ private:
 	float alpha_N = 1.0f;
 
 	matrix::Vector3f Pv_intg;
-	
-	int ii_R = 0;
-  	bool RCAC_ON=0;
-	matrix::SquareMatrix<float, 3> P_x_R;
-	matrix::SquareMatrix<float, 3> P_y_R;
-	matrix::SquareMatrix<float, 3> P_z_R;
-	matrix::Matrix<float, 1,3> phi_k_x_R, phi_km1_x_R;
-	matrix::Matrix<float, 1,3> phi_k_y_R, phi_km1_y_R;
-	matrix::Matrix<float, 1,3> phi_k_z_R, phi_km1_z_R;
-	matrix::Matrix<float, 3,1> theta_k_x_R;
-	matrix::Matrix<float, 3,1> theta_k_y_R;
-	matrix::Matrix<float, 3,1> theta_k_z_R;
-  	matrix::Matrix<float, 1,1> z_k_x_R, z_km1_x_R,u_k_x_R, u_km1_x_R;
-	matrix::Matrix<float, 1,1> z_k_y_R, z_km1_y_R,u_k_y_R, u_km1_y_R;
-	matrix::Matrix<float, 1,1> z_k_z_R, z_km1_z_R,u_k_z_R, u_km1_z_R;
 
-	matrix::Matrix<float, 1,1> Gamma_x_R;
-	matrix::Matrix<float, 1,1> Gamma_y_R;
-	matrix::Matrix<float, 1,1> Gamma_z_R;
-
-	matrix::SquareMatrix<float, 2> testMat;
-	DEFINE_PARAMETERS(
+    DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_THR_MAX>) _param_mpc_thr_max,
 		(ParamFloat<px4::params::MPC_THR_HOVER>) _param_mpc_thr_hover,
 		(ParamFloat<px4::params::MPC_THR_MIN>) _param_mpc_thr_min,
@@ -285,5 +268,7 @@ private:
 		(ParamFloat<px4::params::MPC_XY_VEL_P>) _param_mpc_xy_vel_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_I>) _param_mpc_xy_vel_i,
 		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d
-	)
+            )
+
+    void init_RCAC();
 };
