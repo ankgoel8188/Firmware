@@ -297,7 +297,7 @@ MulticopterPositionControl::MulticopterPositionControl() :
 {
 	// fetch initial parameter values
 	parameters_update(true);
-	
+
 	// set failsafe hysteresis
 	_failsafe_land_hysteresis.set_hysteresis_time_from(false, LOITER_TIME_BEFORE_DESCEND);
 }
@@ -540,8 +540,6 @@ MulticopterPositionControl::Run()
 
 	perf_begin(_cycle_perf);
 
-
-
 	if (_local_pos_sub.update(&_local_pos)) {
 
 		poll_subscriptions();
@@ -764,7 +762,6 @@ MulticopterPositionControl::Run()
 			}
 
 			_old_landing_gear_position = gear.landing_gear;
-			
 
 		} else {
 			// no flighttask is active: set attitude setpoint to idle
@@ -777,13 +774,10 @@ MulticopterPositionControl::Run()
 			q_sp.copyTo(_att_sp.q_d);
 			_att_sp.q_d_valid = true;
 			_att_sp.thrust_body[2] = 0.0f;
-
-
 		}
 	}
 
 	perf_end(_cycle_perf);
-
 }
 
 void

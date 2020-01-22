@@ -45,7 +45,6 @@
 
 #include "mc_att_control.hpp"
 
-
 #include <conversion/rotation.h>
 #include <drivers/drv_hrt.h>
 #include <lib/ecl/geo/geo.h>
