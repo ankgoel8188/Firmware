@@ -66,6 +66,7 @@
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_trajectory_waypoint.h>
+#include <uORB/topics/rcac_variables.h>
 
 #include "PositionControl.hpp"
 #include "Utility/ControlMath.hpp"
@@ -122,6 +123,8 @@ private:
 	uORB::Publication<vehicle_local_position_setpoint_s>	_local_pos_sp_pub{ORB_ID(vehicle_local_position_setpoint)};	/**< vehicle local position setpoint publication */
 	uORB::Publication<vehicle_local_position_setpoint_s>	_traj_sp_pub{ORB_ID(trajectory_setpoint)};			/**< trajectory setpoints publication */
 
+    uORB::Publication<rcac_variables_s>     _rcac_variables_pub{ORB_ID(rcac_variables)};
+
 	uORB::SubscriptionCallbackWorkItem _local_pos_sub{this, ORB_ID(vehicle_local_position)};	/**< vehicle local position */
 
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};			/**< vehicle status subscription */
@@ -152,6 +155,7 @@ private:
 	home_position_s	_home_pos{};			/**< home position */
 	landing_gear_s _landing_gear{};
 	int8_t _old_landing_gear_position{landing_gear_s::GEAR_KEEP};
+    rcac_variables_s _rcactest{};
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_TKO_RAMP_T>) _param_mpc_tko_ramp_t, /**< time constant for smooth takeoff ramp */
@@ -619,6 +623,12 @@ MulticopterPositionControl::Run()
 				if (!PX4_ISFINITE(setpoint.z) && !PX4_ISFINITE(setpoint.vz) && !PX4_ISFINITE(setpoint.thrust[2])) {
 					failsafe(setpoint, _states, true, !was_in_failsafe);
 				}
+
+                _rcactest.timestamp = hrt_absolute_time();
+                _rcactest.rcac_alpha[0] = 1.0f;
+                _rcactest.rcac_alpha[1] = 2.0f;
+                _rcac_variables_pub.publish(_rcactest);
+
                 if (_rcac_logging) //
 				{
 					ofstream State_Data("States.txt", std::fstream::in | std::fstream::out | std::fstream::app);
