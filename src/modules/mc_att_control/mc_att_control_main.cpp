@@ -369,7 +369,7 @@ MulticopterAttitudeControl::control_attitude()
 		_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate,landed);
 	}
 
-	
+
 }
 
 /*
@@ -391,7 +391,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 
     if (!landed && 0) // TODO: Fix the logic
 	{
-	cout 	<< dt << "\t" 
+	cout 	<< dt << "\t"
 		<< _att_control(0) << "\t"
 		<< _att_control(1) << "\t"
 		<< _att_control(2) << "\t"
@@ -419,7 +419,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 			State_ATT_Data.close();
 		}
 	}
-	
+
 }
 
 void

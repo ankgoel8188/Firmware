@@ -191,6 +191,53 @@ public:
 		return pos_sp;
 	}
 
+	/**
+	 * 	Get the
+	 * 	@see z_k_Pr_R
+	 * 	@return The z variable used by RCAC in the P controller
+	 */
+	const matrix::Vector3f get_RCAC_pos_z()
+	{
+		matrix::Vector3f RCAC_pos_z{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_pos_z(i) = z_k_Pr_R(i,0);
+		}
+
+		return RCAC_pos_z;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see u_k_Pr_R
+	 * 	@return The u variable computed by RCAC in the P controller
+	 */
+	const matrix::Vector3f get_RCAC_pos_u()
+	{
+		matrix::Vector3f RCAC_pos_u{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_pos_u(i) = u_k_Pr_R(i,0);
+		}
+
+		return RCAC_pos_u;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see theta_k_Pr_R
+	 * 	@return The theta variable computed by RCAC in the P controller
+	 */
+	const matrix::Vector3f get_RCAC_pos_theta()
+	{
+		matrix::Vector3f RCAC_pos_theta{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_pos_theta(i) = theta_k_Pr_R(i,0);
+		}
+
+		return RCAC_pos_theta;
+	}
 protected:
 
 	void updateParams() override;
@@ -225,19 +272,19 @@ private:
 
 
 	int ii_Pr_R = 0;
-    bool RCAC_Pr_ON=1;
+	bool RCAC_Pr_ON=1;
 	matrix::SquareMatrix<float, 3> P_Pr_R;
 	matrix::Matrix<float, 3,3> phi_k_Pr_R, phi_km1_Pr_R;
 	matrix::Matrix<float, 3,1> theta_k_Pr_R;
   	matrix::Matrix<float, 3,1> z_k_Pr_R, z_km1_Pr_R,u_k_Pr_R, u_km1_Pr_R;
-    matrix::SquareMatrix<float, 3> Gamma_Pr_R;
+	matrix::SquareMatrix<float, 3> Gamma_Pr_R;
 
-    // const TODO: make really const.
-    matrix::SquareMatrix<float, 3> I3, N1_Pr;
+	// const TODO: make really const.
+	matrix::SquareMatrix<float, 3> I3, N1_Pr;
 
 	int ii_Pv_R = 0;
 	bool RCAC_Pv_ON=1;
-    bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
+	bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
 
 	matrix::SquareMatrix<float, 9> P_Pv_R;
 	matrix::Matrix<float, 3,9> phi_k_Pv_R, phi_km1_Pv_R;

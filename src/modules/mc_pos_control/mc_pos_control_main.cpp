@@ -123,7 +123,7 @@ private:
 	uORB::Publication<vehicle_local_position_setpoint_s>	_local_pos_sp_pub{ORB_ID(vehicle_local_position_setpoint)};	/**< vehicle local position setpoint publication */
 	uORB::Publication<vehicle_local_position_setpoint_s>	_traj_sp_pub{ORB_ID(trajectory_setpoint)};			/**< trajectory setpoints publication */
 
-    uORB::Publication<rcac_variables_s>     _rcac_variables_pub{ORB_ID(rcac_variables)};
+	uORB::Publication<rcac_variables_s>     _rcac_variables_pub{ORB_ID(rcac_variables)};
 
 	uORB::SubscriptionCallbackWorkItem _local_pos_sub{this, ORB_ID(vehicle_local_position)};	/**< vehicle local position */
 
@@ -155,7 +155,7 @@ private:
 	home_position_s	_home_pos{};			/**< home position */
 	landing_gear_s _landing_gear{};
 	int8_t _old_landing_gear_position{landing_gear_s::GEAR_KEEP};
-    rcac_variables_s _rcactest{};
+	rcac_variables_s _rcactest{};
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_TKO_RAMP_T>) _param_mpc_tko_ramp_t, /**< time constant for smooth takeoff ramp */
@@ -624,10 +624,7 @@ MulticopterPositionControl::Run()
 					failsafe(setpoint, _states, true, !was_in_failsafe);
 				}
 
-                _rcactest.timestamp = hrt_absolute_time();
-                _rcactest.rcac_alpha[0] = 1.0f;
-                _rcactest.rcac_alpha[1] = 2.0f;
-                _rcac_variables_pub.publish(_rcactest);
+
 
                 if (_rcac_logging) //
 				{
@@ -765,6 +762,16 @@ MulticopterPositionControl::Run()
 			// the attitude septoint should come from another source, otherwise
 			// they might conflict with each other such as in offboard attitude control.
 			publish_attitude();
+
+			_rcactest.timestamp = hrt_absolute_time();
+			_rcactest.rcac_alpha[0] = 1.0f;
+			_rcactest.rcac_alpha[1] = 2.0f;
+			for (int i = 0; i <= 2; i++) {
+				_rcactest.rcac_z_pos[i] = _control.get_RCAC_pos_z()(i);
+				_rcactest.rcac_u_pos[i] = _control.get_RCAC_pos_u()(i);
+				_rcactest.rcac_theta_pos[i] = _control.get_RCAC_pos_theta()(i);
+			}
+			_rcac_variables_pub.publish(_rcactest);
 
 			// if there's any change in landing gear setpoint publish it
 			if (gear.landing_gear != _old_landing_gear_position
