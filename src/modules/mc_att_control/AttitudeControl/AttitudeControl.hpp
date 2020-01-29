@@ -77,6 +77,60 @@ public:
 	 */
 	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward,const bool landed);
 
+	/**
+	 * 	Get the
+	 * 	@see z_k_Pr_R
+	 * 	@return The z variable used by RCAC in the PID+FF controller
+	 */
+	const matrix::Vector3f get_RCAC_att_z()
+	{
+		matrix::Vector3f RCAC_z{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_z(i) = z_k_Pq_R(i,0);
+		}
+
+		return RCAC_z;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see u_k_Pr_R
+	 * 	@return The u variable computed by RCAC in the PID+FF controller
+	 */
+	const matrix::Vector3f get_RCAC_att_u()
+	{
+		matrix::Vector3f RCAC_u{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_u(i) = u_k_Pq_R(i,0);
+		}
+
+		return RCAC_u;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see theta_k_Pr_R
+	 * 	@return The theta variable computed by RCAC in the PID+FF controller
+	 */
+	const matrix::Vector3f get_RCAC_att_theta()
+	{
+		matrix::Vector3f RCAC_theta{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_theta(i) = theta_k_Pq_R(i,0);
+		}
+
+		return RCAC_theta;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see ii
+	 * 	@return Iteration step of the RCAC attitude controller
+	 */
+	const int &get_RCAC_att_ii() { return ii_Pq_R; }
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;

@@ -107,6 +107,61 @@ public:
 	 */
 	void getRateControlStatus(rate_ctrl_status_s &rate_ctrl_status);
 
+	/**
+	 * 	Get the
+	 * 	@see z_k_Pr_R
+	 * 	@return The z variable used by RCAC in the PID+FF controller
+	 */
+	const matrix::Vector3f get_RCAC_rate_z()
+	{
+		matrix::Vector3f RCAC_z{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_z(i) = z_k_AC_R(i,0);
+		}
+
+		return RCAC_z;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see u_k_Pr_R
+	 * 	@return The u variable computed by RCAC in the PID+FF controller
+	 */
+	const matrix::Vector3f get_RCAC_rate_u()
+	{
+		matrix::Vector3f RCAC_u{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_u(i) = u_k_AC_R(i,0);
+		}
+
+		return RCAC_u;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see theta_k_Pr_R
+	 * 	@return The theta variable computed by RCAC in the PID+FF controller
+	 */
+	const matrix::Matrix<float, 12,1> get_RCAC_rate_theta()
+	{
+		matrix::Matrix<float, 12,1> RCAC_theta{};
+
+		for (int i = 0; i <= 11; i++) {
+			RCAC_theta(i,0) = theta_k_AC_R(i,0);
+		}
+
+		return RCAC_theta;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see ii
+	 * 	@return Iteration step of the RCAC rate controller
+	 */
+	const int &get_RCAC_rate_ii() { return ii_AC_R; }
+
 private:
 	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
 

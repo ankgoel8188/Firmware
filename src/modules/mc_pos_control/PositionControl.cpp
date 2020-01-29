@@ -279,7 +279,7 @@ void PositionControl::_positionController()
         for (int i=0; i<3; i++) {
             phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
         }
-
+	ii_Pr_R += 1;
 		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
 		Gamma_Pr_R 	= Gamma_Pr_R.I();
 
@@ -296,10 +296,10 @@ void PositionControl::_positionController()
         // u_km1_Pr_R 	= u_k_Pr_R;
 
 		vel_sp_position = u_k_Pr_R;
-	PX4_INFO("theta_k_Pr_R:\t%8.4f\t%8.4f\t%8.4f",
-                    		(double)theta_k_Pr_R(0,0),
-				(double)theta_k_Pr_R(1,0),
-				(double)theta_k_Pr_R(2,0));
+	// PX4_INFO("theta_k_Pr_R:\t%8.4f\t%8.4f\t%8.4f",
+        //             		(double)theta_k_Pr_R(0,0),
+	// 			(double)theta_k_Pr_R(1,0),
+	// 			(double)theta_k_Pr_R(2,0));
 	}
 	_vel_sp = vel_sp_position + _vel_sp;
 
@@ -458,7 +458,7 @@ void PositionControl::_velocityController(const float &dt)
 
 			// thrust_desired_D = u_k_z_R(0, 0);
 
-
+			ii_Pv_R += 1;
 			phi_k_Pv_R(0, 0) = vel_err(0);
 			phi_k_Pv_R(0, 1) = _thr_int(0) ; //_param_mpc_xy_vel_i.get();
 			phi_k_Pv_R(0, 2) = _vel_dot(0) * 0;

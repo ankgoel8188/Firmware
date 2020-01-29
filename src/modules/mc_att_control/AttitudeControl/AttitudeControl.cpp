@@ -102,7 +102,6 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		ii_Pq_R = 0;
 	}
 
-	
 	if ((RCAC_Aq_ON) && (!landed))
 	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Pq_ON)
 	{
@@ -147,25 +146,10 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		u_k_Pq_R 	= phi_k_Pq_R * (1.0f*theta_k_Pq_R+1.0f*theta_k_Pq_PID);
 		u_km1_Pq_R 	= u_k_Pq_R;
 		phi_km1_Pq_R 	= phi_k_Pq_R;
-		if (ii_Pq_R%100==0)
-		{
-		cout 	<< ii_Pq_R << "\t"
-			<< theta_k_Pq_R(0,0) << "\t"
-			<< theta_k_Pq_R(1,0) << "\t"
-			<< theta_k_Pq_R(2,0) << "\t"
-			// << _proportional_gain(0) << "\t"
-			// << _proportional_gain(1) << "\t"
-			// << _proportional_gain(2) << "\t"
-			<< eq(0) << "\t"
-			<< eq(1) << "\t"
-			<< eq(2) << "\t"
-			<< P_Pq_R(0,0) << "\t"
-			<< "\n";
-		}
+
 		rate_setpoint = u_k_Pq_R;
-		// cout << "RC" << "\t" << ii_Pq_R << "\n" ;
-		
-		if (1) //
+
+		/*if (1) //
 		{
 			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
 			ofstream RCAC_A_q("RCAC_A_q.txt", std::fstream::in | std::fstream::out | std::fstream::app);
@@ -188,12 +172,12 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 					<< "\n";
 				RCAC_A_q.close();
 			}
-		}
+		}*/
 
 
 	}
 
-	
+
 
 	// Feed forward the yaw setpoint rate.
 	// yaw_sp_move_rate is the feed forward commanded rotation around the world z-axis,

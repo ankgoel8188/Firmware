@@ -58,6 +58,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/landing_gear.h>
+#include <uORB/topics/rcac_att_rate_variables.h>
 #include <vtol_att_control/vtol_type.h>
 
 #include <AttitudeControl.hpp>
@@ -110,6 +111,7 @@ private:
 	void		publish_actuator_controls();
 	void		publish_rates_setpoint();
 	void		publish_rate_controller_status();
+	void		publish_rcac_att_rate_variables();
 
 	float		throttle_curve(float throttle_stick_input);
 
@@ -156,6 +158,8 @@ private:
 	uORB::Publication<landing_gear_s>		_landing_gear_pub{ORB_ID(landing_gear)};
 	uORB::Publication<vehicle_rates_setpoint_s>	_v_rates_sp_pub{ORB_ID(vehicle_rates_setpoint)};			/**< rate setpoint publication */
 
+	uORB::Publication<rcac_att_rate_variables_s>     _rcac_att_rate_variables_pub{ORB_ID(rcac_att_rate_variables)}; 		/**< RCAC variables log */
+
 	orb_advert_t	_actuators_0_pub{nullptr};		/**< attitude actuator controls publication */
 	orb_advert_t	_vehicle_attitude_setpoint_pub{nullptr};
 
@@ -174,7 +178,7 @@ private:
 	struct battery_status_s			_battery_status {};	/**< battery status */
 	struct vehicle_land_detected_s		_vehicle_land_detected {};
 	struct landing_gear_s 			_landing_gear {};
-
+	rcac_att_rate_variables_s _rcac_att_rate_variables{}; 		/**< RCAC variables */
 	MultirotorMixer::saturation_status _saturation_status{};
 
 	perf_counter_t	_loop_perf;			/**< loop performance counter */

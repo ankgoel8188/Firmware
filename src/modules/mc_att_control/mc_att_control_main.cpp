@@ -389,7 +389,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 	_rate_control.setSaturationStatus(_saturation_status);
 	_att_control = _rate_control.update(rates, _rates_sp, dt, landed);
 
-    if (!landed && 0) // TODO: Fix the logic
+    /*if (!landed && 0) // TODO: Fix the logic
 	{
 	cout 	<< dt << "\t"
 		<< _att_control(0) << "\t"
@@ -418,7 +418,7 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 				   ;
 			State_ATT_Data.close();
 		}
-	}
+	}*/
 
 }
 
@@ -434,6 +434,26 @@ MulticopterAttitudeControl::publish_rates_setpoint()
 	_v_rates_sp.timestamp = hrt_absolute_time();
 
 	_v_rates_sp_pub.publish(_v_rates_sp);
+}
+
+void
+MulticopterAttitudeControl::publish_rcac_att_rate_variables()
+{
+	_rcac_att_rate_variables.timestamp = hrt_absolute_time();
+	_rcac_att_rate_variables.ii_att = _attitude_control.get_RCAC_att_ii();
+	_rcac_att_rate_variables.ii_rate = _rate_control.get_RCAC_rate_ii();
+	for (int i = 0; i <= 2; i++) {
+		_rcac_att_rate_variables.rcac_att_z[i] = _attitude_control.get_RCAC_att_z()(i);
+		_rcac_att_rate_variables.rcac_att_u[i] = _attitude_control.get_RCAC_att_u()(i);
+		_rcac_att_rate_variables.rcac_att_theta[i] = _attitude_control.get_RCAC_att_theta()(i);
+
+		_rcac_att_rate_variables.rcac_rate_z[i] = _rate_control.get_RCAC_rate_z()(i);
+		_rcac_att_rate_variables.rcac_rate_u[i] = _rate_control.get_RCAC_rate_u()(i);
+	}
+	for (int i = 0; i <= 11; i++) {
+		_rcac_att_rate_variables.rcac_rate_theta[i] = _rate_control.get_RCAC_rate_theta()(i,0);
+	}
+	_rcac_att_rate_variables_pub.publish(_rcac_att_rate_variables);
 }
 
 void
@@ -554,6 +574,7 @@ MulticopterAttitudeControl::Run()
 				}
 
 				publish_rates_setpoint();
+				publish_rcac_att_rate_variables();
 			}
 
 		} else {
@@ -568,6 +589,7 @@ MulticopterAttitudeControl::Run()
 					_rates_sp = man_rate_sp.emult(_acro_rate_max);
 					_thrust_sp = _manual_control_sp.z;
 					publish_rates_setpoint();
+					publish_rcac_att_rate_variables();
 				}
 
 			} else {

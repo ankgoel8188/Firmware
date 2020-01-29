@@ -66,7 +66,7 @@
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_trajectory_waypoint.h>
-#include <uORB/topics/rcac_variables.h>
+#include <uORB/topics/rcac_pos_vel_variables.h>
 
 #include "PositionControl.hpp"
 #include "Utility/ControlMath.hpp"
@@ -123,7 +123,7 @@ private:
 	uORB::Publication<vehicle_local_position_setpoint_s>	_local_pos_sp_pub{ORB_ID(vehicle_local_position_setpoint)};	/**< vehicle local position setpoint publication */
 	uORB::Publication<vehicle_local_position_setpoint_s>	_traj_sp_pub{ORB_ID(trajectory_setpoint)};			/**< trajectory setpoints publication */
 
-	uORB::Publication<rcac_variables_s>     _rcac_variables_pub{ORB_ID(rcac_variables)};
+	uORB::Publication<rcac_pos_vel_variables_s>     _rcac_pos_vel_variables_pub{ORB_ID(rcac_pos_vel_variables)}; 		/**< RCAC variables log */
 
 	uORB::SubscriptionCallbackWorkItem _local_pos_sub{this, ORB_ID(vehicle_local_position)};	/**< vehicle local position */
 
@@ -155,7 +155,7 @@ private:
 	home_position_s	_home_pos{};			/**< home position */
 	landing_gear_s _landing_gear{};
 	int8_t _old_landing_gear_position{landing_gear_s::GEAR_KEEP};
-	rcac_variables_s _rcac_variables{};
+	rcac_pos_vel_variables_s _rcac_pos_vel_variables{}; 		/**< RCAC variables */
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_TKO_RAMP_T>) _param_mpc_tko_ramp_t, /**< time constant for smooth takeoff ramp */
@@ -328,7 +328,7 @@ MulticopterPositionControl::init()
 	_local_pos_sub.set_interval_us(20_ms); // 50 Hz max update rate
 
 	_time_stamp_last_loop = hrt_absolute_time();
-	cout << "Removed files" << "\n";
+	/*cout << "Removed files" << "\n";
 	// remove( "RCAC_data.txt" );
 	// remove( "RCAC_AC_data.txt" );
 	remove( "States.txt" );
@@ -336,7 +336,7 @@ MulticopterPositionControl::init()
 	remove( "RCAC_A_q.txt" );
 	remove( "RCAC_A_w.txt" );
 	remove( "RCAC_P_r.txt" );
-	remove( "RCAC_P_v.txt" );
+	remove( "RCAC_P_v.txt" );*/
 	return true;
 }
 
@@ -626,7 +626,7 @@ MulticopterPositionControl::Run()
 
 
 
-                if (_rcac_logging) //
+                /*if (_rcac_logging) //
 				{
 					ofstream State_Data("States.txt", std::fstream::in | std::fstream::out | std::fstream::app);
 					if (State_Data.is_open())
@@ -654,7 +654,7 @@ MulticopterPositionControl::Run()
 								   ;
 						State_Data.close();
 					}
-				}
+				}*/
 			}
 
 			// publish trajectory setpoint
@@ -763,21 +763,23 @@ MulticopterPositionControl::Run()
 			// they might conflict with each other such as in offboard attitude control.
 			publish_attitude();
 
-			_rcac_variables.timestamp = hrt_absolute_time();
-			_rcac_variables.rcac_alpha[0] = 1.0f;
-			_rcac_variables.rcac_alpha[1] = 2.0f;
+			_rcac_pos_vel_variables.timestamp = hrt_absolute_time();
+			_rcac_pos_vel_variables.rcac_alpha[0] = 1.0f;
+			_rcac_pos_vel_variables.rcac_alpha[1] = 2.0f;
+			_rcac_pos_vel_variables.ii_pos = _control.get_RCAC_pos_ii();
+			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			for (int i = 0; i <= 2; i++) {
-				_rcac_variables.rcac_pos_z[i] = _control.get_RCAC_pos_z()(i);
-				_rcac_variables.rcac_pos_u[i] = _control.get_RCAC_pos_u()(i);
-				_rcac_variables.rcac_pos_theta[i] = _control.get_RCAC_pos_theta()(i);
+				_rcac_pos_vel_variables.rcac_pos_z[i] = _control.get_RCAC_pos_z()(i);
+				_rcac_pos_vel_variables.rcac_pos_u[i] = _control.get_RCAC_pos_u()(i);
+				_rcac_pos_vel_variables.rcac_pos_theta[i] = _control.get_RCAC_pos_theta()(i);
 
-				_rcac_variables.rcac_vel_z[i] = _control.get_RCAC_vel_z()(i);
-				_rcac_variables.rcac_vel_u[i] = _control.get_RCAC_vel_u()(i);
+				_rcac_pos_vel_variables.rcac_vel_z[i] = _control.get_RCAC_vel_z()(i);
+				_rcac_pos_vel_variables.rcac_vel_u[i] = _control.get_RCAC_vel_u()(i);
 			}
 			for (int i = 0; i <= 8; i++) {
-				_rcac_variables.rcac_vel_theta[i] = _control.get_RCAC_vel_theta()(i,0);
+				_rcac_pos_vel_variables.rcac_vel_theta[i] = _control.get_RCAC_vel_theta()(i,0);
 			}
-			_rcac_variables_pub.publish(_rcac_variables);
+			_rcac_pos_vel_variables_pub.publish(_rcac_pos_vel_variables);
 
 			// if there's any change in landing gear setpoint publish it
 			if (gear.landing_gear != _old_landing_gear_position

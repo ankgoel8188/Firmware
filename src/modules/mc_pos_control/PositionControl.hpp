@@ -286,6 +286,20 @@ public:
 
 		return RCAC_theta;
 	}
+
+	/**
+	 * 	Get the
+	 * 	@see ii
+	 * 	@return Iteration step of the RCAC position controller
+	 */
+	const int &get_RCAC_pos_ii() { return ii_Pr_R; }
+
+	/**
+	 * 	Get the
+	 * 	@see ii
+	 * 	@return Iteration step of the RCAC velocity controller
+	 */
+	const int &get_RCAC_vel_ii() { return ii_Pv_R; }
 protected:
 
 	void updateParams() override;

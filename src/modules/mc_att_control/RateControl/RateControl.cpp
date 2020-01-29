@@ -85,33 +85,12 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 
 	// PID control with feed forward
 	Vector3f torque = _gain_p.emult(rate_error) + _rate_int - _gain_d.emult(rate_d) + _gain_ff.emult(rate_sp);
-	// cout 	<< _gain_p(0) << "\t"
-	// 		<< _gain_p(1) << "\t"
-	// 		<< _gain_p(2) << "\t"
-	// 		<< _gain_i(0) << "\t"
-	// 		<< _gain_i(1) << "\t"
-	// 		<< _gain_i(2) << "\t"
-	// 		<< _gain_d(0) << "\t"
-	// 		<< _gain_d(1) << "\t"
-	// 		<< _gain_d(2) << "\t"
-	// 		<< _gain_ff(0) << "\t"
-	// 		<< _gain_ff(1) << "\t"
-	// 		<< _gain_ff(2) << "\n";
-
 
 	_rate_prev = rate;
 	_rate_prev_filtered = rate_filtered;
 
-	// cout << "Fixed" << "\t"
-	// 		<< torque(0) << "\t"
-	// 		<< torque(1) << "\t"
-	// 		<< torque(2) << "\n";
-			
 	if (!landed && RCAC_Aw_ON)
 		{
-
-			// My shit here
-			// cout << "Rate controller" << "\n";
 			ii_AC_R = ii_AC_R + 1;
 			if (ii_AC_R == 1)
 			{
@@ -159,10 +138,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			phi_k_AC_R(2, 10) = rate_d(2)*0.0f; //(rates_filtered(2) - _rates_prev_filtered(2))/dt;
 			phi_k_AC_R(2, 11) = rate_sp(2)*0.0f;
 
-
-
 			z_k_AC_R = rate_error;
-
 
 			Gamma_AC_R 	= phi_km1_AC_R * P_AC_R * phi_km1_AC_R.T() + I3;
 			Gamma_AC_R 	= Gamma_AC_R.I();
@@ -173,46 +149,9 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			u_km1_AC_R 	= u_k_AC_R;
 			phi_km1_AC_R 	= phi_k_AC_R;
 
-
 			torque = torque+u_k_AC_R;
 
-
-
-
-
-
-			// cout 	<< _gain_p(0) << "\t"
-			// 		<< _gain_i(0) << "\t"
-			// 		<< _gain_d(0) << "\t"
-			// 		<< _gain_ff(0) << "\t"
-			// 		<< _gain_p(1) << "\t"
-			// 		<< _gain_i(1) << "\t"
-			// 		<< _gain_d(1) << "\t"
-			// 		<< _gain_ff(1) << "\t"
-			// 		<< _gain_p(2) << "\t"
-			// 		<< _gain_i(2) << "\t"
-			// 		<< _gain_d(2) << "\t"
-			// 		<< _gain_ff(2) << "\t"
-		 //  			<< "\n";
-			// cout 	<< theta_k_AC_R(0, 0) << "\t"
-			// 		<< theta_k_AC_R(1, 0) << "\t"
-			// 		<< theta_k_AC_R(2, 0) << "\t"
-			// 		<< theta_k_AC_R(3, 0) << "\t"
-			// 		<< theta_k_AC_R(4, 0) << "\t"
-			// 		<< theta_k_AC_R(5, 0) << "\t"
-			// 		<< theta_k_AC_R(6, 0) << "\t"
-			// 		<< theta_k_AC_R(7, 0) << "\t"
-			// 		<< theta_k_AC_R(8, 0) << "\t"
-			// 		<< theta_k_AC_R(9, 0) << "\t"
-			// 		<< theta_k_AC_R(10, 0) << "\t"
-			// 		<< theta_k_AC_R(11, 0) << "\n";
-			
-			// cout << "RCAC " << "\t"
-			// << torque(0) << "\t"
-			// << torque(1) << "\t"
-			// << torque(2) << "\n";
-			// cout << "AC" << "\t" << ii_AC_R << "\n" ;
-			if (1) //
+			/*if (1) //
 			{
 				ofstream RCAC_A_w("RCAC_A_w.txt", std::fstream::in | std::fstream::out | std::fstream::app);
 				if (RCAC_A_w.is_open())
@@ -259,14 +198,14 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 							  << "\n";
 					RCAC_A_w.close();
 				}
-			}
+			}*/
 		}
-	// update integral only if we are not landed
 	if (landed)
 	{
 		ii_AC_R = 0;
 		// ii_Pq_R = 0;
 	}
+	// update integral only if we are not landed
 	if (!landed) {
 		updateIntegral(rate_error, dt);
 	}

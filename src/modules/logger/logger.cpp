@@ -549,7 +549,8 @@ void Logger::add_default_topics()
 	add_topic("vehicle_status", 200);
 	add_topic("vehicle_status_flags");
 	add_topic("vtol_vehicle_status", 200);
-	add_topic("rcac_variables", 200);
+	add_topic("rcac_pos_vel_variables", 100);
+	add_topic("rcac_att_rate_variables", 100);
 
 	add_topic_multi("actuator_outputs", 100);
 	add_topic_multi("battery_status", 500);

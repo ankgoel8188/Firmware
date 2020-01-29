@@ -95,7 +95,8 @@ set(msg_files
 	qshell_retval.msg
 	radio_status.msg
 	rate_ctrl_status.msg
-        rcac_variables.msg
+        rcac_att_rate_variables.msg
+        rcac_pos_vel_variables.msg
 	rc_channels.msg
 	rc_parameter_map.msg
 	safety.msg
