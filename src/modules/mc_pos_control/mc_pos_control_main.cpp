@@ -155,7 +155,7 @@ private:
 	home_position_s	_home_pos{};			/**< home position */
 	landing_gear_s _landing_gear{};
 	int8_t _old_landing_gear_position{landing_gear_s::GEAR_KEEP};
-	rcac_variables_s _rcactest{};
+	rcac_variables_s _rcac_variables{};
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_TKO_RAMP_T>) _param_mpc_tko_ramp_t, /**< time constant for smooth takeoff ramp */
@@ -190,7 +190,7 @@ private:
 
 	bool _in_failsafe = false; /**< true if failsafe was entered within current cycle */
 
-    bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
+	bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
 
 	/** Timeout in us for trajectory data to get considered invalid */
 	static constexpr uint64_t TRAJECTORY_STREAM_TIMEOUT_US = 500_ms;
@@ -763,15 +763,21 @@ MulticopterPositionControl::Run()
 			// they might conflict with each other such as in offboard attitude control.
 			publish_attitude();
 
-			_rcactest.timestamp = hrt_absolute_time();
-			_rcactest.rcac_alpha[0] = 1.0f;
-			_rcactest.rcac_alpha[1] = 2.0f;
+			_rcac_variables.timestamp = hrt_absolute_time();
+			_rcac_variables.rcac_alpha[0] = 1.0f;
+			_rcac_variables.rcac_alpha[1] = 2.0f;
 			for (int i = 0; i <= 2; i++) {
-				_rcactest.rcac_z_pos[i] = _control.get_RCAC_pos_z()(i);
-				_rcactest.rcac_u_pos[i] = _control.get_RCAC_pos_u()(i);
-				_rcactest.rcac_theta_pos[i] = _control.get_RCAC_pos_theta()(i);
+				_rcac_variables.rcac_pos_z[i] = _control.get_RCAC_pos_z()(i);
+				_rcac_variables.rcac_pos_u[i] = _control.get_RCAC_pos_u()(i);
+				_rcac_variables.rcac_pos_theta[i] = _control.get_RCAC_pos_theta()(i);
+
+				_rcac_variables.rcac_vel_z[i] = _control.get_RCAC_vel_z()(i);
+				_rcac_variables.rcac_vel_u[i] = _control.get_RCAC_vel_u()(i);
 			}
-			_rcac_variables_pub.publish(_rcactest);
+			for (int i = 0; i <= 8; i++) {
+				_rcac_variables.rcac_vel_theta[i] = _control.get_RCAC_vel_theta()(i,0);
+			}
+			_rcac_variables_pub.publish(_rcac_variables);
 
 			// if there's any change in landing gear setpoint publish it
 			if (gear.landing_gear != _old_landing_gear_position

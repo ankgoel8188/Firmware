@@ -198,13 +198,13 @@ public:
 	 */
 	const matrix::Vector3f get_RCAC_pos_z()
 	{
-		matrix::Vector3f RCAC_pos_z{};
+		matrix::Vector3f RCAC_z{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_pos_z(i) = z_k_Pr_R(i,0);
+			RCAC_z(i) = z_k_Pr_R(i,0);
 		}
 
-		return RCAC_pos_z;
+		return RCAC_z;
 	}
 
 	/**
@@ -214,13 +214,13 @@ public:
 	 */
 	const matrix::Vector3f get_RCAC_pos_u()
 	{
-		matrix::Vector3f RCAC_pos_u{};
+		matrix::Vector3f RCAC_u{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_pos_u(i) = u_k_Pr_R(i,0);
+			RCAC_u(i) = u_k_Pr_R(i,0);
 		}
 
-		return RCAC_pos_u;
+		return RCAC_u;
 	}
 
 	/**
@@ -230,13 +230,61 @@ public:
 	 */
 	const matrix::Vector3f get_RCAC_pos_theta()
 	{
-		matrix::Vector3f RCAC_pos_theta{};
+		matrix::Vector3f RCAC_theta{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_pos_theta(i) = theta_k_Pr_R(i,0);
+			RCAC_theta(i) = theta_k_Pr_R(i,0);
 		}
 
-		return RCAC_pos_theta;
+		return RCAC_theta;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see z_k_Pv_R
+	 * 	@return The z variable used by RCAC in the PID velocity controller
+	 */
+	const matrix::Vector3f get_RCAC_vel_z()
+	{
+		matrix::Vector3f RCAC_z{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_z(i) = z_k_Pv_R(i,0);
+		}
+
+		return RCAC_z;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see u_k_Pr_R
+	 * 	@return The u variable computed by RCAC in the P controller
+	 */
+	const matrix::Vector3f get_RCAC_vel_u()
+	{
+		matrix::Vector3f RCAC_u{};
+
+		for (int i = 0; i <= 2; i++) {
+			RCAC_u(i) = u_k_Pv_R(i,0);
+		}
+
+		return RCAC_u;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see theta_k_Pr_R
+	 * 	@return The theta variable computed by RCAC in the P controller
+	 */
+	const matrix::Matrix<float, 9,1> get_RCAC_vel_theta()
+	{
+		matrix::Matrix<float, 9,1> RCAC_theta{};
+
+		for (int i = 0; i <= 8; i++) {
+			RCAC_theta(i,0) = theta_k_Pv_R(i,0);
+		}
+
+		return RCAC_theta;
 	}
 protected:
 

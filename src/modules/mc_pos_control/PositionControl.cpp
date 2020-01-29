@@ -262,7 +262,7 @@ void PositionControl::_positionController()
 
 		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
 		Gamma_Pr_R 	= Gamma_Pr_R.I();
-		
+
 
         P_Pr_R 	-= (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
 
@@ -271,15 +271,13 @@ void PositionControl::_positionController()
 		u_km1_Pr_R 		= phi_k_Pr_R * theta_k_Pr_R;
 		phi_km1_Pr_R 	= phi_k_Pr_R;
 
-        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+1.0f*Vector3f(_param_mpc_xy_p.get(),
-																_param_mpc_xy_p.get(),
-																_param_mpc_z_p.get()));
+        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+1.0f*Vector3f(_param_mpc_xy_p.get(),_param_mpc_xy_p.get(),_param_mpc_z_p.get()));
         // TODO: Test Performance
         // u_km1_Pr_R 	= u_k_Pr_R;
 
 		vel_sp_position = u_k_Pr_R;
 
-        if (_rcac_logging)
+        /*if (_rcac_logging)
 		{
 			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
 			ofstream RCAC_P_r("RCAC_P_r.txt", std::fstream::in | std::fstream::out | std::fstream::app);
@@ -308,7 +306,7 @@ void PositionControl::_positionController()
 						<< "\n";
 				RCAC_P_r.close();
 			}
-		}
+		}*/
 	}
 	_vel_sp = vel_sp_position + _vel_sp;
 
@@ -353,63 +351,16 @@ void PositionControl::_velocityController(const float &dt)
 
 	// Consider thrust in D-direction.
 	float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) +
-							 _param_mpc_z_vel_d.get() * _vel_dot(2) + 
-							 _thr_int(2) - 
+							 _param_mpc_z_vel_d.get() * _vel_dot(2) +
+							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
 
 	if (!RCAC_Pv_ON)
 	{
-		// float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) + _param_mpc_z_vel_d.get() * _vel_dot(2) + _thr_int(2) - _param_mpc_thr_hover.get();
-        /*int Gain = 1;
-		if ((ii_R>1500) && (0))
-		{
-			Gain = -1;
-			cout << "Flipped \n";
-		}*/
 		thrust_desired_D = 1*(_param_mpc_z_vel_p.get() * vel_err(2) +
 				1*_param_mpc_z_vel_d.get() * _vel_dot(2) +
 				1*_thr_int(2) -
 				1*_param_mpc_thr_hover.get());
-		// cout << _vel_sp(2) << "\t" << _vel(2) << "\t" << thrust_desired_D << "\n";		
-		// if (ii_R%100==0)
-		// if (ii_R<100)
-		// Check that the integrator state is being reset after landing
-		// It is!! So stop worrying about it. 
-		// {
-		// cout 	<< ii_R << "\t"
-		// 	<< vel_err(0) << "\t"
-		// 	<< vel_err(1) << "\t"
-		// 	<< vel_err(2) << "\t \t"
-		// 	<< _thr_int(0) << "\t" 
-		// 	<< _thr_int(1) << "\t"
-		// 	<< _thr_int(2) << "\t \t"
-		// 	<< _vel_dot(0) << "\t"
-		// 	<< _vel_dot(1) << "\t"
-		// 	<< _vel_dot(2) << "\t"
-		// 	<< "\n";
-		// }
-		if (0) //
-			{
-				ofstream PX4_PID_Data("PX4_PID_Data.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-				if (PX4_PID_Data.is_open())
-				{
-
-					PX4_PID_Data << 1 << "\t"
-							  << dt << "\t"
-							  << vel_err(2) << "\t"
-							  << vel_err(2) << "\t"
-							  << 0 << "\t"
-							  << _thr_int(2) << "\t"
-							  << _param_mpc_z_vel_p.get() << "\t"
-							  << _param_mpc_z_vel_d.get() << "\t"
-							  << _param_mpc_z_vel_i.get() << "\t"
-							  << thrust_desired_D << "\t"
-							  << _vel_sp(2) << "\t"
-							  << _vel(2) << "\t"
-							  << "\n";
-					PX4_PID_Data.close();
-				}
-			}
 	}
 	else
 	{
@@ -608,12 +559,12 @@ void PositionControl::_velocityController(const float &dt)
 
 
 
-			
+
 			// cout 	<< u_k_Pv_R(0,0) << "\t"
 			// 		<< u_k_Pv_R(1,0) << "\t"
 			// 		<< u_k_Pv_R(2,0) << "\n";
 
-			
+
 
 
 			// cout 	<< _thr_int(0) << "\t"
@@ -637,7 +588,7 @@ void PositionControl::_velocityController(const float &dt)
 
 
 			thrust_desired_D = thrust_desired_D + u_k_Pv_R(2,0);
-			if (1) //
+			/*if (1) //
 			{
 				//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
 				ofstream RCAC_P_v("RCAC_P_v.txt", std::fstream::in | std::fstream::out | std::fstream::app);
@@ -676,7 +627,7 @@ void PositionControl::_velocityController(const float &dt)
 							<< "\n";
 					RCAC_P_v.close();
 				}
-			}
+			}*/
 
 
 			// if (0) //
@@ -813,7 +764,7 @@ void PositionControl::_velocityController(const float &dt)
 		// Update integral
 		_thr_int(0) += _param_mpc_xy_vel_i.get() * vel_err_lim(0) * dt;
 		_thr_int(1) += _param_mpc_xy_vel_i.get() * vel_err_lim(1) * dt;
-		// cout << _thr_int(2) << "\t" 
+		// cout << _thr_int(2) << "\t"
 		// 	 << vel_err(2) << "\t"
 		// 	 << dt << "\t"
 		// 	 << stop_integral_D << "\t"
@@ -825,7 +776,7 @@ void PositionControl::_velocityController(const float &dt)
 			ii_Pr_R = 0;
 			ii_Pv_R = 0;
 			// cout << ii_Pr_R << "\t" << ii_Pv_R << "\n" ;
-		} 
+		}
 
 	}
 }
