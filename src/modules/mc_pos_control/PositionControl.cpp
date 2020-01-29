@@ -54,6 +54,7 @@ PositionControl::PositionControl(ModuleParams *parent) :
     // Quasi-constants. TODO: Optimize later.
     I3 = eye<float, 3>();
     N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
+    N1_Pv = eye<float, 3>() * (1.0f)*alpha_N;
 
     init_RCAC();
 }
@@ -75,6 +76,25 @@ void PositionControl::init_RCAC() {
                 _param_mpc_xy_p.get(),
                 _param_mpc_z_p.get());
 
+	P_Pv_R = eye<float, 9>() * 0.010 * alpha_P *0.1;
+	phi_k_Pv_R.setZero();
+	phi_km1_Pv_R.setZero();
+	theta_k_Pv_R.setZero();
+	z_k_Pv_R.setZero();
+	z_km1_Pv_R.setZero();
+	u_k_Pv_R.setZero();
+	u_km1_Pv_R.setZero();
+	Gamma_Pv_R.setZero();
+
+	theta_k_Pv_PID(0,0) = _param_mpc_xy_vel_p.get();
+	theta_k_Pv_PID(1,0) = 1; //_param_mpc_xy_vel_i.get();
+	theta_k_Pv_PID(2,0) = _param_mpc_xy_vel_d.get();
+	theta_k_Pv_PID(3,0) = _param_mpc_xy_vel_p.get();
+	theta_k_Pv_PID(4,0) = 1; //_param_mpc_xy_vel_i.get();
+	theta_k_Pv_PID(5,0) = _param_mpc_xy_vel_d.get();
+	theta_k_Pv_PID(6,0) = _param_mpc_z_vel_p.get();
+	theta_k_Pv_PID(7,0) = 1; //_param_mpc_z_vel_i.get();
+	theta_k_Pv_PID(8,0) = _param_mpc_z_vel_d.get();
 }
 
 void PositionControl::updateState(const PositionControlStates &states)
@@ -276,37 +296,10 @@ void PositionControl::_positionController()
         // u_km1_Pr_R 	= u_k_Pr_R;
 
 		vel_sp_position = u_k_Pr_R;
-
-        /*if (_rcac_logging)
-		{
-			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
-			ofstream RCAC_P_r("RCAC_P_r.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-			if (RCAC_P_r.is_open())
-			{
-				RCAC_P_r << ii_Pr_R << "\t"
-						<< z_k_Pr_R(0,0) << "\t"
-						<< z_k_Pr_R(1,0) << "\t"
-						<< z_k_Pr_R(2,0) << "\t"
-						<< _pos_sp(0) << "\t"
-						<< _pos_sp(1) << "\t"
-						<< _pos_sp(2) << "\t"
-						<< _pos(0) << "\t"
-						<< _pos(1) << "\t"
-						<< _pos(2) << "\t"
-						<< theta_k_Pr_R(0,0) << "\t"
-						<< theta_k_Pr_R(1,0) << "\t"
-						<< theta_k_Pr_R(2,0) << "\t"
-						<< u_k_Pr_R(0,0) << "\t"
-						<< u_k_Pr_R(1,0) << "\t"
-						<< u_k_Pr_R(2,0) << "\t"
-						//
-						<< _param_mpc_xy_p.get() << "\t"
-						<< _param_mpc_xy_p.get() << "\t"
-						<< _param_mpc_z_p.get() << "\t"
-						<< "\n";
-				RCAC_P_r.close();
-			}
-		}*/
+	PX4_INFO("theta_k_Pr_R:\t%8.4f\t%8.4f\t%8.4f",
+                    		(double)theta_k_Pr_R(0,0),
+				(double)theta_k_Pr_R(1,0),
+				(double)theta_k_Pr_R(2,0));
 	}
 	_vel_sp = vel_sp_position + _vel_sp;
 
@@ -366,19 +359,6 @@ void PositionControl::_velocityController(const float &dt)
 	{
 		if (dt > 0.01f)
 		{
-            // RCAC shit here :)
-			/*cout << "Printing " << ii_R << " " << vel_err(0) << " "
-						<< vel_err(1) << " "
-						<< vel_err(2) << " "
-						//<< _vel_sp(0) << " "
-						//<< _vel_sp(1) << " "
-						//<< _vel_sp(2) << " "
-						<< _param_mpc_xy_vel_p.get() << " "
-						<< _param_mpc_xy_vel_d.get() << " "
-						<< _param_mpc_z_vel_i.get() << " "
-	                                        << thrust_desired_D << " "
-	  					<< dt  << " \n";   //Ankit Aug13
-	*/
 			// if (ii_R == 1)
 			// {
 
@@ -478,45 +458,6 @@ void PositionControl::_velocityController(const float &dt)
 
 			// thrust_desired_D = u_k_z_R(0, 0);
 
-			/*cout << ii_R << "\t" << u_k_x_R(0, 0)
-					<< "\t" << u_k_y_R(0, 0)
-					<< "\t" << u_k_z_R(0, 0)
-					<< "\t" << z_k_x_R(0, 0)
-					<< "\t" << z_k_y_R(0, 0)
-					<< "\t" << z_k_z_R(0, 0)
-					<< "\n"; */
-
-			ii_Pv_R = ii_Pv_R + 1;
-			if (ii_Pv_R == 1)
-			{
-				P_Pv_R = eye<float, 9>() * 0.010 * alpha_P *0.1;
-				N1_Pv = eye<float, 3>() * (1.0f) * alpha_N;
-				I3 = eye<float, 3>();
-				phi_k_Pv_R.setZero();
-				phi_km1_Pv_R.setZero();
-				theta_k_Pv_R.setZero();
-				z_k_Pv_R.setZero();
-				z_km1_Pv_R.setZero();
-				u_k_Pv_R.setZero();
-				u_km1_Pv_R.setZero();
-				Gamma_Pv_R.setZero();
-
-				theta_k_Pv_PID(0,0) = _param_mpc_xy_vel_p.get();
-				theta_k_Pv_PID(1,0) = 1; //_param_mpc_xy_vel_i.get();
-				theta_k_Pv_PID(2,0) = _param_mpc_xy_vel_d.get();
-				theta_k_Pv_PID(3,0) = _param_mpc_xy_vel_p.get();
-				theta_k_Pv_PID(4,0) = 1; //_param_mpc_xy_vel_i.get();
-				theta_k_Pv_PID(5,0) = _param_mpc_xy_vel_d.get();
-				theta_k_Pv_PID(6,0) = _param_mpc_z_vel_p.get();
-				theta_k_Pv_PID(7,0) = 1; //_param_mpc_z_vel_i.get();
-				theta_k_Pv_PID(8,0) = _param_mpc_z_vel_d.get();
-				// theta_k_Pv_R = 0.0f*Vector3f(_param_mpc_z_vel_p.get(),
-				// 			_param_mpc_z_vel_i.get(),
-				// 			_param_mpc_z_vel_d.get());
-
-			}
-
-
 
 			phi_k_Pv_R(0, 0) = vel_err(0);
 			phi_k_Pv_R(0, 1) = _thr_int(0) ; //_param_mpc_xy_vel_i.get();
@@ -530,166 +471,32 @@ void PositionControl::_velocityController(const float &dt)
 			phi_k_Pv_R(2, 7) = _thr_int(2) ; //_param_mpc_z_vel_i.get();
 			phi_k_Pv_R(2, 8) = _vel_dot(2) * 0;
 
-			Pv_intg(0) = Pv_intg(0) + _param_mpc_xy_vel_i.get() * vel_err(0) * dt;
-			Pv_intg(1) = Pv_intg(1) + _param_mpc_xy_vel_i.get() * vel_err(1) * dt;
-			Pv_intg(2) = Pv_intg(2) + _param_mpc_z_vel_i.get() * vel_err(2) * dt;
-
-			// phi_k_Pv_R(0, 1) = Pv_intg(0);
-			// phi_k_Pv_R(1, 4) = Pv_intg(1);
-			// phi_k_Pv_R(2, 7) = Pv_intg(2);
-
 			z_k_Pv_R 	= vel_err;
 
 			Gamma_Pv_R 	= phi_km1_Pv_R * P_Pv_R * phi_km1_Pv_R.T() + I3;
 			Gamma_Pv_R 	= Gamma_Pv_R.I();
 
-			// if ((z_k_Pv_R(2,0))<0.5f)
-			{
-				P_Pv_R 		= P_Pv_R - (P_Pv_R * phi_km1_Pv_R.T()) * Gamma_Pv_R * (phi_km1_Pv_R * P_Pv_R);
-				//theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) *
-				//		 (z_k_Pv_R + (-1.0f)*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) * (-1.0f));
-				theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) * N1_Pv *
-						(z_k_Pv_R + N1_Pv*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) );
-				// u_km1_Pv_R 		= phi_k_Pv_R * theta_k_Pv_R;;
-				// phi_km1_Pv_R 	= phi_k_Pv_R;
-			}
+			P_Pv_R 		= P_Pv_R - (P_Pv_R * phi_km1_Pv_R.T()) * Gamma_Pv_R * (phi_km1_Pv_R * P_Pv_R);
+			//theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) *
+			//		 (z_k_Pv_R + (-1.0f)*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) * (-1.0f));
+			theta_k_Pv_R 	= theta_k_Pv_R + (P_Pv_R * phi_km1_Pv_R.T()) * N1_Pv *
+					(z_k_Pv_R + N1_Pv*(phi_km1_Pv_R * theta_k_Pv_R - u_km1_Pv_R) );
+			// u_km1_Pv_R 		= phi_k_Pv_R * theta_k_Pv_R;;
+			// phi_km1_Pv_R 	= phi_k_Pv_R;
 			u_k_Pv_R 	= phi_k_Pv_R * (1.0f*theta_k_Pv_R+0.0f*theta_k_Pv_PID);
 			u_km1_Pv_R 	= u_k_Pv_R;
 			phi_km1_Pv_R 	= phi_k_Pv_R;
 
-
-
-
-			// cout 	<< u_k_Pv_R(0,0) << "\t"
-			// 		<< u_k_Pv_R(1,0) << "\t"
-			// 		<< u_k_Pv_R(2,0) << "\n";
-
-
-
-
-			// cout 	<< _thr_int(0) << "\t"
-			// 		<< _thr_int(1) << "\t"
-			// 		<< _thr_int(2) << "\t"
-			// 		<< Pv_intg(0) << "\t"
-			// 		<< Pv_intg(1) << "\t"
-			// 		<< Pv_intg(2) << "\n"
-			// 		;
-					// << _param_mpc_thr_max.get() << "\n";
-
-			// cout 	<< theta_k_Pv_R(6,0) << "\t"
-			// 	<< theta_k_Pv_R(7,0) << "\t"
-			// 	<< theta_k_Pv_R(8,0) << "\t"
-			// 	<< u_k_Pv_R(2,0) << "\t"
-			// 	<< theta_k_z_R(0,0) << "\t"
-			// 	<< theta_k_z_R(1,0) << "\t"
-			// 	<< theta_k_z_R(2,0) << "\t"
-			// 	<< u_km1_z_R(0,0) << "\n";
-				//<< u_k_Pv_R(1,0) << "\t"
-
-
 			thrust_desired_D = thrust_desired_D + u_k_Pv_R(2,0);
-			/*if (1) //
-			{
-				//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
-				ofstream RCAC_P_v("RCAC_P_v.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-				if (RCAC_P_v.is_open())
-				{
-					RCAC_P_v << ii_Pv_R << "\t"
-							<< dt << "\t"
-							<< z_k_Pv_R(0,0) << "\t"
-							<< z_k_Pv_R(1,0) << "\t"
-							<< z_k_Pv_R(2,0) << "\t"
-							<< _vel_sp(0) << "\t"
-							<< _vel_sp(1) << "\t"
-							<< _vel_sp(2) << "\t"
-							<< _vel(0) << "\t"
-							<< _vel(1) << "\t"
-							<< _vel(2) << "\t"
-							<< theta_k_Pv_R(0,0) << "\t"
-							<< theta_k_Pv_R(1,0) << "\t"
-							<< theta_k_Pv_R(2,0) << "\t"
-							<< theta_k_Pv_R(3,0) << "\t"
-							<< theta_k_Pv_R(4,0) << "\t"
-							<< theta_k_Pv_R(5,0) << "\t"
-							<< theta_k_Pv_R(6,0) << "\t"
-							<< theta_k_Pv_R(7,0) << "\t"
-							<< theta_k_Pv_R(8,0) << "\t"
-							<< u_k_Pv_R(0,0) << "\t"
-							<< u_k_Pv_R(1,0) << "\t"
-							<< u_k_Pv_R(2,0) << "\t"
-							//
-							<< _param_mpc_z_vel_p.get() << "\t"
-							<< _param_mpc_z_vel_i.get() << "\t"
-							<< _param_mpc_z_vel_d.get() << "\t"
-							<< _param_mpc_xy_vel_p.get() << "\t"
-							<< _param_mpc_xy_vel_i.get() << "\t"
-							<< _param_mpc_xy_vel_d.get() << "\t"
-							<< "\n";
-					RCAC_P_v.close();
-				}
-			}*/
+			//PX4_INFO("thrust_desired_D:\t%8.4f", (double)thrust_desired_D);
 
-
-			// if (0) //
-			// {
-			// 	//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
-			// 	ofstream RCAC_Data("RCAC_data.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-			// 	if (RCAC_Data.is_open())
-			// 	{
-			// 		RCAC_Data << ii_R << "\t"
-			// 				  << dt << "\t"
-			// 				  << z_k_x_R(0, 0) << "\t"
-			// 				  << phi_k_x_R(0, 0) << "\t"
-			// 				  << phi_k_x_R(0, 1) << "\t"
-			// 				  << phi_k_x_R(0, 2) << "\t"
-			// 				  << theta_k_x_R(0, 0) << "\t"
-			// 				  << theta_k_x_R(1, 0) << "\t"
-			// 				  << theta_k_x_R(2, 0) << "\t"
-			// 				  << u_k_x_R(0, 0) << "\t"
-			// 				  << _vel_sp(0) << "\t"
-			// 				  << _vel(0) << "\t"
-			// 				  //
-  	// 						  << z_k_y_R(0, 0) << "\t"
-			// 				  << phi_k_y_R(0, 0) << "\t"
-			// 				  << phi_k_y_R(0, 1) << "\t"
-			// 				  << phi_k_y_R(0, 2) << "\t"
-			// 				  << theta_k_y_R(0, 0) << "\t"
-			// 				  << theta_k_y_R(1, 0) << "\t"
-			// 				  << theta_k_y_R(2, 0) << "\t"
-			// 				  << u_k_y_R(0, 0) << "\t"
-			// 				  << _vel_sp(1) << "\t"
-			// 				  << _vel(1) << "\t"
-			// 				  //
-			// 				  << z_k_z_R(0, 0) << "\t"
-			// 				  << phi_k_z_R(0, 0) << "\t"
-			// 				  << phi_k_z_R(0, 1) << "\t"
-			// 				  << phi_k_z_R(0, 2) << "\t"
-			// 				  << theta_k_z_R(0, 0) << "\t"
-			// 				  << theta_k_z_R(1, 0) << "\t"
-			// 				  << theta_k_z_R(2, 0) << "\t"
-			// 				  << u_k_z_R(0, 0) << "\t"
-			// 				  << _vel_sp(2) << "\t"
-			// 				  << _vel(2) << "\t"
-			// 				  //
-			// 				  << _param_mpc_z_vel_p.get() << "\t"
-			// 				  << _param_mpc_z_vel_i.get() << "\t"
-			// 				  << _param_mpc_z_vel_d.get() << "\t"
-			// 				  << _param_mpc_xy_vel_p.get() << "\t"
-			// 				  << _param_mpc_xy_vel_i.get() << "\t"
-			// 				  << _param_mpc_xy_vel_d.get() << "\t"
-			// 				  << "\n";
-			// 		RCAC_Data.close();
-			// 	}
-			// }
 		}
 		else
 		{
 			// thrust_desired_D = u_k_z_R(0, 0);
 			// thrust_desired_D = u_k_Pv_R(2,0);
 		}
-		// cout << ii_R << " " << dt << " " << _vel_sp(2) << "    " << u_k_x_R(0, 0) << " " << theta_k_x_R(0, 0) << " " <<
-		// theta_k_x_R(1, 0) << " " <<
-		// theta_k_x_R(2, 0) << "\n";
+
 	}
 
 
@@ -764,18 +571,12 @@ void PositionControl::_velocityController(const float &dt)
 		// Update integral
 		_thr_int(0) += _param_mpc_xy_vel_i.get() * vel_err_lim(0) * dt;
 		_thr_int(1) += _param_mpc_xy_vel_i.get() * vel_err_lim(1) * dt;
-		// cout << _thr_int(2) << "\t"
-		// 	 << vel_err(2) << "\t"
-		// 	 << dt << "\t"
-		// 	 << stop_integral_D << "\t"
-		// 	 << _param_mpc_xy_vel_i.get() << "\t"
-		// 	 << _param_mpc_thr_max.get() << "\n";
 
 		if (abs(_thr_int(2))<0.00001f)
 		{
 			ii_Pr_R = 0;
 			ii_Pv_R = 0;
-			// cout << ii_Pr_R << "\t" << ii_Pv_R << "\n" ;
+			// TODO:Ankit - Move resetting to main loop
 		}
 
 	}
