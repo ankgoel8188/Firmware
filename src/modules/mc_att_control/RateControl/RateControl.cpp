@@ -94,7 +94,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			ii_AC_R = ii_AC_R + 1;
 			if (ii_AC_R == 1)
 			{
-				P_AC_R = eye<float, 12>() * 0.001*alpha_P;
+				/*P_AC_R = eye<float, 12>() * 0.001*alpha_P;
 				N1_Aw = eye<float, 3>() * (1.0) * alpha_N ;
 				I3 = eye<float, 3>();
 				phi_k_AC_R.setZero();
@@ -117,12 +117,75 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 				theta_k_Ac_PID(8,0) = _gain_p(2);
 				theta_k_Ac_PID(9,0) = _gain_i(2);
 				theta_k_Ac_PID(10,0) = _gain_d(2);
-				theta_k_Ac_PID(11,0) = _gain_ff(2);
+				theta_k_Ac_PID(11,0) = _gain_ff(2);*/
 
+				P_rate_x = eye<float, 4>() * 0.0010;
+				P_rate_y = eye<float, 4>() * 0.0010;
+				P_rate_z = eye<float, 4>() * 0.0010;
+				phi_k_rate_x.setZero();
+				phi_k_rate_y.setZero();
+				phi_k_rate_z.setZero();
+				phi_km1_rate_x.setZero();
+				phi_km1_rate_y.setZero();
+				phi_km1_rate_z.setZero();
+				theta_k_rate_x.setZero();
+				theta_k_rate_y.setZero();
+				theta_k_rate_z.setZero();
 
 			}
 
-			phi_k_AC_R = phi_k_AC_R*0.0f;
+			// Ankit 01 30 2020:New SISO implementation
+			z_k_rate = rate_error;
+
+			phi_k_rate_x(0,0) = rate_error(0);
+			phi_k_rate_x(0,1) = _rate_int(0);
+			phi_k_rate_x(0,2) = rate_d(0) * 0;
+			phi_k_rate_x(0,3) = rate_sp(0) * 0;
+
+			phi_k_rate_y(0,0) = rate_error(1);
+			phi_k_rate_y(0,1) = _rate_int(1);
+			phi_k_rate_y(0,2) = rate_d(1) * 0;
+			phi_k_rate_y(0,3) = rate_sp(1) * 0;
+
+			phi_k_rate_z(0,0) = rate_error(2);
+			phi_k_rate_z(0,1) = _rate_int(2);
+			phi_k_rate_z(0,2) = rate_d(2) * 0;
+			phi_k_rate_z(0,3) = rate_sp(2) * 0;
+
+			dummy1 = phi_km1_rate_x * P_rate_x * phi_km1_rate_x.T() + 1.0f;
+			dummy2 = phi_km1_rate_y * P_rate_y * phi_km1_rate_y.T() + 1.0f;
+			dummy3 = phi_km1_rate_z * P_rate_z * phi_km1_rate_z.T() + 1.0f;
+			Gamma_rate(0) 	= dummy1(0,0);
+			Gamma_rate(1) 	= dummy2(0,0);
+			Gamma_rate(2) 	= dummy3(0,0);
+
+			P_rate_x = P_rate_x - (P_rate_x * phi_km1_rate_x.T()) * (phi_km1_rate_x * P_rate_x) / Gamma_rate(0);
+			P_rate_y = P_rate_y - (P_rate_y * phi_km1_rate_y.T()) * (phi_km1_rate_y * P_rate_y) / Gamma_rate(1);
+			P_rate_z = P_rate_z - (P_rate_z * phi_km1_rate_z.T()) * (phi_km1_rate_z * P_rate_z) / Gamma_rate(2);
+
+			dummy1 = N1_rate(0)*(phi_km1_rate_x * theta_k_rate_x - u_km1_rate(0));
+			dummy2 = N1_rate(1)*(phi_km1_rate_y * theta_k_rate_y - u_km1_rate(1));
+			dummy3 = N1_rate(2)*(phi_km1_rate_z * theta_k_rate_z - u_km1_rate(2));
+			theta_k_rate_x 	= theta_k_rate_x + (P_rate_x * phi_km1_rate_x.T()) * N1_rate(0) *(z_k_rate(0) + dummy1(0,0));
+			theta_k_rate_y 	= theta_k_rate_y + (P_rate_y * phi_km1_rate_y.T()) * N1_rate(1) *(z_k_rate(1) + dummy2(0,0));
+			theta_k_rate_z 	= theta_k_rate_z + (P_rate_z * phi_km1_rate_z.T()) * N1_rate(2) *(z_k_rate(2) + dummy3(0,0));
+
+			dummy1 = phi_k_rate_x * theta_k_rate_x;
+			dummy2 = phi_k_rate_y * theta_k_rate_y;
+			dummy3 = phi_k_rate_z * theta_k_rate_z;
+			u_k_rate(0) = dummy1(0,0);
+			u_k_rate(1) = dummy2(0,0);
+			u_k_rate(2) = dummy3(0,0);
+
+			u_km1_rate = u_k_rate;
+
+			phi_km1_rate_x = phi_k_rate_x;
+			phi_km1_rate_y = phi_k_rate_y;
+			phi_km1_rate_z = phi_k_rate_z;
+
+			torque = torque+u_k_rate;
+
+			/*phi_k_AC_R = phi_k_AC_R*0.0f;
 			phi_k_AC_R(0, 0) = rate_error(0);
 			phi_k_AC_R(0, 1) = _rate_int(0); //_gain_i(0);
 			phi_k_AC_R(0, 2) = rate_d(0)*0.0f;; //(rates_filtered(0) - _rates_prev_filtered(0))/dt;
@@ -149,7 +212,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			u_km1_AC_R 	= u_k_AC_R;
 			phi_km1_AC_R 	= phi_k_AC_R;
 
-			torque = torque+u_k_AC_R;
+			torque = torque+u_k_AC_R;*/
 
 			/*if (1) //
 			{

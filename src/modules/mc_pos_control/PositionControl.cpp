@@ -51,32 +51,35 @@ using namespace matrix;
 PositionControl::PositionControl(ModuleParams *parent) :
 	ModuleParams(parent)
 {
-    // Quasi-constants. TODO: Optimize later.
-    I3 = eye<float, 3>();
-    N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
-    N1_Pv = eye<float, 3>() * (1.0f)*alpha_N;
+	// Quasi-constants. TODO: Optimize later.
+	I3 = eye<float, 3>();
+	N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
+	// N1_Pv = eye<float, 3>() * (1.0f)*alpha_N;
 
-    init_RCAC();
+	for (int i = 0; i <= 2; i++) {
+		N1_vel(i) = 1;
+	}
+	init_RCAC();
 }
 
 void PositionControl::init_RCAC() {
-    P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+	P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
 
-    // I3 = eye<float, 3>();
-    phi_k_Pr_R.setZero();
-    phi_km1_Pr_R.setZero();
-    theta_k_Pr_R.setZero();
-    z_k_Pr_R.setZero();
-    z_km1_Pr_R.setZero();
-    u_k_Pr_R.setZero();
-    u_km1_Pr_R.setZero();
-    Gamma_Pr_R.setZero();
+	// I3 = eye<float, 3>();
+	phi_k_Pr_R.setZero();
+	phi_km1_Pr_R.setZero();
+	theta_k_Pr_R.setZero();
+	z_k_Pr_R.setZero();
+	z_km1_Pr_R.setZero();
+	u_k_Pr_R.setZero();
+	u_km1_Pr_R.setZero();
+	Gamma_Pr_R.setZero();
 
-    theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
-                _param_mpc_xy_p.get(),
-                _param_mpc_z_p.get());
+	theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
+			_param_mpc_xy_p.get(),
+			_param_mpc_z_p.get());
 
-	P_Pv_R = eye<float, 9>() * 0.010 * alpha_P *0.1;
+	/*P_Pv_R = eye<float, 9>() * 0.010 * alpha_P *0.1;
 	phi_k_Pv_R.setZero();
 	phi_km1_Pv_R.setZero();
 	theta_k_Pv_R.setZero();
@@ -94,7 +97,20 @@ void PositionControl::init_RCAC() {
 	theta_k_Pv_PID(5,0) = _param_mpc_xy_vel_d.get();
 	theta_k_Pv_PID(6,0) = _param_mpc_z_vel_p.get();
 	theta_k_Pv_PID(7,0) = 1; //_param_mpc_z_vel_i.get();
-	theta_k_Pv_PID(8,0) = _param_mpc_z_vel_d.get();
+	theta_k_Pv_PID(8,0) = _param_mpc_z_vel_d.get();*/
+
+	P_vel_x = eye<float, 3>() * 0.0010;
+	P_vel_y = eye<float, 3>() * 0.0010;
+	P_vel_z = eye<float, 3>() * 0.0010;
+	phi_k_vel_x.setZero();
+	phi_k_vel_y.setZero();
+	phi_k_vel_z.setZero();
+	phi_km1_vel_x.setZero();
+	phi_km1_vel_y.setZero();
+	phi_km1_vel_z.setZero();
+	theta_k_vel_x.setZero();
+	theta_k_vel_y.setZero();
+	theta_k_vel_z.setZero();
 }
 
 void PositionControl::updateState(const PositionControlStates &states)
@@ -357,6 +373,7 @@ void PositionControl::_velocityController(const float &dt)
 	}
 	else
 	{
+		ii_Pv_R += 1;
 		//if (dt > 0.01f)
 		//{
 			// if (ii_R == 1)
@@ -455,10 +472,57 @@ void PositionControl::_velocityController(const float &dt)
 			// u_km1_z_R 	= u_k_z_R;
 			// phi_km1_z_R 	= phi_k_z_R;
 
-
 			// thrust_desired_D = u_k_z_R(0, 0);
 
-			ii_Pv_R += 1;
+			// Ankit 01 30 2020:New SISO implementation
+			z_k_vel = vel_err;
+
+			phi_k_vel_x(0,0) = vel_err(0);
+			phi_k_vel_x(0,1) = _thr_int(0);
+			phi_k_vel_x(0,2) = _vel_dot(0) * 0;
+
+			phi_k_vel_y(0,0) = vel_err(1);
+			phi_k_vel_y(0,1) = _thr_int(1);
+			phi_k_vel_y(0,2) = _vel_dot(1) * 0;
+
+			phi_k_vel_z(0,0) = vel_err(2);
+			phi_k_vel_z(0,1) = _thr_int(2);
+			phi_k_vel_z(0,2) = _vel_dot(2) * 0;
+
+			dummy1 = phi_km1_vel_x * P_vel_x * phi_km1_vel_x.T() + 1.0f;
+			dummy2 = phi_km1_vel_y * P_vel_y * phi_km1_vel_y.T() + 1.0f;
+			dummy3 = phi_km1_vel_z * P_vel_z * phi_km1_vel_z.T() + 1.0f;
+			Gamma_vel(0) 	= dummy1(0,0);
+			Gamma_vel(1) 	= dummy2(0,0);
+			Gamma_vel(2) 	= dummy3(0,0);
+
+			P_vel_x = P_vel_x - (P_vel_x * phi_km1_vel_x.T()) * (phi_km1_vel_x * P_vel_x) / Gamma_vel(0);
+			P_vel_y = P_vel_y - (P_vel_y * phi_km1_vel_y.T()) * (phi_km1_vel_y * P_vel_y) / Gamma_vel(1);
+			P_vel_z = P_vel_z - (P_vel_z * phi_km1_vel_z.T()) * (phi_km1_vel_z * P_vel_z) / Gamma_vel(2);
+
+			dummy1 = N1_vel(0)*(phi_km1_vel_x * theta_k_vel_x - u_km1_vel(0));
+			dummy2 = N1_vel(1)*(phi_km1_vel_y * theta_k_vel_y - u_km1_vel(1));
+			dummy3 = N1_vel(2)*(phi_km1_vel_z * theta_k_vel_z - u_km1_vel(2));
+			theta_k_vel_x 	= theta_k_vel_x + (P_vel_x * phi_km1_vel_x.T()) * N1_vel(0) *(z_k_vel(0) + dummy1(0,0));
+			theta_k_vel_y 	= theta_k_vel_y + (P_vel_y * phi_km1_vel_y.T()) * N1_vel(1) *(z_k_vel(1) + dummy2(0,0));
+			theta_k_vel_z 	= theta_k_vel_z + (P_vel_z * phi_km1_vel_z.T()) * N1_vel(2) *(z_k_vel(2) + dummy3(0,0));
+
+			dummy1 = phi_k_vel_x * theta_k_vel_x;
+			dummy2 = phi_k_vel_y * theta_k_vel_y;
+			dummy3 = phi_k_vel_z * theta_k_vel_z;
+			u_k_vel(0) = dummy1(0,0);
+			u_k_vel(1) = dummy2(0,0);
+			u_k_vel(2) = dummy3(0,0);
+
+			u_km1_vel = u_k_vel;
+
+			phi_km1_vel_x = phi_k_vel_x;
+			phi_km1_vel_y = phi_k_vel_y;
+			phi_km1_vel_z = phi_k_vel_z;
+
+			thrust_desired_D = thrust_desired_D + u_k_vel(2);
+
+			/* // MIMO implementation
 			phi_k_Pv_R(0, 0) = vel_err(0);
 			phi_k_Pv_R(0, 1) = _thr_int(0) ; //_param_mpc_xy_vel_i.get();
 			phi_k_Pv_R(0, 2) = _vel_dot(0) * 0;
@@ -487,7 +551,7 @@ void PositionControl::_velocityController(const float &dt)
 			u_km1_Pv_R 	= u_k_Pv_R;
 			phi_km1_Pv_R 	= phi_k_Pv_R;
 
-			thrust_desired_D = thrust_desired_D + u_k_Pv_R(2,0);
+			thrust_desired_D = thrust_desired_D + u_k_Pv_R(2,0); */
 			//PX4_INFO("thrust_desired_D:\t%8.4f", (double)thrust_desired_D);
 
 		//}
@@ -540,10 +604,11 @@ void PositionControl::_velocityController(const float &dt)
 			//thrust_desired_NE(1) = u_k_y_R(0, 0);
 			// thrust_desired_NE(0) = u_k_Pv_R(0, 0);
 			// thrust_desired_NE(1) = u_k_Pv_R(1, 0);
-			thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_Pv_R(0, 0);
-			thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_Pv_R(1, 0);
+			// thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_Pv_R(0, 0);
+			// thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_Pv_R(1, 0);
 
-
+			thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_vel(0);
+			thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_vel(1);
 		}
 		// Get maximum allowed thrust in NE based on tilt and excess thrust.
 		float thrust_max_NE_tilt = fabsf(_thr_sp(2)) * tanf(_constraints.tilt);

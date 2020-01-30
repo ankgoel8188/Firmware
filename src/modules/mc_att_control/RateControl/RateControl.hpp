@@ -117,7 +117,7 @@ public:
 		matrix::Vector3f RCAC_z{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_z(i) = z_k_AC_R(i,0);
+			RCAC_z(i) = z_k_rate(i); //z_k_AC_R(i,0);
 		}
 
 		return RCAC_z;
@@ -133,7 +133,7 @@ public:
 		matrix::Vector3f RCAC_u{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_u(i) = u_k_AC_R(i,0);
+			RCAC_u(i) = u_k_rate(i); //u_k_AC_R(i,0);
 		}
 
 		return RCAC_u;
@@ -148,8 +148,11 @@ public:
 	{
 		matrix::Matrix<float, 12,1> RCAC_theta{};
 
-		for (int i = 0; i <= 11; i++) {
-			RCAC_theta(i,0) = theta_k_AC_R(i,0);
+		for (int i = 0; i <= 3; i++) {
+			// RCAC_theta(i,0) = theta_k_AC_R(i,0);
+			RCAC_theta(i,0) = theta_k_rate_x(i,0);
+			RCAC_theta(i+4,0) = theta_k_rate_y(i,0);
+			RCAC_theta(i+8,0) = theta_k_rate_z(i,0);
 		}
 
 		return RCAC_theta;
@@ -193,12 +196,21 @@ private:
 
 	int ii_AC_R = 0;
   	bool RCAC_Aw_ON=1;
-	matrix::SquareMatrix<float, 12> P_AC_R;
-	matrix::Matrix<float, 3,12> phi_k_AC_R, phi_km1_AC_R;
-	matrix::Matrix<float, 12,1> theta_k_AC_R,theta_k_Ac_PID;
-  	matrix::Matrix<float, 3,1> z_k_AC_R, z_km1_AC_R,u_k_AC_R, u_km1_AC_R;
+	// matrix::SquareMatrix<float, 12> P_AC_R;
+	// matrix::Matrix<float, 3,12> phi_k_AC_R, phi_km1_AC_R;
+	// matrix::Matrix<float, 12,1> theta_k_AC_R,theta_k_Ac_PID;
+  	// matrix::Matrix<float, 3,1> z_k_AC_R, z_km1_AC_R,u_k_AC_R, u_km1_AC_R;
 
-	matrix::SquareMatrix<float, 3> Gamma_AC_R, I3, N1_Aw;
+	// matrix::SquareMatrix<float, 3> Gamma_AC_R, I3, N1_Aw;
+
+	matrix::SquareMatrix<float, 4> P_rate_x,P_rate_y,P_rate_z;
+	matrix::Matrix<float, 1,4> phi_k_rate_x, phi_km1_rate_x;
+	matrix::Matrix<float, 1,4> phi_k_rate_y, phi_km1_rate_y;
+	matrix::Matrix<float, 1,4> phi_k_rate_z, phi_km1_rate_z;
+	matrix::Matrix<float, 4,1> theta_k_rate_x, theta_k_rate_y, theta_k_rate_z;
+  	matrix::Vector3f z_k_rate, z_km1_rate, u_k_rate, u_km1_rate;
+	matrix::Vector3f N1_rate, Gamma_rate;
+	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
 	float alpha_P = 1.0f;
 	float alpha_N = 1.0f;

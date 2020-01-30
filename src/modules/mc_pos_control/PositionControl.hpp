@@ -249,7 +249,7 @@ public:
 		matrix::Vector3f RCAC_z{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_z(i) = z_k_Pv_R(i,0);
+			RCAC_z(i) = z_k_vel(i); //z_k_Pv_R(i,0);
 		}
 
 		return RCAC_z;
@@ -265,7 +265,7 @@ public:
 		matrix::Vector3f RCAC_u{};
 
 		for (int i = 0; i <= 2; i++) {
-			RCAC_u(i) = u_k_Pv_R(i,0);
+			RCAC_u(i) = u_k_vel(i); //u_k_Pv_R(i,0);
 		}
 
 		return RCAC_u;
@@ -280,8 +280,11 @@ public:
 	{
 		matrix::Matrix<float, 9,1> RCAC_theta{};
 
-		for (int i = 0; i <= 8; i++) {
-			RCAC_theta(i,0) = theta_k_Pv_R(i,0);
+		for (int i = 0; i <= 2; i++) {
+			//RCAC_theta(i,0) = theta_k_Pv_R(i,0);
+			RCAC_theta(i,0) = theta_k_vel_x(i);
+			RCAC_theta(i+3,0) = theta_k_vel_y(i);
+			RCAC_theta(i+6,0) = theta_k_vel_z(i);
 		}
 
 		return RCAC_theta;
@@ -372,11 +375,20 @@ private:
 	bool RCAC_Pv_ON=1;
 	bool _rcac_logging = true; /**< True if logging the aircraft state variable */ //TODO: MAV integration
 
-	matrix::SquareMatrix<float, 9> P_Pv_R;
-	matrix::Matrix<float, 3,9> phi_k_Pv_R, phi_km1_Pv_R;
-	matrix::Matrix<float, 9,1> theta_k_Pv_R,theta_k_Pv_PID;
-  	matrix::Matrix<float, 3,1> z_k_Pv_R, z_km1_Pv_R,u_k_Pv_R, u_km1_Pv_R;
-	matrix::SquareMatrix<float, 3> Gamma_Pv_R, N1_Pv;
+	// matrix::SquareMatrix<float, 9> P_Pv_R;
+	// matrix::Matrix<float, 3,9> phi_k_Pv_R, phi_km1_Pv_R;
+	// matrix::Matrix<float, 9,1> theta_k_Pv_R,theta_k_Pv_PID;
+  	// matrix::Matrix<float, 3,1> z_k_Pv_R, z_km1_Pv_R,u_k_Pv_R, u_km1_Pv_R;
+	// matrix::SquareMatrix<float, 3> Gamma_Pv_R, N1_Pv;
+
+	matrix::SquareMatrix<float, 3> P_vel_x,P_vel_y,P_vel_z;
+	matrix::Matrix<float, 1,3> phi_k_vel_x, phi_km1_vel_x;
+	matrix::Matrix<float, 1,3> phi_k_vel_y, phi_km1_vel_y;
+	matrix::Matrix<float, 1,3> phi_k_vel_z, phi_km1_vel_z;
+	matrix::Vector3f theta_k_vel_x, theta_k_vel_y, theta_k_vel_z;
+  	matrix::Vector3f z_k_vel, z_km1_vel, u_k_vel, u_km1_vel;
+	matrix::Vector3f N1_vel, Gamma_vel;
+	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
 	float alpha_P = 1.0f;
 	float alpha_N = 1.0f;
