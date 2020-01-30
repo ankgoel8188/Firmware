@@ -52,10 +52,10 @@
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
+// #include <stdio.h>
+// #include <iostream>
+// #include <fstream>
+// using namespace std;
 
 using namespace matrix;
 

@@ -40,10 +40,10 @@
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 
-#include <fstream>
-#include <iostream>
+// #include <fstream>
+// #include <iostream>
 
-using namespace std;
+// using namespace std;
 using namespace matrix;
 
 void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_gain)

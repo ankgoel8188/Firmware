@@ -41,12 +41,12 @@
 #include "Utility/ControlMath.hpp"
 #include <px4_defines.h>
 
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
+// #include <stdio.h>
+// #include <iostream>
+// #include <fstream>
 
 using namespace matrix;
-using namespace std;
+// using namespace std;
 
 PositionControl::PositionControl(ModuleParams *parent) :
 	ModuleParams(parent)
@@ -357,8 +357,8 @@ void PositionControl::_velocityController(const float &dt)
 	}
 	else
 	{
-		if (dt > 0.01f)
-		{
+		//if (dt > 0.01f)
+		//{
 			// if (ii_R == 1)
 			// {
 
@@ -490,12 +490,12 @@ void PositionControl::_velocityController(const float &dt)
 			thrust_desired_D = thrust_desired_D + u_k_Pv_R(2,0);
 			//PX4_INFO("thrust_desired_D:\t%8.4f", (double)thrust_desired_D);
 
-		}
-		else
+		//}
+		/*else
 		{
 			// thrust_desired_D = u_k_z_R(0, 0);
 			// thrust_desired_D = u_k_Pv_R(2,0);
-		}
+		}*/
 
 	}
 

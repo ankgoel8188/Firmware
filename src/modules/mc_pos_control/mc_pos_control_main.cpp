@@ -74,12 +74,12 @@
 
 #include <float.h>
 
-#include <fstream>
-#include <stdio.h>
-#include <iostream>
+// #include <fstream>
+// #include <stdio.h>
+// #include <iostream>
 
 using namespace time_literals;
-using namespace std;
+// using namespace std;
 
 /**
  * Multicopter position control app start / stop handling function

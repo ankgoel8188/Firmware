@@ -38,10 +38,10 @@
 #include <RateControl.hpp>
 #include <px4_defines.h>
 
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
+// #include <stdio.h>
+// #include <iostream>
+// #include <fstream>
+// using namespace std;
 using namespace matrix;
 
 void RateControl::setGains(const Vector3f &P, const Vector3f &I, const Vector3f &D)
