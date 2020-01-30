@@ -131,6 +131,18 @@ public:
 	 * 	@return Iteration step of the RCAC attitude controller
 	 */
 	const int &get_RCAC_att_ii() { return ii_Pq_R; }
+
+	/**
+	 * 	Set the RCAC Attitude switch.
+	 * 	@see _thr_int
+	 */
+	void set_RCAC_att_switch(float switch_RCAC)
+	{
+		RCAC_Aq_ON = 1;
+		if (switch_RCAC<0.0f) {
+			RCAC_Aq_ON = 0;
+		}
+	}
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;

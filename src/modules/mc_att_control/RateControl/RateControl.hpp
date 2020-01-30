@@ -162,6 +162,17 @@ public:
 	 */
 	const int &get_RCAC_rate_ii() { return ii_AC_R; }
 
+	/**
+	 * 	Set the RCAC Rate switch.
+	 * 	@see _thr_int
+	 */
+	void set_RCAC_rate_switch(float switch_RCAC)
+	{
+		RCAC_Aw_ON = 1;
+		if (switch_RCAC<0.0f) {
+			RCAC_Aw_ON = 0;
+		}
+	}
 private:
 	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
 

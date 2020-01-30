@@ -300,6 +300,30 @@ public:
 	 * 	@return Iteration step of the RCAC velocity controller
 	 */
 	const int &get_RCAC_vel_ii() { return ii_Pv_R; }
+
+	/**
+	 * 	Set the RCAC position switch.
+	 * 	@see _thr_int
+	 */
+	void set_RCAC_pos_switch(float switch_RCAC)
+	{
+		RCAC_Pr_ON = 1;
+		if (switch_RCAC<0.0f) {
+			RCAC_Pr_ON = 0;
+		}
+	}
+
+	/**
+	 * 	Set the RCAC velocity switch.
+	 * 	@see _thr_int
+	 */
+	void set_RCAC_vel_switch(float switch_RCAC)
+	{
+		RCAC_Pv_ON = 1;
+		if (switch_RCAC<0.0f) {
+			RCAC_Pv_ON = 0;
+		}
+	}
 protected:
 
 	void updateParams() override;

@@ -67,7 +67,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_trajectory_waypoint.h>
 #include <uORB/topics/rcac_pos_vel_variables.h>
-
+#include <uORB/topics/rc_channels.h>
 #include "PositionControl.hpp"
 #include "Utility/ControlMath.hpp"
 #include "Takeoff.hpp"
@@ -133,7 +133,7 @@ private:
 	uORB::Subscription _parameter_update_sub{ORB_ID(parameter_update)};		/**< notification of parameter updates */
 	uORB::Subscription _att_sub{ORB_ID(vehicle_attitude)};				/**< vehicle attitude */
 	uORB::Subscription _home_pos_sub{ORB_ID(home_position)}; 			/**< home position */
-
+	uORB::Subscription _rc_channels_sub{ORB_ID(rc_channels)}; 			/**< Switch from the RC channel */
 	hrt_abstime	_time_stamp_last_loop{0};		/**< time stamp of last loop iteration */
 
 	int _task_failure_count{0};         /**< counter for task failures */
@@ -156,6 +156,7 @@ private:
 	landing_gear_s _landing_gear{};
 	int8_t _old_landing_gear_position{landing_gear_s::GEAR_KEEP};
 	rcac_pos_vel_variables_s _rcac_pos_vel_variables{}; 		/**< RCAC variables */
+	rc_channels_s	_rc_channels_switch{};			/**< Switch from the RC channel */
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_TKO_RAMP_T>) _param_mpc_tko_ramp_t, /**< time constant for smooth takeoff ramp */
@@ -436,6 +437,7 @@ MulticopterPositionControl::poll_subscriptions()
 			_states.yaw = Eulerf(Quatf(att.q)).psi();
 		}
 	}
+	_rc_channels_sub.update(&_rc_channels_switch);
 }
 
 void
@@ -549,6 +551,12 @@ MulticopterPositionControl::Run()
 	if (_local_pos_sub.update(&_local_pos)) {
 
 		poll_subscriptions();
+
+		_control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
+		_control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
+
+		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[14]);
+
 		parameters_update(false);
 
 		// set _dt in controllib Block - the time difference since the last loop iteration in seconds
