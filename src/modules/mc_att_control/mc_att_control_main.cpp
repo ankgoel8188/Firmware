@@ -513,6 +513,14 @@ MulticopterAttitudeControl::Run()
 
 		_actuators.timestamp_sample = angular_velocity.timestamp_sample;
 
+		//RCtopic
+		_rc_channels_sub.update(&_rc_channels_switch);
+		_attitude_control.set_RCAC_att_switch(_rc_channels_switch.channels[14]);
+		_rate_control.set_RCAC_rate_switch(_rc_channels_switch.channels[14]);
+
+		//_attitude_control.set_RCAC_att_switch(1.0f);
+		//_rate_control.set_RCAC_rate_switch(1.0f);
+
 		/* run the rate controller immediately after a gyro update */
 		if (_v_control_mode.flag_control_rates_enabled) {
 			control_attitude_rates(dt, rates);

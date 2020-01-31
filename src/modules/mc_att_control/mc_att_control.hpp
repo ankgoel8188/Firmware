@@ -60,7 +60,7 @@
 #include <uORB/topics/landing_gear.h>
 #include <uORB/topics/rcac_att_rate_variables.h>
 #include <vtol_att_control/vtol_type.h>
-
+#include <uORB/topics/rc_channels.h>
 #include <AttitudeControl.hpp>
 #include <RateControl.hpp>
 
@@ -151,6 +151,7 @@ private:
 	uORB::Subscription _battery_status_sub{ORB_ID(battery_status)};			/**< battery status subscription */
 	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};	/**< vehicle land detected subscription */
 	uORB::Subscription _landing_gear_sub{ORB_ID(landing_gear)};
+	uORB::Subscription _rc_channels_sub{ORB_ID(rc_channels)};			/**< RC switch>*/
 
 	uORB::SubscriptionCallbackWorkItem _vehicle_angular_velocity_sub{this, ORB_ID(vehicle_angular_velocity)};
 
@@ -178,6 +179,7 @@ private:
 	struct battery_status_s			_battery_status {};	/**< battery status */
 	struct vehicle_land_detected_s		_vehicle_land_detected {};
 	struct landing_gear_s 			_landing_gear {};
+	struct rc_channels_s			_rc_channels_switch{};	/**< Switch from the RC channel */
 	rcac_att_rate_variables_s _rcac_att_rate_variables{}; 		/**< RCAC variables */
 	MultirotorMixer::saturation_status _saturation_status{};
 
