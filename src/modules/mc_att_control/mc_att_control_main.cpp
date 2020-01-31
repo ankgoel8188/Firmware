@@ -518,6 +518,9 @@ MulticopterAttitudeControl::Run()
 		_attitude_control.set_RCAC_att_switch(_rc_channels_switch.channels[14]);
 		_rate_control.set_RCAC_rate_switch(_rc_channels_switch.channels[14]);
 
+		_attitude_control.set_PID_att_factor(_rc_channels_switch.channels[13]);
+		_rate_control.set_PID_rate_factor(_rc_channels_switch.channels[13]);
+
 		//_attitude_control.set_RCAC_att_switch(1.0f);
 		//_rate_control.set_RCAC_rate_switch(1.0f);
 

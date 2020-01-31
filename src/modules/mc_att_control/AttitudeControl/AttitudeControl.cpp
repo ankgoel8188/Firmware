@@ -143,7 +143,7 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		theta_k_Pq_R 	= theta_k_Pq_R + (P_Pq_R * phi_km1_Pq_R.T()) * N1_Pq *
 				 (z_k_Pq_R + N1_Pq*(phi_km1_Pq_R * theta_k_Pq_R - u_km1_Pq_R) );
 
-		u_k_Pq_R 	= phi_k_Pq_R * (1.0f*theta_k_Pq_R+1.0f*theta_k_Pq_PID);
+		u_k_Pq_R 	= phi_k_Pq_R * (1.0f*theta_k_Pq_R+ alpha_PID *theta_k_Pq_PID);
 		u_km1_Pq_R 	= u_k_Pq_R;
 		phi_km1_Pq_R 	= phi_k_Pq_R;
 

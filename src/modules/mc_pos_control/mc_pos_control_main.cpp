@@ -554,11 +554,12 @@ MulticopterPositionControl::Run()
 
 		_control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
 		_control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
-
+		_control.set_PID_pv_factor(_rc_channels_switch.channels[13]);
 		// _control.set_RCAC_pos_switch(1.0f);
 		// _control.set_RCAC_vel_switch(1.0f);
 
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[14]);
+		PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[13]);
 
 		parameters_update(false);
 

@@ -143,6 +143,18 @@ public:
 			RCAC_Aq_ON = 0;
 		}
 	}
+
+	/**
+	 * 	Set the PID scaling factor.
+	 * 	@see _thr_int
+	 */
+	void set_PID_att_factor(float PID_factor)
+	{
+		alpha_PID = 1;
+		if (PID_factor<0.0f) {
+			alpha_PID = 0.5;
+		}
+	}
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
@@ -157,4 +169,6 @@ private:
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
 	float alpha_P = 1.0f;
 	float alpha_N = 1.0f;
+
+	float alpha_PID = 1.0f;
 };

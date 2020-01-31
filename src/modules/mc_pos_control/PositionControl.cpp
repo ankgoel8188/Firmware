@@ -307,7 +307,7 @@ void PositionControl::_positionController()
 		u_km1_Pr_R 		= phi_k_Pr_R * theta_k_Pr_R;
 		phi_km1_Pr_R 	= phi_k_Pr_R;
 
-        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+1.0f*Vector3f(_param_mpc_xy_p.get(),_param_mpc_xy_p.get(),_param_mpc_z_p.get()));
+        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+alpha_PID*Vector3f(_param_mpc_xy_p.get(),_param_mpc_xy_p.get(),_param_mpc_z_p.get()));
         // TODO: Test Performance
         // u_km1_Pr_R 	= u_k_Pr_R;
 
@@ -520,7 +520,7 @@ void PositionControl::_velocityController(const float &dt)
 			phi_km1_vel_y = phi_k_vel_y;
 			phi_km1_vel_z = phi_k_vel_z;
 
-			thrust_desired_D = thrust_desired_D + u_k_vel(2);
+			thrust_desired_D = alpha_PID*thrust_desired_D + u_k_vel(2);
 
 			/* // MIMO implementation
 			phi_k_Pv_R(0, 0) = vel_err(0);

@@ -176,6 +176,18 @@ public:
 			RCAC_Aw_ON = 0;
 		}
 	}
+
+	/**
+	 * 	Set the PID scaling factor.
+	 * 	@see _thr_int
+	 */
+	void set_PID_rate_factor(float PID_factor)
+	{
+		alpha_PID = 1;
+		if (PID_factor<0.0f) {
+			alpha_PID = 0.5;
+		}
+	}
 private:
 	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
 
@@ -214,4 +226,5 @@ private:
 
 	float alpha_P = 1.0f;
 	float alpha_N = 1.0f;
+	float alpha_PID = 1.0f;
 };
