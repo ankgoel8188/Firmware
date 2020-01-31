@@ -521,8 +521,10 @@ MulticopterAttitudeControl::Run()
 		_attitude_control.set_PID_att_factor(_rc_channels_switch.channels[13]);
 		_rate_control.set_PID_rate_factor(_rc_channels_switch.channels[13]);
 
-		//_attitude_control.set_RCAC_att_switch(1.0f);
-		//_rate_control.set_RCAC_rate_switch(1.0f);
+		// _attitude_control.set_RCAC_att_switch(1.0f);
+		// _rate_control.set_RCAC_rate_switch(1.0f);
+		// _attitude_control.set_PID_att_factor(-1.0f);
+		// _rate_control.set_PID_rate_factor(-1.0f);
 
 		/* run the rate controller immediately after a gyro update */
 		if (_v_control_mode.flag_control_rates_enabled) {

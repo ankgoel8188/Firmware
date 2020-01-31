@@ -111,7 +111,9 @@ void PositionControl::init_RCAC() {
 	theta_k_vel_x.setZero();
 	theta_k_vel_y.setZero();
 	theta_k_vel_z.setZero();
+	u_k_vel.setZero();
 }
+
 
 void PositionControl::updateState(const PositionControlStates &states)
 {
@@ -642,6 +644,29 @@ void PositionControl::_velocityController(const float &dt)
 			ii_Pr_R = 0;
 			ii_Pv_R = 0;
 			// TODO:Ankit - Move resetting to main loop
+
+			P_vel_x = eye<float, 3>() * 0.0010;
+			P_vel_y = eye<float, 3>() * 0.0010;
+			P_vel_z = eye<float, 3>() * 0.0010;
+			phi_k_vel_x.setZero();
+			phi_k_vel_y.setZero();
+			phi_k_vel_z.setZero();
+			phi_km1_vel_x.setZero();
+			phi_km1_vel_y.setZero();
+			phi_km1_vel_z.setZero();
+			theta_k_vel_x.setZero();
+			theta_k_vel_y.setZero();
+			theta_k_vel_z.setZero();
+			u_k_vel.setZero();
+
+			P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+			phi_km1_Pr_R.setZero();
+			theta_k_Pr_R.setZero();
+			z_k_Pr_R.setZero();
+			z_km1_Pr_R.setZero();
+			u_k_Pr_R.setZero();
+			u_km1_Pr_R.setZero();
+
 		}
 
 	}
