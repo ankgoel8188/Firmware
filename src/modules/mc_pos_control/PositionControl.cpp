@@ -112,6 +112,7 @@ void PositionControl::init_RCAC() {
 	theta_k_vel_y.setZero();
 	theta_k_vel_z.setZero();
 	u_k_vel.setZero();
+	z_k_vel.setZero();
 }
 
 
@@ -658,6 +659,7 @@ void PositionControl::_velocityController(const float &dt)
 			theta_k_vel_y.setZero();
 			theta_k_vel_z.setZero();
 			u_k_vel.setZero();
+			z_k_vel.setZero();
 
 			P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
 			phi_km1_Pr_R.setZero();

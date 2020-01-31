@@ -133,8 +133,15 @@ public:
 	const int &get_RCAC_att_ii() { return ii_Pq_R; }
 
 	/**
+	 * 	Get the
+	 * 	@see RCAC_Aq_ON
+	 * 	@return Get RCAC attitude controller switch
+	 */
+	const bool &get_RCAC_att_switch() {return RCAC_Aq_ON;}
+
+	/**
 	 * 	Set the RCAC Attitude switch.
-	 * 	@see _thr_int
+	 * 	@see RCAC_Aq_ON
 	 */
 	void set_RCAC_att_switch(float switch_RCAC)
 	{
@@ -146,7 +153,7 @@ public:
 
 	/**
 	 * 	Set the PID scaling factor.
-	 * 	@see _thr_int
+	 * 	@see alpha_PID
 	 */
 	void set_PID_att_factor(float PID_factor)
 	{

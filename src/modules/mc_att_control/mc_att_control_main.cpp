@@ -442,6 +442,10 @@ MulticopterAttitudeControl::publish_rcac_att_rate_variables()
 	_rcac_att_rate_variables.timestamp = hrt_absolute_time();
 	_rcac_att_rate_variables.ii_att = _attitude_control.get_RCAC_att_ii();
 	_rcac_att_rate_variables.ii_rate = _rate_control.get_RCAC_rate_ii();
+
+	_rcac_att_rate_variables.switch_att = _attitude_control.get_RCAC_att_switch();
+	_rcac_att_rate_variables.switch_rate = _rate_control.get_RCAC_rate_switch();
+
 	for (int i = 0; i <= 2; i++) {
 		_rcac_att_rate_variables.rcac_att_z[i] = _attitude_control.get_RCAC_att_z()(i);
 		_rcac_att_rate_variables.rcac_att_u[i] = _attitude_control.get_RCAC_att_u()(i);

@@ -166,6 +166,13 @@ public:
 	const int &get_RCAC_rate_ii() { return ii_AC_R; }
 
 	/**
+	 * 	Get the
+	 * 	@see RCAC_Aq_ON
+	 * 	@return Get RCAC rate controller switch
+	 */
+	const bool &get_RCAC_rate_switch() {return RCAC_Aw_ON;}
+
+	/**
 	 * 	Set the RCAC Rate switch.
 	 * 	@see _thr_int
 	 */

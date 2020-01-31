@@ -339,6 +339,20 @@ public:
 			alpha_PID = 0.5;
 		}
 	}
+
+	/**
+	 * 	Get the
+	 * 	@see RCAC_Pr_ON
+	 * 	@return Get RCAC pos controller switch
+	 */
+	const bool &get_RCAC_pos_switch() {return RCAC_Pr_ON;}
+
+	/**
+	 * 	Get the
+	 * 	@see RCAC_Pr_ON
+	 * 	@return Get RCAC vel controller switch
+	 */
+	const bool &get_RCAC_vel_switch() {return RCAC_Pv_ON;}
 protected:
 
 	void updateParams() override;
