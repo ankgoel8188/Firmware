@@ -694,6 +694,7 @@ MulticopterPositionControl::Run()
 				// prevent any integrator windup
 				_control.resetIntegralXY();
 				_control.resetIntegralZ();
+				_control.resetRCAC();
 
                 // TODO: (@ankit) refactor resetting RCAC integrators here (unless rampup
                 // debate concludes otherwise) - if so, the subsequent if conditional.

@@ -122,9 +122,9 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 					N1_rate(i) = 1;
 				}
 
-				P_rate_x = eye<float, 4>() * 0.0010;
-				P_rate_y = eye<float, 4>() * 0.0010;
-				P_rate_z = eye<float, 4>() * 0.0010;
+				P_rate_x = eye<float, 4>() * 0.00010;
+				P_rate_y = eye<float, 4>() * 0.00010;
+				P_rate_z = eye<float, 4>() * 0.00010;
 				phi_k_rate_x.setZero();
 				phi_k_rate_y.setZero();
 				phi_k_rate_z.setZero();
@@ -189,7 +189,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 
 			torque = torque+u_k_rate;
 
-			PX4_INFO("Rate Controller:\t%8.4f\t%8.4f\t%8.4f",(double)N1_rate(0), (double)N1_rate(1), (double)N1_rate(2));
+			//PX4_INFO("Rate Controller:\t%8.4f\t%8.4f\t%8.4f",(double)N1_rate(0), (double)N1_rate(1), (double)N1_rate(2));
 
 			/*phi_k_AC_R = phi_k_AC_R*0.0f;
 			phi_k_AC_R(0, 0) = rate_error(0);

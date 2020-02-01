@@ -353,6 +353,49 @@ public:
 	 * 	@return Get RCAC vel controller switch
 	 */
 	const bool &get_RCAC_vel_switch() {return RCAC_Pv_ON;}
+
+	/**
+	 * 	Reset RCAC variables
+	 * 	@see _thr_int
+	 */
+	void resetRCAC()
+	{
+		// P_vel_x = eye<float, 3>() * 0.0010;
+		// P_vel_y = eye<float, 3>() * 0.0010;
+		// P_vel_z = eye<float, 3>() * 0.0010;
+		// P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+		P_vel_x.setZero();
+		P_vel_y.setZero();
+		P_vel_z.setZero();
+		P_Pr_R.setZero();
+		for (int i = 0; i <= 2; i++) {
+			P_vel_x(i,i) = 0.001;
+			P_vel_y(i,i) = 0.001;
+			P_vel_z(i,i) = 0.001;
+			P_Pr_R(i,i) = 0.01;
+		}
+		phi_k_vel_x.setZero();
+		phi_k_vel_y.setZero();
+		phi_k_vel_z.setZero();
+		phi_km1_vel_x.setZero();
+		phi_km1_vel_y.setZero();
+		phi_km1_vel_z.setZero();
+		theta_k_vel_x.setZero();
+		theta_k_vel_y.setZero();
+		theta_k_vel_z.setZero();
+		u_k_vel.setZero();
+		z_k_vel.setZero();
+
+		phi_km1_Pr_R.setZero();
+		theta_k_Pr_R.setZero();
+		z_k_Pr_R.setZero();
+		z_km1_Pr_R.setZero();
+		u_k_Pr_R.setZero();
+		u_km1_Pr_R.setZero();
+
+		ii_Pr_R = 0;
+		ii_Pv_R = 0;
+	}
 protected:
 
 	void updateParams() override;
