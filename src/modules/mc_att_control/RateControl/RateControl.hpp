@@ -195,6 +195,38 @@ public:
 			alpha_PID = 0.5;
 		}
 	}
+
+	/**
+	 * 	Set RCAC variables.
+	 * 	@see all RCAC variables
+	 */
+	void init_RCAC_rate()
+	{
+		P_rate_x.setZero(); //= eye<float, 4>() * 0.00010;
+		P_rate_y.setZero(); //= eye<float, 4>() * 0.00010;
+		P_rate_z.setZero(); //= eye<float, 4>() * 0.00010;
+		for (int i = 0; i <= 3; i++) {
+			P_rate_x(i,i) = 0.001f;
+			P_rate_y(i,i) = 0.001f;
+			P_rate_z(i,i) = 0.001f;
+		}
+		for (int i = 0; i <= 2; i++) {
+			N1_rate(i) = 1;
+		}
+		phi_k_rate_x.setZero();
+		phi_k_rate_y.setZero();
+		phi_k_rate_z.setZero();
+		phi_km1_rate_x.setZero();
+		phi_km1_rate_y.setZero();
+		phi_km1_rate_z.setZero();
+		theta_k_rate_x.setZero();
+		theta_k_rate_y.setZero();
+		theta_k_rate_z.setZero();
+		u_k_rate.setZero();
+		z_k_rate.setZero();
+		u_km1_rate.setZero();
+		z_km1_rate.setZero();
+	}
 private:
 	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
 
@@ -219,7 +251,6 @@ private:
 	// matrix::Matrix<float, 3,12> phi_k_AC_R, phi_km1_AC_R;
 	// matrix::Matrix<float, 12,1> theta_k_AC_R,theta_k_Ac_PID;
   	// matrix::Matrix<float, 3,1> z_k_AC_R, z_km1_AC_R,u_k_AC_R, u_km1_AC_R;
-
 	// matrix::SquareMatrix<float, 3> Gamma_AC_R, I3, N1_Aw;
 
 	matrix::SquareMatrix<float, 4> P_rate_x,P_rate_y,P_rate_z;
@@ -231,7 +262,5 @@ private:
 	matrix::Vector3f N1_rate, Gamma_rate;
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
-	float alpha_P = 1.0f;
-	float alpha_N = 1.0f;
 	float alpha_PID = 1.0f;
 };

@@ -162,6 +162,34 @@ public:
 			alpha_PID = 0.5;
 		}
 	}
+
+	/**
+	 * 	Set RCAC variables.
+	 * 	@see all RCAC variables
+	 */
+	void init_RCAC_att()
+	{
+		// P_Pq_R = eye<float, 3>() * 0.010;
+		// N1_Pq = eye<float, 3>();
+		// I3 = eye<float, 3>();
+		P_Pq_R.setZero();
+		N1_Pq.setZero();
+		I3.setZero();
+		for (int i = 0; i <= 2; i++) {
+			P_Pq_R(i,i) = 0.01f;
+			N1_Pq(i,i) = 1.0f;
+			I3(i,i) = 1.0f;
+		}
+		phi_k_Pq_R.setZero();
+		phi_km1_Pq_R.setZero();
+		theta_k_Pq_R.setZero();
+		z_k_Pq_R.setZero();
+		z_km1_Pq_R.setZero();
+		u_k_Pq_R.setZero();
+		u_km1_Pq_R.setZero();
+		Gamma_Pq_R.setZero();
+	}
+
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
@@ -174,8 +202,6 @@ private:
 	matrix::Matrix<float, 3,1> theta_k_Pq_R,theta_k_Pq_PID;
   	matrix::Matrix<float, 3,1> z_k_Pq_R, z_km1_Pq_R,u_k_Pq_R, u_km1_Pq_R;
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
-	float alpha_P = 1.0f;
-	float alpha_N = 1.0f;
 
 	float alpha_PID = 1.0f;
 };

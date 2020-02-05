@@ -388,38 +388,6 @@ MulticopterAttitudeControl::control_attitude_rates(float dt, const Vector3f &rat
 	const bool landed = _vehicle_land_detected.maybe_landed || _vehicle_land_detected.landed;
 	_rate_control.setSaturationStatus(_saturation_status);
 	_att_control = _rate_control.update(rates, _rates_sp, dt, landed);
-
-    /*if (!landed && 0) // TODO: Fix the logic
-	{
-	cout 	<< dt << "\t"
-		<< _att_control(0) << "\t"
-		<< _att_control(1) << "\t"
-		<< _att_control(2) << "\t"
-		<< landed << "\n";
-	}
-	if (!landed)
-	{
-		//cout << _v_att.timestamp << "\t" << hrt_absolute_time() <<"\n";
-		ofstream State_ATT_Data("States_Att.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-		if (State_ATT_Data.is_open())
-		{
-			State_ATT_Data << _v_att.timestamp << "\t"
-				   // << _v_att.rollspeed << "\t"
-				   // << _v_att.pitchspeed << "\t"
-				   // << _v_att.yawspeed << "\t"
-				   << _v_att.q[0] << "\t"
-				   << _v_att.q[1] << "\t"
-				   << _v_att.q[2] << "\t"
-				   << _v_att.q[3] << "\t"
-				   << Eulerf(Quatf(_v_att.q)).phi() << "\t"
-				   << Eulerf(Quatf(_v_att.q)).theta() << "\t"
-				   << Eulerf(Quatf(_v_att.q)).psi() << "\t"
-				   << "\n"
-				   ;
-			State_ATT_Data.close();
-		}
-	}*/
-
 }
 
 void
@@ -518,17 +486,18 @@ MulticopterAttitudeControl::Run()
 		_actuators.timestamp_sample = angular_velocity.timestamp_sample;
 
 		//RCtopic
+		// Ankit: RCAC switches and the PID scaling factor controlled by the RC transmitter
 		_rc_channels_sub.update(&_rc_channels_switch);
 		_attitude_control.set_RCAC_att_switch(_rc_channels_switch.channels[14]);
 		_rate_control.set_RCAC_rate_switch(_rc_channels_switch.channels[14]);
-
 		_attitude_control.set_PID_att_factor(_rc_channels_switch.channels[13]);
 		_rate_control.set_PID_rate_factor(_rc_channels_switch.channels[13]);
 
-		// _attitude_control.set_RCAC_att_switch(1.0f);
-		// _rate_control.set_RCAC_rate_switch(1.0f);
-		// _attitude_control.set_PID_att_factor(-1.0f);
-		// _rate_control.set_PID_rate_factor(-1.0f);
+		// Ankit: RCAC switches and the PID scaling factor for SITL testing
+		_attitude_control.set_RCAC_att_switch(1.0f);
+		_rate_control.set_RCAC_rate_switch(1.0f);
+		_attitude_control.set_PID_att_factor(1.0f);
+		_rate_control.set_PID_rate_factor(1.0f);
 
 		/* run the rate controller immediately after a gyro update */
 		if (_v_control_mode.flag_control_rates_enabled) {

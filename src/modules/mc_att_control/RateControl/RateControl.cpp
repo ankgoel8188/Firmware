@@ -88,25 +88,19 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 
 	_rate_prev = rate;
 	_rate_prev_filtered = rate_filtered;
-
+	//PX4_INFO("Rate Controller:\t%8.4f", (double)dt);
+	if (landed)
+	{
+		ii_AC_R = 0;
+		// ii_Pq_R = 0;
+	}
 	if (!landed && RCAC_Aw_ON)
 		{
 			ii_AC_R = ii_AC_R + 1;
 			if (ii_AC_R == 1)
 			{
-				/*P_AC_R = eye<float, 12>() * 0.001*alpha_P;
-				N1_Aw = eye<float, 3>() * (1.0) * alpha_N ;
-				I3 = eye<float, 3>();
-				phi_k_AC_R.setZero();
-				phi_km1_AC_R.setZero();
-				theta_k_AC_R.setZero();
-				z_k_AC_R.setZero();
-				z_km1_AC_R.setZero();
-				u_k_AC_R.setZero();
-				u_km1_AC_R.setZero();
-				Gamma_AC_R.setZero();
-
-				theta_k_Ac_PID(0,0) = _gain_p(0);
+				init_RCAC_rate();
+				/*theta_k_Ac_PID(0,0) = _gain_p(0);
 				theta_k_Ac_PID(1,0) = _gain_i(0);
 				theta_k_Ac_PID(2,0) = _gain_d(0);
 				theta_k_Ac_PID(3,0) = _gain_ff(0);
@@ -118,24 +112,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 				theta_k_Ac_PID(9,0) = _gain_i(2);
 				theta_k_Ac_PID(10,0) = _gain_d(2);
 				theta_k_Ac_PID(11,0) = _gain_ff(2);*/
-				for (int i = 0; i <= 2; i++) {
-					N1_rate(i) = 1;
-				}
 
-				P_rate_x = eye<float, 4>() * 0.00010;
-				P_rate_y = eye<float, 4>() * 0.00010;
-				P_rate_z = eye<float, 4>() * 0.00010;
-				phi_k_rate_x.setZero();
-				phi_k_rate_y.setZero();
-				phi_k_rate_z.setZero();
-				phi_km1_rate_x.setZero();
-				phi_km1_rate_y.setZero();
-				phi_km1_rate_z.setZero();
-				theta_k_rate_x.setZero();
-				theta_k_rate_y.setZero();
-				theta_k_rate_z.setZero();
-				u_k_rate.setZero();
-				z_k_rate.setZero();
 			}
 
 			// Ankit 01 30 2020:New SISO implementation
@@ -187,93 +164,8 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			phi_km1_rate_y = phi_k_rate_y;
 			phi_km1_rate_z = phi_k_rate_z;
 
-			torque = torque+u_k_rate;
-
-			//PX4_INFO("Rate Controller:\t%8.4f\t%8.4f\t%8.4f",(double)N1_rate(0), (double)N1_rate(1), (double)N1_rate(2));
-
-			/*phi_k_AC_R = phi_k_AC_R*0.0f;
-			phi_k_AC_R(0, 0) = rate_error(0);
-			phi_k_AC_R(0, 1) = _rate_int(0); //_gain_i(0);
-			phi_k_AC_R(0, 2) = rate_d(0)*0.0f;; //(rates_filtered(0) - _rates_prev_filtered(0))/dt;
-			phi_k_AC_R(0, 3) = rate_sp(0)*0.0f;
-
-			phi_k_AC_R(1, 4) = rate_error(1);
-			phi_k_AC_R(1, 5) = _rate_int(1); //_gain_i(1);
-			phi_k_AC_R(1, 6) = rate_d(1)*0.0f;; //(rates_filtered(1) - _rates_prev_filtered(1))/dt;
-			phi_k_AC_R(1, 7) = rate_sp(1)*0.0f;
-
-			phi_k_AC_R(2, 8) = rate_error(2);
-			phi_k_AC_R(2, 9) = _rate_int(2); //_gain_i(2);
-			phi_k_AC_R(2, 10) = rate_d(2)*0.0f; //(rates_filtered(2) - _rates_prev_filtered(2))/dt;
-			phi_k_AC_R(2, 11) = rate_sp(2)*0.0f;
-
-			z_k_AC_R = rate_error;
-
-			Gamma_AC_R 	= phi_km1_AC_R * P_AC_R * phi_km1_AC_R.T() + I3;
-			Gamma_AC_R 	= Gamma_AC_R.I();
-			P_AC_R 		= P_AC_R - (P_AC_R * phi_km1_AC_R.T()) * Gamma_AC_R * (phi_km1_AC_R * P_AC_R);
-			theta_k_AC_R 	= theta_k_AC_R + (P_AC_R * phi_km1_AC_R.T()) * N1_Aw *
-					 (z_k_AC_R + N1_Aw *(phi_km1_AC_R * theta_k_AC_R - u_km1_AC_R) );
-			u_k_AC_R 	= phi_k_AC_R * (1.0f*theta_k_AC_R+0.0f*theta_k_Ac_PID);
-			u_km1_AC_R 	= u_k_AC_R;
-			phi_km1_AC_R 	= phi_k_AC_R;
-
-			torque = torque+u_k_AC_R;*/
-
-			/*if (1) //
-			{
-				ofstream RCAC_A_w("RCAC_A_w.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-				if (RCAC_A_w.is_open())
-				{
-					//cout << "Writing RCAC_Att_data.txt \n";
-					RCAC_A_w << ii_AC_R << "\t"
-							  << dt << "\t"
-							  << z_k_AC_R(0, 0) << "\t"
-							  << z_k_AC_R(1, 0) << "\t"
-							  << z_k_AC_R(2, 0) << "\t"
-							  << rate_sp(0) << "\t"
-							  << rate_sp(1) << "\t"
-							  << rate_sp(2) << "\t"
-							  << rate(0) << "\t"
-							  << rate(1) << "\t"
-							  << rate(2) << "\t"
-							  << u_k_AC_R(0, 0) << "\t"
-							  << u_k_AC_R(1, 0) << "\t"
-							  << u_k_AC_R(2, 0) << "\t"
-							  << theta_k_AC_R(0, 0) << "\t"
-							  << theta_k_AC_R(1, 0) << "\t"
-							  << theta_k_AC_R(2, 0) << "\t"
-							  << theta_k_AC_R(3, 0) << "\t"
-							  << theta_k_AC_R(4, 0) << "\t"
-							  << theta_k_AC_R(5, 0) << "\t"
-							  << theta_k_AC_R(6, 0) << "\t"
-							  << theta_k_AC_R(7, 0) << "\t"
-							  << theta_k_AC_R(8, 0) << "\t"
-							  << theta_k_AC_R(9, 0) << "\t"
-							  << theta_k_AC_R(10, 0) << "\t"
-							  << theta_k_AC_R(11, 0) << "\t"
-							  << _gain_p(0) << "\t"
-							  << _gain_i(0) << "\t"
-							  << _gain_d(0) << "\t"
-							  << _gain_ff(0) << "\t"
-							  << _gain_p(1) << "\t"
-							  << _gain_i(1) << "\t"
-							  << _gain_d(1) << "\t"
-							  << _gain_ff(1) << "\t"
-							  << _gain_p(2) << "\t"
-							  << _gain_i(2) << "\t"
-							  << _gain_d(2) << "\t"
-							  << _gain_ff(2) << "\t"
-							  << "\n";
-					RCAC_A_w.close();
-				}
-			}*/
+			torque = alpha_PID*torque+u_k_rate;
 		}
-	if (landed)
-	{
-		ii_AC_R = 0;
-		// ii_Pq_R = 0;
-	}
 	// update integral only if we are not landed
 	if (!landed) {
 		updateIntegral(rate_error, dt);

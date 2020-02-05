@@ -329,15 +329,6 @@ MulticopterPositionControl::init()
 	_local_pos_sub.set_interval_us(20_ms); // 50 Hz max update rate
 
 	_time_stamp_last_loop = hrt_absolute_time();
-	/*cout << "Removed files" << "\n";
-	// remove( "RCAC_data.txt" );
-	// remove( "RCAC_AC_data.txt" );
-	remove( "States.txt" );
-	remove( "States_Att.txt" );
-	remove( "RCAC_A_q.txt" );
-	remove( "RCAC_A_w.txt" );
-	remove( "RCAC_P_r.txt" );
-	remove( "RCAC_P_v.txt" );*/
 	return true;
 }
 
@@ -555,9 +546,9 @@ MulticopterPositionControl::Run()
 		_control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
 		_control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
 		_control.set_PID_pv_factor(_rc_channels_switch.channels[13]);
-		// _control.set_RCAC_pos_switch(1.0f);
-		// _control.set_RCAC_vel_switch(1.0f);
-		// _control.set_PID_pv_factor(-1.0f);
+		_control.set_RCAC_pos_switch(1.0f);
+		_control.set_RCAC_vel_switch(1.0f);
+		_control.set_PID_pv_factor(1.0f);
 
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[14]);
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[13]);

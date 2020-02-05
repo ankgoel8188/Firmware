@@ -53,8 +53,7 @@ PositionControl::PositionControl(ModuleParams *parent) :
 {
 	// Quasi-constants. TODO: Optimize later.
 	I3 = eye<float, 3>();
-	N1_Pr = eye<float, 3>() * (1.0f)*alpha_N;
-	// N1_Pv = eye<float, 3>() * (1.0f)*alpha_N;
+	N1_Pr = eye<float, 3>() * (1.0f);
 
 	for (int i = 0; i <= 2; i++) {
 		N1_vel(i) = 1;
@@ -63,9 +62,8 @@ PositionControl::PositionControl(ModuleParams *parent) :
 }
 
 void PositionControl::init_RCAC() {
-	P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+	P_Pr_R = eye<float, 3>() * 0.010 ;
 
-	// I3 = eye<float, 3>();
 	phi_k_Pr_R.setZero();
 	phi_km1_Pr_R.setZero();
 	theta_k_Pr_R.setZero();
@@ -74,30 +72,6 @@ void PositionControl::init_RCAC() {
 	u_k_Pr_R.setZero();
 	u_km1_Pr_R.setZero();
 	Gamma_Pr_R.setZero();
-
-	theta_k_Pr_R = 0.0f*Vector3f(_param_mpc_xy_p.get(),
-			_param_mpc_xy_p.get(),
-			_param_mpc_z_p.get());
-
-	/*P_Pv_R = eye<float, 9>() * 0.010 * alpha_P *0.1;
-	phi_k_Pv_R.setZero();
-	phi_km1_Pv_R.setZero();
-	theta_k_Pv_R.setZero();
-	z_k_Pv_R.setZero();
-	z_km1_Pv_R.setZero();
-	u_k_Pv_R.setZero();
-	u_km1_Pv_R.setZero();
-	Gamma_Pv_R.setZero();
-
-	theta_k_Pv_PID(0,0) = _param_mpc_xy_vel_p.get();
-	theta_k_Pv_PID(1,0) = 1; //_param_mpc_xy_vel_i.get();
-	theta_k_Pv_PID(2,0) = _param_mpc_xy_vel_d.get();
-	theta_k_Pv_PID(3,0) = _param_mpc_xy_vel_p.get();
-	theta_k_Pv_PID(4,0) = 1; //_param_mpc_xy_vel_i.get();
-	theta_k_Pv_PID(5,0) = _param_mpc_xy_vel_d.get();
-	theta_k_Pv_PID(6,0) = _param_mpc_z_vel_p.get();
-	theta_k_Pv_PID(7,0) = 1; //_param_mpc_z_vel_i.get();
-	theta_k_Pv_PID(8,0) = _param_mpc_z_vel_d.get();*/
 
 	P_vel_x = eye<float, 3>() * 0.0010;
 	P_vel_y = eye<float, 3>() * 0.0010;
@@ -291,34 +265,24 @@ void PositionControl::_positionController()
 
 	if (RCAC_Pr_ON)
 	{
-		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
-
-        z_k_Pr_R = (_pos_sp - _pos);
-        // Regressor
-        for (int i=0; i<3; i++) {
-            phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
-        }
-	ii_Pr_R += 1;
+	        ii_Pr_R += 1;
+		z_k_Pr_R = (_pos_sp - _pos);
+		// Regressor
+		for (int i=0; i<3; i++) {
+			phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
+		}
 		Gamma_Pr_R 	= phi_km1_Pr_R * P_Pr_R * phi_km1_Pr_R.T() + I3;
 		Gamma_Pr_R 	= Gamma_Pr_R.I();
-
-
-        P_Pr_R 	-= (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
-
-        theta_k_Pr_R += (P_Pr_R * phi_km1_Pr_R.T()) * N1_Pr *
-				 (z_k_Pr_R + N1_Pr*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) );
-		u_km1_Pr_R 		= phi_k_Pr_R * theta_k_Pr_R;
+		P_Pr_R 	-= (P_Pr_R * phi_km1_Pr_R.T()) * Gamma_Pr_R * (phi_km1_Pr_R * P_Pr_R);
+		theta_k_Pr_R += (P_Pr_R * phi_km1_Pr_R.T()) * N1_Pr *
+					(z_k_Pr_R + N1_Pr*(phi_km1_Pr_R * theta_k_Pr_R - u_km1_Pr_R) );
+		u_k_Pr_R 	= phi_k_Pr_R * theta_k_Pr_R;
+		u_km1_Pr_R 	= u_k_Pr_R;
 		phi_km1_Pr_R 	= phi_k_Pr_R;
 
-        u_k_Pr_R 	= phi_k_Pr_R * (theta_k_Pr_R+alpha_PID*Vector3f(_param_mpc_xy_p.get(),_param_mpc_xy_p.get(),_param_mpc_z_p.get()));
-        // TODO: Test Performance
-        // u_km1_Pr_R 	= u_k_Pr_R;
-
-		vel_sp_position = u_k_Pr_R;
-	// PX4_INFO("theta_k_Pr_R:\t%8.4f\t%8.4f\t%8.4f",
-        //             		(double)theta_k_Pr_R(0,0),
-	// 			(double)theta_k_Pr_R(1,0),
-	// 			(double)theta_k_Pr_R(2,0));
+		vel_sp_position = alpha_PID*vel_sp_position + u_k_Pr_R;
+		// PX4_INFO("Pos Control u :\t%8.6f\t%8.6f\t%8.6f", (double)P_Pr_R(0,0), (double)P_Pr_R(1,1), (double)P_Pr_R(2,2));
+		// PX4_INFO("Pos Control u :\t%8.6f\t%8.6f\t%8.6f", (double)N1_vel(0), (double)N1_vel(1), (double)N1_vel(2));
 	}
 	_vel_sp = vel_sp_position + _vel_sp;
 
@@ -359,22 +323,13 @@ void PositionControl::_velocityController(const float &dt)
 	// 	 NE-direction is also limited by the maximum tilt.
 
 	const Vector3f vel_err = _vel_sp - _vel;
-	// float thrust_desired_D = 0.0;
 
 	// Consider thrust in D-direction.
 	float thrust_desired_D = _param_mpc_z_vel_p.get() * vel_err(2) +
 							 _param_mpc_z_vel_d.get() * _vel_dot(2) +
 							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
-
-	if (!RCAC_Pv_ON)
-	{
-		thrust_desired_D = 1*(_param_mpc_z_vel_p.get() * vel_err(2) +
-				1*_param_mpc_z_vel_d.get() * _vel_dot(2) +
-				1*_thr_int(2) -
-				1*_param_mpc_thr_hover.get());
-	}
-	else
+	if (RCAC_Pv_ON)
 	{
 		ii_Pv_R += 1;
 		//if (dt > 0.01f)
@@ -424,8 +379,8 @@ void PositionControl::_velocityController(const float &dt)
 			// 	Gamma_y_R.setZero();
 			// 	Gamma_z_R.setZero();
 			// }
-			// //thrust_desired_D = -.13;
 
+			// Ankit: Old SISO implementation
 			// // phi_k_x_R(0, 0) = vel_err(2);
 			// // phi_k_x_R(0, 1) = _vel_dot(2) * 0;
 			// // phi_k_x_R(0, 2) = phi_k_x_R(0, 2) + vel_err(2) * dt;
@@ -603,15 +558,15 @@ void PositionControl::_velocityController(const float &dt)
 
 		if ( (RCAC_Pv_ON) && (1) )
 		{
-			//thrust_desired_NE(0) = u_k_x_R(0, 0);
-			//thrust_desired_NE(1) = u_k_y_R(0, 0);
+			// thrust_desired_NE(0) = u_k_x_R(0, 0);
+			// thrust_desired_NE(1) = u_k_y_R(0, 0);
 			// thrust_desired_NE(0) = u_k_Pv_R(0, 0);
 			// thrust_desired_NE(1) = u_k_Pv_R(1, 0);
 			// thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_Pv_R(0, 0);
 			// thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_Pv_R(1, 0);
 
-			thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_vel(0);
-			thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_vel(1);
+			thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0) + u_k_vel(0);
+			thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1) + u_k_vel(1);
 		}
 		// Get maximum allowed thrust in NE based on tilt and excess thrust.
 		float thrust_max_NE_tilt = fabsf(_thr_sp(2)) * tanf(_constraints.tilt);

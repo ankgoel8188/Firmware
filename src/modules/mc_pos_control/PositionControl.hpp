@@ -364,6 +364,7 @@ public:
 		// P_vel_y = eye<float, 3>() * 0.0010;
 		// P_vel_z = eye<float, 3>() * 0.0010;
 		// P_Pr_R = eye<float, 3>() * 0.010 * alpha_P;
+
 		P_vel_x.setZero();
 		P_vel_y.setZero();
 		P_vel_z.setZero();
@@ -458,9 +459,6 @@ private:
   	matrix::Vector3f z_k_vel, z_km1_vel, u_k_vel, u_km1_vel;
 	matrix::Vector3f N1_vel, Gamma_vel;
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
-
-	float alpha_P = 1.0f;
-	float alpha_N = 1.0f;
 
 	float alpha_PID = 1.0f;
 

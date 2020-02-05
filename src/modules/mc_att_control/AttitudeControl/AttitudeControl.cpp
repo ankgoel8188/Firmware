@@ -103,35 +103,17 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	}
 
 	if ((RCAC_Aq_ON) && (!landed))
-	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed && RCAC_Pq_ON)
 	{
-		// cout << "Attitude controller" << "\n";
-		//vel_sp_position = 1.0f*(_pos_sp - _pos).emult(Vector3f(1.0f, 1.0f, 1.0f));
 		ii_Pq_R = ii_Pq_R + 1;
 		if (ii_Pq_R == 1)
 		{
-			P_Pq_R = eye<float, 3>() * 0.010 * 100.0f*alpha_P * 0.01;
-			N1_Pq = eye<float, 3>() * (1.0f) * alpha_N;
-			I3 = eye<float, 3>();
-			phi_k_Pq_R.setZero();
-			phi_km1_Pq_R.setZero();
-			theta_k_Pq_R.setZero();
-			z_k_Pq_R.setZero();
-			z_km1_Pq_R.setZero();
-			u_k_Pq_R.setZero();
-			u_km1_Pq_R.setZero();
-			Gamma_Pq_R.setZero();
-
-			theta_k_Pq_R = 0.0f*_proportional_gain;
-			theta_k_Pq_PID(0,0) = _proportional_gain(0);
-			theta_k_Pq_PID(1,0) = _proportional_gain(1);
-			theta_k_Pq_PID(2,0) = _proportional_gain(2);
+			init_RCAC_att();
 
 		}
-
-		phi_k_Pq_R(0, 0) = eq(0);
-		phi_k_Pq_R(1, 1) = eq(1);
-		phi_k_Pq_R(2, 2) = eq(2);
+		for (int i = 0; i <= 2; i++) {
+			phi_k_Pq_R(i, i) = eq(i);
+			theta_k_Pq_PID(i,0) = _proportional_gain(i); //Ankit: Not needed now, but keep it just in case
+		}
 
 		z_k_Pq_R = eq;
 
@@ -143,37 +125,11 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		theta_k_Pq_R 	= theta_k_Pq_R + (P_Pq_R * phi_km1_Pq_R.T()) * N1_Pq *
 				 (z_k_Pq_R + N1_Pq*(phi_km1_Pq_R * theta_k_Pq_R - u_km1_Pq_R) );
 
-		u_k_Pq_R 	= phi_k_Pq_R * (1.0f*theta_k_Pq_R+ alpha_PID *theta_k_Pq_PID);
+		u_k_Pq_R 	= phi_k_Pq_R * (theta_k_Pq_R+ 0*alpha_PID *theta_k_Pq_PID);
 		u_km1_Pq_R 	= u_k_Pq_R;
 		phi_km1_Pq_R 	= phi_k_Pq_R;
 
-		rate_setpoint = u_k_Pq_R;
-
-		/*if (1) //
-		{
-			//cout << "Writing RCAC_data.txt" << "\t" << dt << "\n";
-			ofstream RCAC_A_q("RCAC_A_q.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-			if (RCAC_A_q.is_open())
-			{
-				RCAC_A_q << ii_Pq_R << "\t"
-					<< z_k_Pq_R(0,0) << "\t"
-					<< z_k_Pq_R(1,0) << "\t"
-					<< z_k_Pq_R(2,0) << "\t"
-					<< theta_k_Pq_R(0,0) << "\t"
-					<< theta_k_Pq_R(1,0) << "\t"
-					<< theta_k_Pq_R(2,0) << "\t"
-					<< u_k_Pq_R(0,0) << "\t"
-					<< u_k_Pq_R(1,0) << "\t"
-					<< u_k_Pq_R(2,0) << "\t"
-					//
-					<< _proportional_gain(0) << "\t"
-					<< _proportional_gain(1) << "\t"
-					<< _proportional_gain(2) << "\t"
-					<< "\n";
-				RCAC_A_q.close();
-			}
-		}*/
-
+		rate_setpoint 	= alpha_PID * rate_setpoint + u_k_Pq_R;
 
 	}
 
