@@ -284,7 +284,7 @@ void PositionControl::_positionController()
 		// PX4_INFO("Pos Control u :\t%8.6f\t%8.6f\t%8.6f", (double)P_Pr_R(0,0), (double)P_Pr_R(1,1), (double)P_Pr_R(2,2));
 		// PX4_INFO("Pos Control u :\t%8.6f\t%8.6f\t%8.6f", (double)N1_vel(0), (double)N1_vel(1), (double)N1_vel(2));
 	}
-	_vel_sp = vel_sp_position + _vel_sp;
+	_vel_sp = alpha_PID*vel_sp_position + _vel_sp; //Ankit: Reducing PID gains
 
 	// Constrain horizontal velocity by prioritizing the velocity component along the
 	// the desired position setpoint over the feed-forward term.
@@ -329,6 +329,7 @@ void PositionControl::_velocityController(const float &dt)
 							 _param_mpc_z_vel_d.get() * _vel_dot(2) +
 							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
+	thrust_desired_D = alpha_PID*thrust_desired_D; 
 	if (RCAC_Pv_ON)
 	{
 		ii_Pv_R += 1;
@@ -556,6 +557,11 @@ void PositionControl::_velocityController(const float &dt)
 		thrust_desired_NE(0) = _param_mpc_xy_vel_p.get() * vel_err(0) + _param_mpc_xy_vel_d.get() * _vel_dot(0) + _thr_int(0);
 		thrust_desired_NE(1) = _param_mpc_xy_vel_p.get() * vel_err(1) + _param_mpc_xy_vel_d.get() * _vel_dot(1) + _thr_int(1);
 
+		if (1)
+		{
+			thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0);
+			thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1);
+		}
 		if ( (RCAC_Pv_ON) && (1) )
 		{
 			// thrust_desired_NE(0) = u_k_x_R(0, 0);

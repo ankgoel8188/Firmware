@@ -85,7 +85,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 
 	// PID control with feed forward
 	Vector3f torque = _gain_p.emult(rate_error) + _rate_int - _gain_d.emult(rate_d) + _gain_ff.emult(rate_sp);
-
+	torque=alpha_PID*torque;
 	_rate_prev = rate;
 	_rate_prev_filtered = rate_filtered;
 	//PX4_INFO("Rate Controller:\t%8.4f", (double)dt);
