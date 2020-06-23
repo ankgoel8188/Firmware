@@ -543,12 +543,22 @@ MulticopterPositionControl::Run()
 
 		poll_subscriptions();
 
-		_control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
-		_control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
-		_control.set_PID_pv_factor(_rc_channels_switch.channels[13]); // Eventually change this to analog input
-		//_control.set_RCAC_pos_switch(1.0f); //Manually switch on RCAC for SITL testing
-		//_control.set_RCAC_vel_switch(1.0f); //Manually switch on RCAC for SITL testing
-		//_control.set_PID_pv_factor(1.0f); //Manually set PID factor for SITL testing
+		float RCAC_switch = _rc_channels_switch.channels[14];
+		float PID_scale_f = _rc_channels_switch.channels[13];
+
+		RCAC_switch = -1.0f;
+		PID_scale_f = -1.0f;
+		_control.set_RCAC_pos_switch(RCAC_switch); 
+		_control.set_RCAC_vel_switch(RCAC_switch); 
+		_control.set_PID_pv_factor(PID_scale_f); 
+
+		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
+		// _control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
+		// _control.set_PID_pv_factor(_rc_channels_switch.channels[13]); // Eventually change this to analog input
+		
+		// _control.set_RCAC_pos_switch(-1.0f); //Manually switch on RCAC for SITL testing
+		// _control.set_RCAC_vel_switch(-1.0f); //Manually switch on RCAC for SITL testing
+		// _control.set_PID_pv_factor(1.0f); //Manually set PID factor for SITL testing
 
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[14]);
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[13]);
@@ -769,8 +779,10 @@ MulticopterPositionControl::Run()
 			publish_attitude();
 
 			_rcac_pos_vel_variables.timestamp = hrt_absolute_time();
-			_rcac_pos_vel_variables.rcac_alpha[0] = _rc_channels_switch.channels[13];
-			_rcac_pos_vel_variables.rcac_alpha[1] = _rc_channels_switch.channels[14];
+			// _rcac_pos_vel_variables.rcac_alpha[0] = _rc_channels_switch.channels[13];
+			// _rcac_pos_vel_variables.rcac_alpha[1] = _rc_channels_switch.channels[14];
+			_rcac_pos_vel_variables.rcac_alpha[0] = PID_scale_f;
+			_rcac_pos_vel_variables.rcac_alpha[1] = RCAC_switch;
 			_rcac_pos_vel_variables.ii_pos = _control.get_RCAC_pos_ii();
 			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
