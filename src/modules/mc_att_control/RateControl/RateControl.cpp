@@ -94,6 +94,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 		ii_AC_R = 0;
 		// ii_Pq_R = 0;
 	}
+	z_k_rate = rate_error;
 	if (!landed && RCAC_Aw_ON)
 		{
 			ii_AC_R = ii_AC_R + 1;

@@ -263,10 +263,11 @@ void PositionControl::_positionController()
         Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(),
                                          _param_mpc_z_p.get()));
 
+	z_k_Pr_R = (_pos_sp - _pos);
 	if (RCAC_Pr_ON)
 	{
 	        ii_Pr_R += 1;
-		z_k_Pr_R = (_pos_sp - _pos);
+		
 		// Regressor
 		for (int i=0; i<3; i++) {
 			phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
@@ -330,6 +331,7 @@ void PositionControl::_velocityController(const float &dt)
 							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
 	thrust_desired_D = alpha_PID*thrust_desired_D; 
+	z_k_vel = vel_err;
 	if (RCAC_Pv_ON)
 	{
 		ii_Pv_R += 1;

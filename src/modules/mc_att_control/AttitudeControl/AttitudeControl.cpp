@@ -97,6 +97,7 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	// calculate angular rates setpoint
 	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);
 	rate_setpoint = alpha_PID*rate_setpoint;
+	z_k_Pq_R = eq;
 	if (landed)
 	{
 		ii_Pq_R = 0;
