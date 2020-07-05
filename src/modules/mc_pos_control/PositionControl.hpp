@@ -412,6 +412,10 @@ public:
 			P_vel_y(i,i) = 0.001;
 			P_vel_z(i,i) = 0.001;
 			P_Pr_R(i,i) = 0.01;
+			P_vel_x(i,i) = _param_mpc_rcac_vel_p0.get();
+			P_vel_y(i,i) = _param_mpc_rcac_vel_p0.get();
+			P_vel_z(i,i) = _param_mpc_rcac_vel_p0.get();
+			P_Pr_R(i,i) = _param_mpc_rcac_pos_p0.get();
 		}
 		phi_k_vel_x.setZero();
 		phi_k_vel_y.setZero();
@@ -521,7 +525,9 @@ private:
 		(ParamFloat<px4::params::MPC_XY_P>) _param_mpc_xy_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_P>) _param_mpc_xy_vel_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_I>) _param_mpc_xy_vel_i,
-		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d
+		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d,
+		(ParamFloat<px4::params::MPC_RCAC_POS_P0>) _param_mpc_rcac_pos_p0,
+		(ParamFloat<px4::params::MPC_RCAC_VEL_P0>) _param_mpc_rcac_vel_p0
             )
 
     void init_RCAC();

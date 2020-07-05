@@ -87,6 +87,11 @@ void PositionControl::init_RCAC() {
 	theta_k_vel_z.setZero();
 	u_k_vel.setZero();
 	z_k_vel.setZero();
+
+	P_Pr_R = eye<float, 3>() * _param_mpc_rcac_pos_p0.get();
+	P_vel_x = eye<float, 3>() * _param_mpc_rcac_vel_p0.get();
+	P_vel_y = eye<float, 3>() * _param_mpc_rcac_vel_p0.get();
+	P_vel_z = eye<float, 3>() * _param_mpc_rcac_vel_p0.get();
 }
 
 

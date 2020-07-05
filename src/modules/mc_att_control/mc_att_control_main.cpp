@@ -498,6 +498,9 @@ MulticopterAttitudeControl::Run()
 		PID_scale_f = 0.25f;
 		_attitude_control.set_RCAC_att_switch(RCAC_switch);
 		_rate_control.set_RCAC_rate_switch(RCAC_switch);
+		_attitude_control.set_RCAC_att_switch(_param_mpc_rcac_att_sw.get());
+		_rate_control.set_RCAC_rate_switch(_param_mpc_rcac_rate_sw.get());
+
 		_attitude_control.set_PID_att_factor(PID_scale_f);
 		_rate_control.set_PID_rate_factor(PID_scale_f);
 

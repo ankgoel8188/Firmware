@@ -258,7 +258,10 @@ private:
 
 		(ParamInt<px4::params::MC_AIRMODE>) _param_mc_airmode,
 
-		(ParamInt<px4::params::CBRK_RATE_CTRL>) _param_cbrk_rate_ctrl
+		(ParamInt<px4::params::CBRK_RATE_CTRL>) _param_cbrk_rate_ctrl,
+
+		(ParamFloat<px4::params::MPC_RCAC_ATT_SW>) _param_mpc_rcac_att_sw,
+		(ParamFloat<px4::params::MPC_RCAC_RATE_SW>) _param_mpc_rcac_rate_sw
 
 	)
 

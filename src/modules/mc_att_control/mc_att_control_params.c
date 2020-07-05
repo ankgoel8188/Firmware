@@ -519,3 +519,25 @@ PARAM_DEFINE_INT32(MC_BAT_SCALE_EN, 0);
  */
 PARAM_DEFINE_FLOAT(MC_DTERM_CUTOFF, 0.f);
 
+/**
+ * RCAC Attitude switches.
+ *
+ * Specifies RCAC state.
+ *
+ * @min -10
+ * @max 10
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MPC_RCAC_ATT_SW, -1.0f);
+
+/**
+ * RCAC Rate switches.
+ *
+ * Specifies RCAC state.
+ *
+ * @min -10
+ * @max 10
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MPC_RCAC_RATE_SW, -1.0f);
+

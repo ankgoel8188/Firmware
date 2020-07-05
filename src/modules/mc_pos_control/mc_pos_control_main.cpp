@@ -176,7 +176,9 @@ private:
 		(ParamFloat<px4::params::MPC_THR_MIN>)_param_mpc_thr_min,
 		(ParamFloat<px4::params::MPC_THR_HOVER>)_param_mpc_thr_hover,
 		(ParamFloat<px4::params::MPC_THR_MAX>)_param_mpc_thr_max,
-		(ParamFloat<px4::params::MPC_Z_VEL_P>)_param_mpc_z_vel_p
+		(ParamFloat<px4::params::MPC_Z_VEL_P>)_param_mpc_z_vel_p,
+		(ParamFloat<px4::params::MPC_RCAC_POS_SW>) _param_mpc_rcac_pos_sw,
+		(ParamFloat<px4::params::MPC_RCAC_VEL_SW>) _param_mpc_rcac_vel_sw
 	);
 
 	control::BlockDerivative _vel_x_deriv; /**< velocity derivative in x */
@@ -550,6 +552,8 @@ MulticopterPositionControl::Run()
 		PID_scale_f = 1.0f;
 		_control.set_RCAC_pos_switch(RCAC_switch);
 		_control.set_RCAC_vel_switch(RCAC_switch);
+		_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
+		_control.set_RCAC_vel_switch(_param_mpc_rcac_vel_sw.get());
 		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
