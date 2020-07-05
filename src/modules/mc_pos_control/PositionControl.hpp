@@ -241,6 +241,43 @@ public:
 
 	/**
 	 * 	Get the
+	 * 	@see Pos P gains
+	 * 	@return The P gains
+	 */
+	const matrix::Vector3f get_PX4_pos_theta()
+	{
+		matrix::Vector3f PX4_theta{};
+		PX4_theta(0) = _param_mpc_xy_p.get();
+		PX4_theta(1) = _param_mpc_xy_p.get();
+		PX4_theta(2) = _param_mpc_z_p.get();
+		return PX4_theta;
+	}
+
+	/**
+	 * 	Get the
+	 * 	@see PID gains
+	 * 	@return PX4's PID gains in the outer loop
+	 */
+	const matrix::Matrix<float, 9,1> get_PX4_ol_theta()
+	{
+		matrix::Matrix<float, 9,1> PX4_theta{};
+		PX4_theta(0,0) = _param_mpc_xy_p.get();
+		PX4_theta(1,0) = _param_mpc_xy_p.get();
+		PX4_theta(2,0) = _param_mpc_z_p.get();
+
+		PX4_theta(3,0) = _param_mpc_xy_vel_p.get();
+		PX4_theta(4,0) = _param_mpc_xy_vel_i.get();
+		PX4_theta(5,0) = _param_mpc_xy_vel_d.get();
+
+		PX4_theta(6,0) = _param_mpc_z_vel_p.get();
+		PX4_theta(7,0) = _param_mpc_z_vel_i.get();
+		PX4_theta(8,0) = _param_mpc_z_vel_d.get();
+
+		return PX4_theta;
+	}
+
+	/**
+	 * 	Get the
 	 * 	@see z_k_Pv_R
 	 * 	@return The z variable used by RCAC in the PID velocity controller
 	 */

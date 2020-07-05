@@ -267,7 +267,7 @@ void PositionControl::_positionController()
 	if (RCAC_Pr_ON)
 	{
 	        ii_Pr_R += 1;
-		
+
 		// Regressor
 		for (int i=0; i<3; i++) {
 			phi_k_Pr_R(i, i) = z_k_Pr_R(i,0);
@@ -330,111 +330,11 @@ void PositionControl::_velocityController(const float &dt)
 							 _param_mpc_z_vel_d.get() * _vel_dot(2) +
 							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
-	thrust_desired_D = alpha_PID*thrust_desired_D; 
+	thrust_desired_D = alpha_PID*thrust_desired_D;
 	z_k_vel = vel_err;
 	if (RCAC_Pv_ON)
 	{
 		ii_Pv_R += 1;
-		//if (dt > 0.01f)
-		//{
-			// if (ii_R == 1)
-			// {
-
-			// 	P_x_R = eye<float, 3>() * 0.010;
-			// 	P_y_R = eye<float, 3>() * 0.010;
-			// 	P_z_R = eye<float, 3>() * 0.010;
-
-			// 	testMat = eye<float,2>()*10;
-
-			// 	cout << testMat(0,0) << "\n";
-
-			// 	testMat = testMat.I();
-			// 	cout << testMat(0,0) << "\n";
-
-			// 	phi_k_x_R.setZero();
-			// 	phi_k_y_R.setZero();
-			// 	phi_k_z_R.setZero();
-			// 	phi_km1_x_R.setZero();
-			// 	phi_km1_y_R.setZero();
-			// 	phi_km1_z_R.setZero();
-
-			// 	theta_k_x_R.setZero();
-			// 	theta_k_y_R.setZero();
-			// 	theta_k_z_R.setZero();
-
-			// 	z_k_x_R.setZero();
-			// 	z_k_y_R.setZero();
-			// 	z_k_z_R.setZero();
-
-			// 	z_km1_x_R.setZero();
-			// 	z_km1_y_R.setZero();
-			// 	z_km1_z_R.setZero();
-
-			// 	u_k_x_R.setZero();
-			// 	u_k_y_R.setZero();
-			// 	u_k_z_R.setZero();
-
-			// 	u_km1_x_R.setZero();
-			// 	u_km1_y_R.setZero();
-			// 	u_km1_z_R.setZero();
-
-			// 	Gamma_x_R.setZero();
-			// 	Gamma_y_R.setZero();
-			// 	Gamma_z_R.setZero();
-			// }
-
-			// Ankit: Old SISO implementation
-			// // phi_k_x_R(0, 0) = vel_err(2);
-			// // phi_k_x_R(0, 1) = _vel_dot(2) * 0;
-			// // phi_k_x_R(0, 2) = phi_k_x_R(0, 2) + vel_err(2) * dt;
-			// // phi_k_x_R(0, 2) = _thr_int(2);
-
-
-			// phi_k_x_R(0, 0) = vel_err(0);
-			// phi_k_x_R(0, 1) = _vel_dot(0) * 0;
-			// phi_k_x_R(0, 2) = _thr_int(0);
-
-			// phi_k_y_R(0, 0) = vel_err(1);
-			// phi_k_y_R(0, 1) = _vel_dot(1) * 0;
-			// phi_k_y_R(0, 2) = _thr_int(1);
-
-			// phi_k_z_R(0, 0) = vel_err(2);
-			// phi_k_z_R(0, 1) = _vel_dot(2) * 0;
-			// phi_k_z_R(0, 2) = _thr_int(2);
-
-
-
-			// z_k_x_R(0, 0) = vel_err(0);
-			// z_k_y_R(0, 0) = vel_err(1);
-			// z_k_z_R(0, 0) = vel_err(2);
-
-			// Gamma_x_R 	= phi_km1_x_R * P_x_R * phi_km1_x_R.T() + 1;
-			// P_x_R 		= P_x_R - (P_x_R * phi_km1_x_R.T()) * (phi_km1_x_R * P_x_R) / Gamma_x_R(0, 0);
-			// theta_k_x_R 	= theta_k_x_R + (P_x_R * phi_km1_x_R.T()) *
-			// 		 (z_k_x_R + (-1.0f)*(phi_km1_x_R * theta_k_x_R - u_km1_x_R) * (-1.0f));
-			// u_k_x_R 	= phi_k_x_R * theta_k_x_R;
-			// u_km1_x_R 	= u_k_x_R;
-			// phi_km1_x_R 	= phi_k_x_R;
-
-
-			// Gamma_y_R 	= phi_km1_y_R * P_y_R * phi_km1_y_R.T() + 1;
-			// P_y_R 		= P_y_R - (P_y_R * phi_km1_y_R.T()) * (phi_km1_y_R * P_y_R) / Gamma_y_R(0, 0);
-			// theta_k_y_R 	= theta_k_y_R + (P_y_R * phi_km1_y_R.T()) *
-			// 		 (z_k_y_R + (-1.0f)*(phi_km1_y_R * theta_k_y_R - u_km1_y_R) * (-1.0f));
-			// u_k_y_R 	= phi_k_y_R * theta_k_y_R;
-			// u_km1_y_R 	= u_k_y_R;
-			// phi_km1_y_R 	= phi_k_y_R;
-
-			// Gamma_z_R 	= phi_km1_z_R * P_z_R * phi_km1_z_R.T() + 1;
-			// P_z_R 		= P_z_R - (P_z_R * phi_km1_z_R.T()) * (phi_km1_z_R * P_z_R) / Gamma_z_R(0, 0);
-			// theta_k_z_R 	= theta_k_z_R + (P_z_R * phi_km1_z_R.T()) *
-			// 		 (z_k_z_R + (-1.0f)*(phi_km1_z_R * theta_k_z_R - u_km1_z_R) * (-1.0f));
-			// u_k_z_R 	= phi_k_z_R * theta_k_z_R;
-			// u_km1_z_R 	= u_k_z_R;
-			// phi_km1_z_R 	= phi_k_z_R;
-
-			// thrust_desired_D = u_k_z_R(0, 0);
-
 			// Ankit 01 30 2020:New SISO implementation
 			z_k_vel = vel_err;
 

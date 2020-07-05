@@ -547,21 +547,22 @@ MulticopterPositionControl::Run()
 		float PID_scale_f = _rc_channels_switch.channels[13];
 
 		RCAC_switch = -1.0f;
-		PID_scale_f = 0.25f;
-		_control.set_RCAC_pos_switch(RCAC_switch); 
-		_control.set_RCAC_vel_switch(RCAC_switch); 
-		_control.set_PID_pv_factor(PID_scale_f); 
+		PID_scale_f = 1.0f;
+		_control.set_RCAC_pos_switch(RCAC_switch);
+		_control.set_RCAC_vel_switch(RCAC_switch);
+		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
 		// _control.set_RCAC_vel_switch(_rc_channels_switch.channels[14]);
 		// _control.set_PID_pv_factor(_rc_channels_switch.channels[13]); // Eventually change this to analog input
-		
+
 		// _control.set_RCAC_pos_switch(-1.0f); //Manually switch on RCAC for SITL testing
 		// _control.set_RCAC_vel_switch(-1.0f); //Manually switch on RCAC for SITL testing
 		// _control.set_PID_pv_factor(1.0f); //Manually set PID factor for SITL testing
 
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[14]);
 		//PX4_INFO("RC test:\t%8.4f",(double)_rc_channels_switch.channels[13]);
+		//PX4_INFO("RC test:\t%8.4f",(double) _param_mpc_z_p.get());
 
 		parameters_update(false);
 
@@ -637,38 +638,6 @@ MulticopterPositionControl::Run()
 				if (!PX4_ISFINITE(setpoint.z) && !PX4_ISFINITE(setpoint.vz) && !PX4_ISFINITE(setpoint.thrust[2])) {
 					failsafe(setpoint, _states, true, !was_in_failsafe);
 				}
-
-
-
-                /*if (_rcac_logging) //
-				{
-					ofstream State_Data("States.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-					if (State_Data.is_open())
-					{
-
-						State_Data << _states.position(0) << "\t"
-								   << _states.position(1) << "\t"
-								   << _states.position(2) << "\t"
-								   << _states.velocity(0) << "\t"
-								   << _states.velocity(1) << "\t"
-								   << _states.velocity(2) << "\t"
-								   << _states.yaw << "\t"
-								   << setpoint.x << "\t"
-								   << setpoint.y << "\t"
-								   << setpoint.z << "\t"
-								   << setpoint.vx << "\t"
-								   << setpoint.vy << "\t"
-								   << setpoint.vz << "\t"
-								   << setpoint.timestamp << "\t"
-								   << setpoint.yaw << "\t"
-								   << setpoint.yawspeed << "\t"
-								   << setpoint.thrust[0] << "\t"
-								   << setpoint.thrust[1] << "\t"
-								   << setpoint.thrust[2] << "\n"
-								   ;
-						State_Data.close();
-					}
-				}*/
 			}
 
 			// publish trajectory setpoint
@@ -798,6 +767,7 @@ MulticopterPositionControl::Run()
 			}
 			for (int i = 0; i <= 8; i++) {
 				_rcac_pos_vel_variables.rcac_vel_theta[i] = _control.get_RCAC_vel_theta()(i,0);
+				_rcac_pos_vel_variables.px4_ol_theta[i] = _control.get_PX4_ol_theta()(i,0);
 			}
 			_rcac_pos_vel_variables_pub.publish(_rcac_pos_vel_variables);
 

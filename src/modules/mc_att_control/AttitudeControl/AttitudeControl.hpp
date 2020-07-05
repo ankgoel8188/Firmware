@@ -127,6 +127,22 @@ public:
 
 	/**
 	 * 	Get the
+	 * 	@see _proportional_gain
+	 * 	@return PX4 PID gains for the attitude controller
+	 */
+	const matrix::Vector3f get_PX4_att_theta()
+	{
+		matrix::Vector3f PX4_att_theta{};
+
+		for (int i = 0; i <= 2; i++) {
+			PX4_att_theta(i) = _proportional_gain(i);
+		}
+
+		return PX4_att_theta;
+	}
+
+	/**
+	 * 	Get the
 	 * 	@see ii
 	 * 	@return Iteration step of the RCAC attitude controller
 	 */

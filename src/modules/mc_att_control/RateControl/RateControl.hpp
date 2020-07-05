@@ -160,6 +160,31 @@ public:
 
 	/**
 	 * 	Get the
+	 * 	@see gains
+	 * 	@return PX4 PID gains for the rate controller
+	 */
+	const matrix::Matrix<float, 12,1> get_PX4_rate_theta()
+	{
+		matrix::Matrix<float, 12,1> PX4_rate_theta{};
+
+		PX4_rate_theta(0,0) = _gain_p(0);
+		PX4_rate_theta(1,0) = _gain_i(0);
+		PX4_rate_theta(2,0) = _gain_d(0);
+		PX4_rate_theta(3,0) = _gain_ff(0);
+		PX4_rate_theta(4,0) = _gain_p(1);
+		PX4_rate_theta(5,0) = _gain_i(1);
+		PX4_rate_theta(6,0) = _gain_d(1);
+		PX4_rate_theta(7,0) = _gain_ff(1);
+		PX4_rate_theta(8,0) = _gain_p(2);
+		PX4_rate_theta(9,0) = _gain_i(2);
+		PX4_rate_theta(10,0) = _gain_d(2);
+		PX4_rate_theta(11,0) = _gain_ff(2);
+
+		return PX4_rate_theta;
+	}
+
+	/**
+	 * 	Get the
 	 * 	@see ii
 	 * 	@return Iteration step of the RCAC rate controller
 	 */

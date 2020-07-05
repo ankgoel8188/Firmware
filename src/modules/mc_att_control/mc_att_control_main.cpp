@@ -421,9 +421,13 @@ MulticopterAttitudeControl::publish_rcac_att_rate_variables()
 
 		_rcac_att_rate_variables.rcac_rate_z[i] = _rate_control.get_RCAC_rate_z()(i);
 		_rcac_att_rate_variables.rcac_rate_u[i] = _rate_control.get_RCAC_rate_u()(i);
+
+		_rcac_att_rate_variables.px4_att_theta[i] = _attitude_control.get_PX4_att_theta()(i);
+
 	}
 	for (int i = 0; i <= 11; i++) {
 		_rcac_att_rate_variables.rcac_rate_theta[i] = _rate_control.get_RCAC_rate_theta()(i,0);
+		_rcac_att_rate_variables.px4_rate_theta[i] = _rate_control.get_PX4_rate_theta()(i,0);
 	}
 	_rcac_att_rate_variables_pub.publish(_rcac_att_rate_variables);
 }
@@ -496,7 +500,7 @@ MulticopterAttitudeControl::Run()
 		_rate_control.set_RCAC_rate_switch(RCAC_switch);
 		_attitude_control.set_PID_att_factor(PID_scale_f);
 		_rate_control.set_PID_rate_factor(PID_scale_f);
-		
+
 		// _attitude_control.set_RCAC_att_switch(_rc_channels_switch.channels[14]);
 		// _rate_control.set_RCAC_rate_switch(_rc_channels_switch.channels[14]);
 		// _attitude_control.set_PID_att_factor(_rc_channels_switch.channels[13]);
@@ -508,7 +512,7 @@ MulticopterAttitudeControl::Run()
 		// _attitude_control.set_PID_att_factor(1.0f);
 		// _rate_control.set_PID_rate_factor(1.0f);
 
-		
+
 
 
 
