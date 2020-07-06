@@ -261,7 +261,9 @@ private:
 		(ParamInt<px4::params::CBRK_RATE_CTRL>) _param_cbrk_rate_ctrl,
 
 		(ParamFloat<px4::params::MPC_RCAC_ATT_SW>) _param_mpc_rcac_att_sw,
-		(ParamFloat<px4::params::MPC_RCAC_RATE_SW>) _param_mpc_rcac_rate_sw
+		(ParamFloat<px4::params::MPC_RCAC_RATE_SW>) _param_mpc_rcac_rate_sw,
+		(ParamFloat<px4::params::MPC_RCAC_ATT_P0>) _param_mpc_rcac_att_P0,
+		(ParamFloat<px4::params::MPC_RCAC_RATE_P0>) _param_mpc_rcac_rate_P0
 
 	)
 

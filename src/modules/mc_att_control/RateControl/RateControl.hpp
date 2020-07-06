@@ -253,6 +253,15 @@ public:
 		u_km1_rate.setZero();
 		z_km1_rate.setZero();
 	}
+
+	/**
+	 * 	Set the RCAC Rate Controller P0.
+	 * 	@see rcac_rate_P0
+	 */
+	void set_RCAC_rate_P0(float rate_P0)
+	{
+		rcac_rate_P0 = rate_P0;
+	}
 private:
 	void updateIntegral(matrix::Vector3f &rate_error, const float dt);
 
@@ -289,4 +298,5 @@ private:
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
 	float alpha_PID = 1.0f;
+	float rcac_rate_P0 = 0.001f;
 };

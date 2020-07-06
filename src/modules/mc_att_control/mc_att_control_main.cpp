@@ -125,6 +125,10 @@ MulticopterAttitudeControl::parameters_updated()
 	_man_tilt_max = math::radians(_param_mpc_man_tilt_max.get());
 
 	_actuators_0_circuit_breaker_enabled = circuit_breaker_enabled_by_val(_param_cbrk_rate_ctrl.get(), CBRK_RATE_CTRL_KEY);
+
+	//Set P0 for RCAC attitude and Rate controller
+	_attitude_control.set_RCAC_att_P0(_param_mpc_rcac_att_P0.get());
+	_rate_control.set_RCAC_rate_P0(_param_mpc_rcac_rate_P0.get());
 }
 
 void

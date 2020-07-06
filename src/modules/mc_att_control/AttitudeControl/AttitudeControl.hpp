@@ -194,6 +194,7 @@ public:
 		I3.setZero();
 		for (int i = 0; i <= 2; i++) {
 			P_Pq_R(i,i) = 0.01f;
+			P_Pq_R(i,i) = rcac_att_P0;
 			N1_Pq(i,i) = 1.0f;
 			I3(i,i) = 1.0f;
 		}
@@ -205,6 +206,15 @@ public:
 		u_k_Pq_R.setZero();
 		u_km1_Pq_R.setZero();
 		Gamma_Pq_R.setZero();
+	}
+
+	/**
+	 * 	Set the RCAC Attiude Controller P0.
+	 * 	@see rcac_att_P0
+	 */
+	void set_RCAC_att_P0(float att_P0)
+	{
+		rcac_att_P0 = att_P0;
 	}
 
 private:
@@ -221,4 +231,5 @@ private:
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
 
 	float alpha_PID = 1.0f;
+	float rcac_att_P0 = 0.01f;
 };
