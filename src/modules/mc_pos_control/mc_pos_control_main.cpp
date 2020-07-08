@@ -548,12 +548,18 @@ MulticopterPositionControl::Run()
 		float RCAC_switch = _rc_channels_switch.channels[14];
 		float PID_scale_f = _rc_channels_switch.channels[13];
 
-		RCAC_switch = -1.0f;
+		RCAC_switch = 1.0f;
 		PID_scale_f = 1.0f;
-		_control.set_RCAC_pos_switch(RCAC_switch);
-		_control.set_RCAC_vel_switch(RCAC_switch);
-		_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
-		_control.set_RCAC_vel_switch(_param_mpc_rcac_vel_sw.get());
+		if (RCAC_switch>0.0f)
+		{
+			_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
+			_control.set_RCAC_vel_switch(_param_mpc_rcac_vel_sw.get());
+		}
+		else
+		{
+			_control.set_RCAC_pos_switch(RCAC_switch);
+			_control.set_RCAC_vel_switch(RCAC_switch);
+		}
 		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
@@ -754,8 +760,10 @@ MulticopterPositionControl::Run()
 			_rcac_pos_vel_variables.timestamp = hrt_absolute_time();
 			// _rcac_pos_vel_variables.rcac_alpha[0] = _rc_channels_switch.channels[13];
 			// _rcac_pos_vel_variables.rcac_alpha[1] = _rc_channels_switch.channels[14];
-			_rcac_pos_vel_variables.rcac_alpha[0] = PID_scale_f;
-			_rcac_pos_vel_variables.rcac_alpha[1] = RCAC_switch;
+			// _rcac_pos_vel_variables.rcac_alpha[0] = PID_scale_f;
+			// _rcac_pos_vel_variables.rcac_alpha[1] = RCAC_switch;
+			_rcac_pos_vel_variables.pid_factor = PID_scale_f;
+			_rcac_pos_vel_variables.rcac_master_sw = RCAC_switch;
 			_rcac_pos_vel_variables.ii_pos = _control.get_RCAC_pos_ii();
 			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
