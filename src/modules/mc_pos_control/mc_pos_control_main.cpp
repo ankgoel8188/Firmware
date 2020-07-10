@@ -546,20 +546,21 @@ MulticopterPositionControl::Run()
 		poll_subscriptions();
 
 		float RCAC_switch = _rc_channels_switch.channels[14];
-		float PID_scale_f = _rc_channels_switch.channels[13];
-
 		RCAC_switch = 1.0f;
-		PID_scale_f = 1.0f;
 		if (RCAC_switch>0.0f)
 		{
 			_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
 			_control.set_RCAC_vel_switch(_param_mpc_rcac_vel_sw.get());
+			// PX4_INFO("Pos Control switch:\t%d\t%8.4f", (int)_control.get_RCAC_pos_switch(),(double)_param_mpc_rcac_pos_sw.get());
+			// PX4_INFO("Vel Control Switch:\t%d\t%8.4f", (int)_control.get_RCAC_vel_switch(),(double)_param_mpc_rcac_vel_sw.get());
 		}
 		else
 		{
 			_control.set_RCAC_pos_switch(RCAC_switch);
 			_control.set_RCAC_vel_switch(RCAC_switch);
 		}
+		float PID_scale_f = _rc_channels_switch.channels[13];
+		PID_scale_f = 1.0f;
 		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);

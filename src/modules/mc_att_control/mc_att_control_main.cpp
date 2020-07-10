@@ -129,6 +129,8 @@ MulticopterAttitudeControl::parameters_updated()
 	//Set P0 for RCAC attitude and Rate controller
 	_attitude_control.set_RCAC_att_P0(_param_mpc_rcac_att_P0.get());
 	_rate_control.set_RCAC_rate_P0(_param_mpc_rcac_rate_P0.get());
+	PX4_INFO("Att Control P0:\t%8.6f", (double)_param_mpc_rcac_att_P0.get());
+	PX4_INFO("Rate Control P0:\t%8.6f", (double)_param_mpc_rcac_rate_P0.get());
 }
 
 void
@@ -499,7 +501,7 @@ MulticopterAttitudeControl::Run()
 		float RCAC_switch = _rc_channels_switch.channels[14];
 		float PID_scale_f = _rc_channels_switch.channels[13];
 		RCAC_switch = 1.0f;
-		PID_scale_f = 1.00f;
+		PID_scale_f = 0.0f;
 		if (RCAC_switch>0.0f)
 		{
 			_attitude_control.set_RCAC_att_switch(_param_mpc_rcac_att_sw.get());
@@ -510,6 +512,8 @@ MulticopterAttitudeControl::Run()
 			_attitude_control.set_RCAC_att_switch(RCAC_switch);
 			_rate_control.set_RCAC_rate_switch(RCAC_switch);
 		}
+		_attitude_control.set_RCAC_att_switch(RCAC_switch);
+		_rate_control.set_RCAC_rate_switch(RCAC_switch);
 		_attitude_control.set_PID_att_factor(PID_scale_f);
 		_rate_control.set_PID_rate_factor(PID_scale_f);
 

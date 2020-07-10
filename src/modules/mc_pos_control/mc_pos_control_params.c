@@ -779,9 +779,9 @@ PARAM_DEFINE_INT32(MPC_YAW_MODE, 0);
  *
  * @min -10
  * @max 10
- * @group Multicopter Position Control
+ * @group Multicopter RCAC Control
  */
-PARAM_DEFINE_FLOAT(MPC_RCAC_POS_SW, -1.0f);
+PARAM_DEFINE_FLOAT(MPC_RCAC_POS_SW, 1.f);
 
 /**
  * RCAC Velocity switches.
@@ -790,26 +790,26 @@ PARAM_DEFINE_FLOAT(MPC_RCAC_POS_SW, -1.0f);
  *
  * @min -10
  * @max 10
- * @group Multicopter Position Control
+ * @group Multicopter RCAC Control
  */
-PARAM_DEFINE_FLOAT(MPC_RCAC_VEL_SW, -1.0f);
+PARAM_DEFINE_FLOAT(MPC_RCAC_VEL_SW, -1f);
 
 /**
  * P0 for the position controller
  *
  * @min 0.0
  * @max 10.0
- * @decimal 3
- * @group Multicopter Position Control
+ * @decimal 5
+ * @group Multicopter RCAC Control
  */
-PARAM_DEFINE_FLOAT(MPC_RCAC_POS_P0, 0.01f);
+PARAM_DEFINE_FLOAT(MPC_RCAC_POS_P0, 0.005f);
 
 /**
  * P0 for the velocity controller
  *
  * @min 0.0
  * @max 10.0
- * @decimal 3
- * @group Multicopter Position Control
+ * @decimal 5
+ * @group Multicopter RCAC Control
  */
 PARAM_DEFINE_FLOAT(MPC_RCAC_VEL_P0, 0.001f);
