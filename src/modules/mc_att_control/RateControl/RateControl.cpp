@@ -85,7 +85,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 
 	// PID control with feed forward
 	Vector3f torque = _gain_p.emult(rate_error) + _rate_int - _gain_d.emult(rate_d) + _gain_ff.emult(rate_sp);
-	torque=alpha_PID*torque;
+	// torque=alpha_PID*torque;
 	_rate_prev = rate;
 	_rate_prev_filtered = rate_filtered;
 	//PX4_INFO("Rate Controller:\t%8.4f", (double)dt);
@@ -95,6 +95,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 		// ii_Pq_R = 0;
 	}
 	z_k_rate = rate_error;
+	u_k_rate.setZero();
 	if (!landed && RCAC_Aw_ON)
 		{
 			ii_AC_R = ii_AC_R + 1;
@@ -164,9 +165,8 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			phi_km1_rate_x = phi_k_rate_x;
 			phi_km1_rate_y = phi_k_rate_y;
 			phi_km1_rate_z = phi_k_rate_z;
-
-			torque = alpha_PID*torque+u_k_rate;
 		}
+		torque = alpha_PID*torque+u_k_rate;
 	// update integral only if we are not landed
 	if (!landed) {
 		updateIntegral(rate_error, dt);

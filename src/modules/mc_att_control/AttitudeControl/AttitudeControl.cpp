@@ -96,8 +96,9 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 
 	// calculate angular rates setpoint
 	matrix::Vector3f rate_setpoint = eq.emult(_proportional_gain);
-	rate_setpoint = alpha_PID*rate_setpoint;
+	// rate_setpoint = alpha_PID*rate_setpoint;
 	z_k_Pq_R = eq;
+	u_k_Pq_R.setZero();
 	if (landed)
 	{
 		ii_Pq_R = 0;
@@ -109,7 +110,7 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		if (ii_Pq_R == 1)
 		{
 			init_RCAC_att();
-
+			//P_Pq_R = eye<float, 3>() * _param_mpc_rcac_att_p0.get();
 		}
 		for (int i = 0; i <= 2; i++) {
 			phi_k_Pq_R(i, i) = eq(i);
@@ -129,11 +130,8 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 		u_k_Pq_R 	= phi_k_Pq_R * (theta_k_Pq_R+ 0*alpha_PID *theta_k_Pq_PID);
 		u_km1_Pq_R 	= u_k_Pq_R;
 		phi_km1_Pq_R 	= phi_k_Pq_R;
-
-		rate_setpoint 	= alpha_PID * rate_setpoint + u_k_Pq_R;
-
 	}
-
+	rate_setpoint 	= alpha_PID * rate_setpoint + u_k_Pq_R;
 
 
 	// Feed forward the yaw setpoint rate.

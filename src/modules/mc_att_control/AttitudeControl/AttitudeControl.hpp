@@ -216,7 +216,7 @@ public:
 	{
 		rcac_att_P0 = att_P0;
 	}
-
+	// const float &get_RCAC_att_P0() {return P_Pq_R(0,0);}
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
@@ -231,5 +231,5 @@ private:
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
 
 	float alpha_PID = 1.0f;
-	float rcac_att_P0 = 0.01f;
+	float rcac_att_P0 = 0.011f;
 };

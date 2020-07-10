@@ -235,6 +235,9 @@ public:
 			P_rate_x(i,i) = 0.001f;
 			P_rate_y(i,i) = 0.001f;
 			P_rate_z(i,i) = 0.001f;
+			P_rate_x(i,i) = rcac_rate_P0;
+			P_rate_y(i,i) = rcac_rate_P0;
+			P_rate_z(i,i) = rcac_rate_P0;
 		}
 		for (int i = 0; i <= 2; i++) {
 			N1_rate(i) = 1;
@@ -298,5 +301,5 @@ private:
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
 	float alpha_PID = 1.0f;
-	float rcac_rate_P0 = 0.001f;
+	float rcac_rate_P0 = 0.0011f;
 };
