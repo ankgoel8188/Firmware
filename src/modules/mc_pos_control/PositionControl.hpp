@@ -393,6 +393,20 @@ public:
 	const bool &get_RCAC_vel_switch() {return RCAC_Pv_ON;}
 
 	/**
+	 * 	Get the
+	 * 	@see P_Pr_R
+	 * 	@return RCAC P(1,1) of the Position controller
+	 */
+	const float &get_RCAC_P11_Pos() { return P_Pr_R(0,0); }
+
+	/**
+	 * 	Get the
+	 * 	@see P_vel_x
+	 * 	@return RCAC P(1,1) of the Velcity x controller
+	 */
+	const float &get_RCAC_P11_Velx() { return P_vel_x(0,0); }
+
+	/**
 	 * 	Reset RCAC variables
 	 * 	@see _thr_int
 	 */

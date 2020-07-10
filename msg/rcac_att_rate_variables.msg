@@ -16,3 +16,6 @@ float32[12] rcac_rate_theta 		# PID+FF gains for the Rate Controller
 
 float32[3] px4_att_theta 		# P gains for the PX4 Attitude Controller
 float32[12] px4_rate_theta 		# P gains for the PX4 Rate Controller
+
+float32 p11_att				# P(1,1) of the RCAC Attitude Controller
+float32 p11_ratex 			# P(1,1) of the RCAC Rate Controller

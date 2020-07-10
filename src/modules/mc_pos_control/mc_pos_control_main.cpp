@@ -769,6 +769,8 @@ MulticopterPositionControl::Run()
 			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
 			_rcac_pos_vel_variables.switch_vel = _control.get_RCAC_vel_switch();
+			_rcac_pos_vel_variables.p11_pos = _control.get_RCAC_P11_Pos();
+			_rcac_pos_vel_variables.p11_velx = _control.get_RCAC_P11_Velx();
 
 			for (int i = 0; i <= 2; i++) {
 				_rcac_pos_vel_variables.rcac_pos_z[i] = _control.get_RCAC_pos_z()(i);
