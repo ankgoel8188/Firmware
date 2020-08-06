@@ -546,7 +546,7 @@ MulticopterPositionControl::Run()
 		poll_subscriptions();
 
 		float RCAC_switch = _rc_channels_switch.channels[14];
-		RCAC_switch = 1.0f;
+		//RCAC_switch = 1.0f;
 		if (RCAC_switch>0.0f)
 		{
 			_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
@@ -560,7 +560,7 @@ MulticopterPositionControl::Run()
 			_control.set_RCAC_vel_switch(RCAC_switch);
 		}
 		float PID_scale_f = _rc_channels_switch.channels[13];
-		PID_scale_f = 1.0f;
+		//PID_scale_f = 1.0f;
 		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);
@@ -809,6 +809,34 @@ MulticopterPositionControl::Run()
 			q_sp.copyTo(_att_sp.q_d);
 			_att_sp.q_d_valid = true;
 			_att_sp.thrust_body[2] = 0.0f;
+
+			//Juan: This might be unnecessary...
+
+			_rcac_pos_vel_variables.timestamp = hrt_absolute_time();
+			_rcac_pos_vel_variables.pid_factor = PID_scale_f;
+			_rcac_pos_vel_variables.rcac_master_sw = RCAC_switch;
+			_rcac_pos_vel_variables.ii_pos = _control.get_RCAC_pos_ii();
+			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
+			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
+			_rcac_pos_vel_variables.switch_vel = _control.get_RCAC_vel_switch();
+			_rcac_pos_vel_variables.p11_pos = _control.get_RCAC_P11_Pos();
+			_rcac_pos_vel_variables.p11_velx = _control.get_RCAC_P11_Velx();
+
+			for (int i = 0; i <= 2; i++) {
+				_rcac_pos_vel_variables.rcac_pos_z[i] = _control.get_RCAC_pos_z()(i);
+				_rcac_pos_vel_variables.rcac_pos_u[i] = _control.get_RCAC_pos_u()(i);
+				_rcac_pos_vel_variables.rcac_pos_theta[i] = _control.get_RCAC_pos_theta()(i);
+
+				_rcac_pos_vel_variables.rcac_vel_z[i] = _control.get_RCAC_vel_z()(i);
+				_rcac_pos_vel_variables.rcac_vel_u[i] = _control.get_RCAC_vel_u()(i);
+			}
+			for (int i = 0; i <= 8; i++) {
+				_rcac_pos_vel_variables.rcac_vel_theta[i] = _control.get_RCAC_vel_theta()(i,0);
+				_rcac_pos_vel_variables.px4_ol_theta[i] = _control.get_PX4_ol_theta()(i,0);
+			}
+			_rcac_pos_vel_variables_pub.publish(_rcac_pos_vel_variables);
+
+
 		}
 	}
 

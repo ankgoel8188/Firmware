@@ -1280,10 +1280,10 @@ MavlinkReceiver::handle_message_odometry(mavlink_message_t *msg)
 
 	if (odom.frame_id == MAV_FRAME_LOCAL_FRD) {
 		_visual_odometry_pub.publish(odometry);
-
+	/*
 	} else if (odom.frame_id == MAV_FRAME_MOCAP_NED) {
 		_mocap_odometry_pub.publish(odometry);
-
+	*/
 	} else {
 		PX4_ERR("Local frame %u not supported. Unable to publish pose and velocity", odom.frame_id);
 	}

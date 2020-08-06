@@ -53,6 +53,12 @@
 #include <px4_time.h>
 #include <systemlib/mavlink_log.h>
 #include <math.h>
+//#include <v2.0/rcac/mavlink.h>
+//#include <v2.0/rcac/mavlink_msg_rcac_att_rate_variables.h>
+//#include <v2.0/rcac/mavlink_msg_rcac_pos_vel_variables.h>
+#include <v2.0/rcac_gcs/mavlink.h>
+#include <v2.0/rcac_gcs/mavlink_msg_rcac_att_rate_variables.h>
+#include <v2.0/rcac_gcs/mavlink_msg_rcac_pos_vel_variables.h>
 
 #include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/actuator_controls.h>
@@ -80,6 +86,8 @@
 #include <uORB/topics/orbit_status.h>
 #include <uORB/topics/position_controller_status.h>
 #include <uORB/topics/position_setpoint_triplet.h>
+#include <uORB/topics/rcac_att_rate_variables.h>
+#include <uORB/topics/rcac_pos_vel_variables.h>
 #include <uORB/topics/sensor_combined.h>
 #include <uORB/topics/sensor_bias.h>
 #include <uORB/topics/tecs_status.h>
@@ -2435,12 +2443,14 @@ protected:
 		if (_mavlink->odometry_loopback_enabled()) {
 			odom_updated = _vodom_sub->update(&_vodom_time, &odom);
 			// frame matches the external vision system
-			msg.frame_id = MAV_FRAME_VISION_NED;
+			//msg.frame_id = MAV_FRAME_VISION_NED;
+			msg.frame_id = MAV_FRAME_LOCAL_FRD;
 
 		} else {
 			odom_updated = _odom_sub->update(&_odom_time, &odom);
 			// frame matches the PX4 local NED frame
-			msg.frame_id = MAV_FRAME_ESTIM_NED;
+			//msg.frame_id = MAV_FRAME_ESTIM_NED;
+			msg.frame_id = MAV_FRAME_LOCAL_FRD;
 		}
 
 		if (odom_updated) {
@@ -5024,6 +5034,215 @@ protected:
 	}
 };
 
+/******************************************/
+class MavlinkStreamRcacAttRateVariables : public MavlinkStream
+{
+public:
+    const char *get_name() const
+    {
+        return MavlinkStreamRcacAttRateVariables::get_name_static();
+    }
+    static const char *get_name_static()
+    {
+        return "RCAC_ATT_RATE_VARIABLES";
+    }
+    static uint16_t get_id_static()
+    {
+        return MAVLINK_MSG_ID_RCAC_ATT_RATE_VARIABLES;
+    }
+    uint16_t get_id()
+    {
+        return get_id_static();
+    }
+    static MavlinkStream *new_instance(Mavlink *mavlink)
+    {
+        return new MavlinkStreamRcacAttRateVariables(mavlink);
+    }
+    unsigned get_size()
+    {
+        return MAVLINK_MSG_ID_RCAC_ATT_RATE_VARIABLES_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES;
+    }
+
+private:
+    MavlinkOrbSubscription *_sub;
+    uint64_t _rcac_arv_time;
+
+    /* do not allow top copying this class */
+    MavlinkStreamRcacAttRateVariables(MavlinkStreamRcacAttRateVariables &);
+    MavlinkStreamRcacAttRateVariables& operator = (const MavlinkStreamRcacAttRateVariables &);
+
+protected:
+    explicit MavlinkStreamRcacAttRateVariables(Mavlink *mavlink) : MavlinkStream(mavlink),
+        _sub(_mavlink->add_orb_subscription(ORB_ID(rcac_att_rate_variables))),
+        _rcac_arv_time(0)
+    {}
+
+    bool send(const hrt_abstime t)
+    {
+        //struct rcac_att_rate_variables_struct_s _rcac_att_rate_variables;
+	rcac_att_rate_variables_s _rcac_att_rate_variables{};
+
+        if (_sub->update(&_rcac_arv_time, &_rcac_att_rate_variables)) {
+            mavlink_rcac_att_rate_variables_t _msg_rcac_att_rate_variables;
+
+            _msg_rcac_att_rate_variables.timestamp 				= _rcac_att_rate_variables.timestamp;
+			_msg_rcac_att_rate_variables.ii_att 				= _rcac_att_rate_variables.ii_att;
+			_msg_rcac_att_rate_variables.ii_rate 				= _rcac_att_rate_variables.ii_rate;
+			_msg_rcac_att_rate_variables.rcac_att_z[0] 			= _rcac_att_rate_variables.rcac_att_z[0];
+			_msg_rcac_att_rate_variables.rcac_att_z[1] 			= _rcac_att_rate_variables.rcac_att_z[1];
+			_msg_rcac_att_rate_variables.rcac_att_z[2] 			= _rcac_att_rate_variables.rcac_att_z[2];
+			_msg_rcac_att_rate_variables.rcac_att_u[0] 			= _rcac_att_rate_variables.rcac_att_u[0];
+			_msg_rcac_att_rate_variables.rcac_att_u[1] 			= _rcac_att_rate_variables.rcac_att_u[1];
+			_msg_rcac_att_rate_variables.rcac_att_u[2] 			= _rcac_att_rate_variables.rcac_att_u[2];
+			_msg_rcac_att_rate_variables.rcac_att_theta[0] 		= _rcac_att_rate_variables.rcac_att_theta[0];
+			_msg_rcac_att_rate_variables.rcac_att_theta[1] 		= _rcac_att_rate_variables.rcac_att_theta[1];
+			_msg_rcac_att_rate_variables.rcac_att_theta[2] 		= _rcac_att_rate_variables.rcac_att_theta[2];
+			_msg_rcac_att_rate_variables.rcac_rate_z[0] 		= _rcac_att_rate_variables.rcac_rate_z[0];
+			_msg_rcac_att_rate_variables.rcac_rate_z[1] 		= _rcac_att_rate_variables.rcac_rate_z[1];
+			_msg_rcac_att_rate_variables.rcac_rate_z[2] 		= _rcac_att_rate_variables.rcac_rate_z[2];
+			_msg_rcac_att_rate_variables.rcac_rate_u[0] 		= _rcac_att_rate_variables.rcac_rate_u[0];
+			_msg_rcac_att_rate_variables.rcac_rate_u[1] 		= _rcac_att_rate_variables.rcac_rate_u[1];
+			_msg_rcac_att_rate_variables.rcac_rate_u[2] 		= _rcac_att_rate_variables.rcac_rate_u[2];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[0] 	= _rcac_att_rate_variables.rcac_rate_theta[0];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[1] 	= _rcac_att_rate_variables.rcac_rate_theta[1];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[2] 	= _rcac_att_rate_variables.rcac_rate_theta[2];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[3] 	= _rcac_att_rate_variables.rcac_rate_theta[3];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[4] 	= _rcac_att_rate_variables.rcac_rate_theta[4];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[5] 	= _rcac_att_rate_variables.rcac_rate_theta[5];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[6] 	= _rcac_att_rate_variables.rcac_rate_theta[6];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[7] 	= _rcac_att_rate_variables.rcac_rate_theta[7];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[8] 	= _rcac_att_rate_variables.rcac_rate_theta[8];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[9] 	= _rcac_att_rate_variables.rcac_rate_theta[9];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[10] 	= _rcac_att_rate_variables.rcac_rate_theta[10];
+			_msg_rcac_att_rate_variables.rcac_rate_theta[11] 	= _rcac_att_rate_variables.rcac_rate_theta[11];
+			_msg_rcac_att_rate_variables.px4_att_theta[0] 		= _rcac_att_rate_variables.px4_att_theta[0];
+			_msg_rcac_att_rate_variables.px4_att_theta[1] 		= _rcac_att_rate_variables.px4_att_theta[1];
+			_msg_rcac_att_rate_variables.px4_att_theta[2] 		= _rcac_att_rate_variables.px4_att_theta[2];
+			_msg_rcac_att_rate_variables.px4_rate_theta[0] 		= _rcac_att_rate_variables.px4_rate_theta[0];
+			_msg_rcac_att_rate_variables.px4_rate_theta[1] 		= _rcac_att_rate_variables.px4_rate_theta[1];
+			_msg_rcac_att_rate_variables.px4_rate_theta[2] 		= _rcac_att_rate_variables.px4_rate_theta[2];
+			_msg_rcac_att_rate_variables.px4_rate_theta[3] 		= _rcac_att_rate_variables.px4_rate_theta[3];
+			_msg_rcac_att_rate_variables.px4_rate_theta[4] 		= _rcac_att_rate_variables.px4_rate_theta[4];
+			_msg_rcac_att_rate_variables.px4_rate_theta[5] 		= _rcac_att_rate_variables.px4_rate_theta[5];
+			_msg_rcac_att_rate_variables.px4_rate_theta[6] 		= _rcac_att_rate_variables.px4_rate_theta[6];
+			_msg_rcac_att_rate_variables.px4_rate_theta[7] 		= _rcac_att_rate_variables.px4_rate_theta[7];
+			_msg_rcac_att_rate_variables.px4_rate_theta[8] 		= _rcac_att_rate_variables.px4_rate_theta[8];
+			_msg_rcac_att_rate_variables.px4_rate_theta[9] 		= _rcac_att_rate_variables.px4_rate_theta[9];
+			_msg_rcac_att_rate_variables.px4_rate_theta[10] 	= _rcac_att_rate_variables.px4_rate_theta[10];
+			_msg_rcac_att_rate_variables.px4_rate_theta[11] 	= _rcac_att_rate_variables.px4_rate_theta[11];
+			_msg_rcac_att_rate_variables.switch_att 			= _rcac_att_rate_variables.switch_att;
+			_msg_rcac_att_rate_variables.switch_rate 			= _rcac_att_rate_variables.switch_rate;
+			_msg_rcac_att_rate_variables.p11_att 				= _rcac_att_rate_variables.p11_att;
+			_msg_rcac_att_rate_variables.p11_ratex 				= _rcac_att_rate_variables.p11_ratex;
+
+            mavlink_msg_rcac_att_rate_variables_send_struct(_mavlink->get_channel(), &_msg_rcac_att_rate_variables);
+        }
+
+        return true;
+    }
+};
+/******************************************/
+class MavlinkStreamRcacPosVelVariables : public MavlinkStream
+{
+public:
+    const char *get_name() const
+    {
+        return MavlinkStreamRcacPosVelVariables::get_name_static();
+    }
+    static const char *get_name_static()
+    {
+        return "RCAC_POS_VEL_VARIABLES";
+    }
+    static uint16_t get_id_static()
+    {
+        return MAVLINK_MSG_ID_RCAC_POS_VEL_VARIABLES;
+    }
+    uint16_t get_id()
+    {
+        return get_id_static();
+    }
+    static MavlinkStream *new_instance(Mavlink *mavlink)
+    {
+        return new MavlinkStreamRcacPosVelVariables(mavlink);
+    }
+    unsigned get_size()
+    {
+        return MAVLINK_MSG_ID_RCAC_POS_VEL_VARIABLES_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES;
+    }
+
+private:
+    MavlinkOrbSubscription *_sub;
+    uint64_t _rcac_pvv_time;
+
+    /* do not allow top copying this class */
+    MavlinkStreamRcacPosVelVariables(MavlinkStreamRcacPosVelVariables &);
+    MavlinkStreamRcacPosVelVariables& operator = (const MavlinkStreamRcacPosVelVariables &);
+
+protected:
+    explicit MavlinkStreamRcacPosVelVariables(Mavlink *mavlink) : MavlinkStream(mavlink),
+        _sub(_mavlink->add_orb_subscription(ORB_ID(rcac_pos_vel_variables))),
+        _rcac_pvv_time(0)
+    {}
+
+    bool send(const hrt_abstime t)
+    {
+        //struct rcac_pos_vel_variables_struct_s _rcac_pos_vel_variables;
+		rcac_pos_vel_variables_s _rcac_pos_vel_variables{};
+
+        if (_sub->update(&_rcac_pvv_time, &_rcac_pos_vel_variables)) {
+            mavlink_rcac_pos_vel_variables_t _msg_rcac_pos_vel_variables;
+
+            _msg_rcac_pos_vel_variables.timestamp 			= _rcac_pos_vel_variables.timestamp;
+			_msg_rcac_pos_vel_variables.pid_factor 			= _rcac_pos_vel_variables.pid_factor;
+			_msg_rcac_pos_vel_variables.rcac_master_sw 		= _rcac_pos_vel_variables.rcac_master_sw;
+			_msg_rcac_pos_vel_variables.ii_pos 				= _rcac_pos_vel_variables.ii_pos;
+			_msg_rcac_pos_vel_variables.ii_vel 				= _rcac_pos_vel_variables.ii_vel;
+			_msg_rcac_pos_vel_variables.rcac_pos_z[0] 		= _rcac_pos_vel_variables.rcac_pos_z[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_z[1] 		= _rcac_pos_vel_variables.rcac_pos_z[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_z[2] 		= _rcac_pos_vel_variables.rcac_pos_z[2];
+			_msg_rcac_pos_vel_variables.rcac_pos_u[0] 		= _rcac_pos_vel_variables.rcac_pos_u[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_u[1] 		= _rcac_pos_vel_variables.rcac_pos_u[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_u[2] 		= _rcac_pos_vel_variables.rcac_pos_u[2];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta[0] 	= _rcac_pos_vel_variables.rcac_pos_theta[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta[1] 	= _rcac_pos_vel_variables.rcac_pos_theta[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta[2] 	= _rcac_pos_vel_variables.rcac_pos_theta[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_z[0] 		= _rcac_pos_vel_variables.rcac_vel_z[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_z[1] 		= _rcac_pos_vel_variables.rcac_vel_z[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_z[2] 		= _rcac_pos_vel_variables.rcac_vel_z[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_u[0] 		= _rcac_pos_vel_variables.rcac_vel_u[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_u[1] 		= _rcac_pos_vel_variables.rcac_vel_u[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_u[2] 		= _rcac_pos_vel_variables.rcac_vel_u[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[0] 	= _rcac_pos_vel_variables.rcac_vel_theta[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[1] 	= _rcac_pos_vel_variables.rcac_vel_theta[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[2] 	= _rcac_pos_vel_variables.rcac_vel_theta[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[3] 	= _rcac_pos_vel_variables.rcac_vel_theta[3];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[4] 	= _rcac_pos_vel_variables.rcac_vel_theta[4];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[5] 	= _rcac_pos_vel_variables.rcac_vel_theta[5];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[6] 	= _rcac_pos_vel_variables.rcac_vel_theta[6];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[7] 	= _rcac_pos_vel_variables.rcac_vel_theta[7];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta[8] 	= _rcac_pos_vel_variables.rcac_vel_theta[8];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[0] 	= _rcac_pos_vel_variables.px4_ol_theta[0];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[1] 	= _rcac_pos_vel_variables.px4_ol_theta[1];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[2] 	= _rcac_pos_vel_variables.px4_ol_theta[2];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[3] 	= _rcac_pos_vel_variables.px4_ol_theta[3];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[4] 	= _rcac_pos_vel_variables.px4_ol_theta[4];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[5] 	= _rcac_pos_vel_variables.px4_ol_theta[5];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[6] 	= _rcac_pos_vel_variables.px4_ol_theta[6];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[7] 	= _rcac_pos_vel_variables.px4_ol_theta[7];
+			_msg_rcac_pos_vel_variables.px4_ol_theta[8] 	= _rcac_pos_vel_variables.px4_ol_theta[8];
+			_msg_rcac_pos_vel_variables.switch_pos 			= _rcac_pos_vel_variables.switch_pos;
+			_msg_rcac_pos_vel_variables.switch_vel 			= _rcac_pos_vel_variables.switch_vel;
+			_msg_rcac_pos_vel_variables.p11_pos 			= _rcac_pos_vel_variables.p11_pos;
+			_msg_rcac_pos_vel_variables.p11_velx 			= _rcac_pos_vel_variables.p11_velx;
+
+            mavlink_msg_rcac_pos_vel_variables_send_struct(_mavlink->get_channel(), &_msg_rcac_pos_vel_variables);
+        }
+
+        return true;
+    }
+};
+/******************************************/
+
 static const StreamListItem streams_list[] = {
 	StreamListItem(&MavlinkStreamHeartbeat::new_instance, &MavlinkStreamHeartbeat::get_name_static, &MavlinkStreamHeartbeat::get_id_static),
 	StreamListItem(&MavlinkStreamStatustext::new_instance, &MavlinkStreamStatustext::get_name_static, &MavlinkStreamStatustext::get_id_static),
@@ -5083,7 +5302,9 @@ static const StreamListItem streams_list[] = {
 	StreamListItem(&MavlinkStreamGroundTruth::new_instance, &MavlinkStreamGroundTruth::get_name_static, &MavlinkStreamGroundTruth::get_id_static),
 	StreamListItem(&MavlinkStreamPing::new_instance, &MavlinkStreamPing::get_name_static, &MavlinkStreamPing::get_id_static),
 	StreamListItem(&MavlinkStreamOrbitStatus::new_instance, &MavlinkStreamOrbitStatus::get_name_static, &MavlinkStreamOrbitStatus::get_id_static),
-	StreamListItem(&MavlinkStreamObstacleDistance::new_instance, &MavlinkStreamObstacleDistance::get_name_static, &MavlinkStreamObstacleDistance::get_id_static)
+	StreamListItem(&MavlinkStreamObstacleDistance::new_instance, &MavlinkStreamObstacleDistance::get_name_static, &MavlinkStreamObstacleDistance::get_id_static),
+	StreamListItem(&MavlinkStreamRcacAttRateVariables::new_instance, &MavlinkStreamRcacAttRateVariables::get_name_static, &MavlinkStreamRcacAttRateVariables::get_id_static),
+	StreamListItem(&MavlinkStreamRcacPosVelVariables::new_instance, &MavlinkStreamRcacPosVelVariables::get_name_static, &MavlinkStreamRcacPosVelVariables::get_id_static)
 };
 
 const char *get_stream_name(const uint16_t msg_id)
