@@ -177,7 +177,7 @@ public:
 		if (PID_factor<0.0f) {
 			alpha_PID = 0.5;
 		}
-		alpha_PID = PID_factor;
+		//alpha_PID = PID_factor;
 	}
 
 	/**

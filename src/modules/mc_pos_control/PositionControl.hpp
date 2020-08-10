@@ -372,10 +372,19 @@ public:
 	void set_PID_pv_factor(float PID_factor)
 	{
 		alpha_PID = 1;
-		if (PID_factor<0.0f) {
-			alpha_PID = 0.5;
+		if (PID_factor<-0.5f)  {
+			alpha_PID = 1.5f;
 		}
-		alpha_PID = PID_factor;
+		else if ((PID_factor>=-0.5f) && (PID_factor<=0.5f)) {
+			alpha_PID = 0.25f;
+		}
+		else if  (PID_factor>0.5f){
+			alpha_PID = 1;
+		}
+		/*if (PID_factor<0.2f) {
+			alpha_PID = 0.5;
+		}*/
+		
 	}
 
 	/**
