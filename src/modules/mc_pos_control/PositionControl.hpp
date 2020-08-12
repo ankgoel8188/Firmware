@@ -366,24 +366,39 @@ public:
 	}
 
 	/**
+	 * 	Set the PID scaling factor (previous)
+	 * 	@see _thr_int
+	 */
+	/* void set_PID_pv_factor(float PID_factor)
+	*{
+	*	alpha_PID = 1;
+	*	if (PID_factor<-0.5f)  {
+	*		alpha_PID = 1.5f;
+	*	}
+	*	else if ((PID_factor>=-0.5f) && (PID_factor<=0.5f)) {
+	*		alpha_PID = 0.25f;
+	*	}
+	*	else if  (PID_factor>0.5f){
+	*		alpha_PID = 1;
+	*	}
+	*	
+	}*/
+
+	/**
 	 * 	Set the PID scaling factor.
 	 * 	@see _thr_int
 	 */
 	void set_PID_pv_factor(float PID_factor)
 	{
-		alpha_PID = 1;
-		if (PID_factor<-0.5f)  {
-			alpha_PID = 1.5f;
+		alpha_PID_pos = 1.0f;
+		alpha_PID_vel = 1.0f;
+		//alpha_PID = 1.0f;
+		
+		if (PID_factor<0.0f) {
+			//alpha_PID = 0.5;
+			alpha_PID_pos = _param_mpc_pos_alpha.get();
+			alpha_PID_vel = _param_mpc_vel_alpha.get();
 		}
-		else if ((PID_factor>=-0.5f) && (PID_factor<=0.5f)) {
-			alpha_PID = 0.25f;
-		}
-		else if  (PID_factor>0.5f){
-			alpha_PID = 1;
-		}
-		/*if (PID_factor<0.2f) {
-			alpha_PID = 0.5;
-		}*/
 		
 	}
 
@@ -400,6 +415,20 @@ public:
 	 * 	@return Get RCAC vel controller switch
 	 */
 	const bool &get_RCAC_vel_switch() {return RCAC_Pv_ON;}
+
+	/**
+	 * 	Get the
+	 * 	@see alpha_PID_pos
+	 * 	@return Get gain that multiplies the position PID gains
+	 */
+	const float &get_pid_pos_alpha() {return alpha_PID_pos;}
+
+	/**
+	 * 	Get the
+	 * 	@see alpha_PID_vel
+	 * 	@return Get gain that multiplies the velocity PID gains
+	 */
+	const float &get_pid_vel_alpha() {return alpha_PID_vel;}
 
 	/**
 	 * 	Get the
@@ -525,7 +554,9 @@ private:
 	matrix::Vector3f N1_vel, Gamma_vel;
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
-	float alpha_PID = 1.0f;
+	//float alpha_PID = 1.0f;
+	float alpha_PID_pos = 1.0f;
+	float alpha_PID_vel = 1.0f;
 
 	matrix::Vector3f Pv_intg;
 
@@ -549,6 +580,8 @@ private:
 		(ParamFloat<px4::params::MPC_XY_VEL_P>) _param_mpc_xy_vel_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_I>) _param_mpc_xy_vel_i,
 		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d,
+		(ParamFloat<px4::params::MPC_POS_ALPHA>) _param_mpc_pos_alpha,
+		(ParamFloat<px4::params::MPC_VEL_ALPHA>) _param_mpc_vel_alpha,
 		(ParamFloat<px4::params::MPC_RCAC_POS_P0>) _param_mpc_rcac_pos_p0,
 		(ParamFloat<px4::params::MPC_RCAC_VEL_P0>) _param_mpc_rcac_vel_p0
             )

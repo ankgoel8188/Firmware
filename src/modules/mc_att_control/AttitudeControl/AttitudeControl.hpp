@@ -156,6 +156,13 @@ public:
 	const bool &get_RCAC_att_switch() {return RCAC_Aq_ON;}
 
 	/**
+	 * 	Get the
+	 * 	@see alpha_PID_att
+	 * 	@return Get the gain that multiplies the attitude PID gains.
+	 */
+	const float &get_alpha_PID_att() {return alpha_PID_att;}
+
+	/**
 	 * 	Set the RCAC Attitude switch.
 	 * 	@see RCAC_Aq_ON
 	 */
@@ -171,13 +178,14 @@ public:
 	 * 	Set the PID scaling factor.
 	 * 	@see alpha_PID
 	 */
-	void set_PID_att_factor(float PID_factor)
+	void set_PID_att_factor(float PID_factor, float PID_val)
 	{
-		alpha_PID = 1;
+		//alpha_PID = 1;
+		alpha_PID_att = 1.0f;
 		if (PID_factor<0.0f) {
-			alpha_PID = 0.5;
+			//alpha_PID = 0.5;
+			alpha_PID_att = PID_val;
 		}
-		//alpha_PID = PID_factor;
 	}
 
 	/**
@@ -237,6 +245,8 @@ private:
   	matrix::Matrix<float, 3,1> z_k_Pq_R, z_km1_Pq_R,u_k_Pq_R, u_km1_Pq_R;
 	matrix::SquareMatrix<float, 3> Gamma_Pq_R, I3, N1_Pq;
 
-	float alpha_PID = 1.0f;
+	//float alpha_PID = 1.0f;
+	float alpha_PID_att = 1.0f;
 	float rcac_att_P0 = 0.011f;
+
 };

@@ -5130,10 +5130,12 @@ protected:
 			_msg_rcac_att_rate_variables.px4_rate_theta[9] 		= _rcac_att_rate_variables.px4_rate_theta[9];
 			_msg_rcac_att_rate_variables.px4_rate_theta[10] 	= _rcac_att_rate_variables.px4_rate_theta[10];
 			_msg_rcac_att_rate_variables.px4_rate_theta[11] 	= _rcac_att_rate_variables.px4_rate_theta[11];
-			_msg_rcac_att_rate_variables.switch_att 			= _rcac_att_rate_variables.switch_att;
-			_msg_rcac_att_rate_variables.switch_rate 			= _rcac_att_rate_variables.switch_rate;
-			_msg_rcac_att_rate_variables.p11_att 				= _rcac_att_rate_variables.p11_att;
-			_msg_rcac_att_rate_variables.p11_ratex 				= _rcac_att_rate_variables.p11_ratex;
+			_msg_rcac_att_rate_variables.switch_att 		= _rcac_att_rate_variables.switch_att;
+			_msg_rcac_att_rate_variables.switch_rate 		= _rcac_att_rate_variables.switch_rate;
+			_msg_rcac_att_rate_variables.alpha_pid_att 		= _rcac_att_rate_variables.alpha_pid_att;
+			_msg_rcac_att_rate_variables.alpha_pid_rate 		= _rcac_att_rate_variables.alpha_pid_rate;
+			_msg_rcac_att_rate_variables.p11_att 			= _rcac_att_rate_variables.p11_att;
+			_msg_rcac_att_rate_variables.p11_ratex 			= _rcac_att_rate_variables.p11_ratex;
 
             mavlink_msg_rcac_att_rate_variables_send_struct(_mavlink->get_channel(), &_msg_rcac_att_rate_variables);
         }
@@ -5232,6 +5234,8 @@ protected:
 			_msg_rcac_pos_vel_variables.px4_ol_theta[8] 	= _rcac_pos_vel_variables.px4_ol_theta[8];
 			_msg_rcac_pos_vel_variables.switch_pos 			= _rcac_pos_vel_variables.switch_pos;
 			_msg_rcac_pos_vel_variables.switch_vel 			= _rcac_pos_vel_variables.switch_vel;
+			_msg_rcac_pos_vel_variables.alpha_pid_pos 		= _rcac_pos_vel_variables.alpha_pid_pos;
+			_msg_rcac_pos_vel_variables.alpha_pid_vel 		= _rcac_pos_vel_variables.alpha_pid_vel;
 			_msg_rcac_pos_vel_variables.p11_pos 			= _rcac_pos_vel_variables.p11_pos;
 			_msg_rcac_pos_vel_variables.p11_velx 			= _rcac_pos_vel_variables.p11_velx;
 

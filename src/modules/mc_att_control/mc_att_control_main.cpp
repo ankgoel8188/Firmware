@@ -420,6 +420,9 @@ MulticopterAttitudeControl::publish_rcac_att_rate_variables()
 	_rcac_att_rate_variables.switch_att = _attitude_control.get_RCAC_att_switch();
 	_rcac_att_rate_variables.switch_rate = _rate_control.get_RCAC_rate_switch();
 
+	_rcac_att_rate_variables.alpha_pid_att = _attitude_control.get_alpha_PID_att();
+	_rcac_att_rate_variables.alpha_pid_rate = _rate_control.get_alpha_PID_rate();
+
 	_rcac_att_rate_variables.p11_att = _attitude_control.get_RCAC_P11_Att();
 	_rcac_att_rate_variables.p11_ratex = _rate_control.get_RCAC_P11_Ratex();
 
@@ -504,7 +507,7 @@ MulticopterAttitudeControl::Run()
 		float RCAC_switch = _rc_channels_switch.channels[14];
 		float PID_scale_f = _rc_channels_switch.channels[13];
 		//RCAC_switch = 1.0f;
-		PID_scale_f = 1.0f;
+		//PID_scale_f = 1.0f;
 		if (RCAC_switch>0.0f)
 		{
 			_attitude_control.set_RCAC_att_switch(_param_mpc_rcac_att_sw.get());
@@ -517,8 +520,8 @@ MulticopterAttitudeControl::Run()
 		}
 		//_attitude_control.set_RCAC_att_switch(RCAC_switch);
 		//_rate_control.set_RCAC_rate_switch(RCAC_switch);
-		_attitude_control.set_PID_att_factor(PID_scale_f);
-		_rate_control.set_PID_rate_factor(PID_scale_f);
+		_attitude_control.set_PID_att_factor(PID_scale_f, _param_mpc_att_alpha.get());
+		_rate_control.set_PID_rate_factor(PID_scale_f, _param_mpc_rate_alpha.get());
 
 		// _attitude_control.set_RCAC_att_switch(_rc_channels_switch.channels[14]);
 		// _rate_control.set_RCAC_rate_switch(_rc_channels_switch.channels[14]);

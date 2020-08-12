@@ -198,6 +198,14 @@ public:
 	const bool &get_RCAC_rate_switch() {return RCAC_Aw_ON;}
 
 	/**
+	 * 	Get the
+	 * 	@see alpha_PID_rate
+	 * 	@return Get the gain that multiplies the rate PID gains.
+	 */
+	const float &get_alpha_PID_rate() {return alpha_PID_rate;}
+
+
+	/**
 	 * 	Set the RCAC Rate switch.
 	 * 	@see _thr_int
 	 */
@@ -213,13 +221,14 @@ public:
 	 * 	Set the PID scaling factor.
 	 * 	@see _thr_int
 	 */
-	void set_PID_rate_factor(float PID_factor)
+	void set_PID_rate_factor(float PID_factor, float PID_val)
 	{
-		alpha_PID = 1;
+		//alpha_PID = 1;
+		alpha_PID_rate = 1.0f;
 		if (PID_factor<0.0f) {
-			alpha_PID = 0.5;
+			//alpha_PID = 0.5;
+			alpha_PID_rate = PID_val;
 		}
-		//alpha_PID = PID_factor;
 	}
 
 	/**
@@ -307,6 +316,7 @@ private:
 	matrix::Vector3f N1_rate, Gamma_rate;
 	matrix::Matrix<float, 1,1> dummy1,dummy2,dummy3;
 
-	float alpha_PID = 1.0f;
+	//float alpha_PID = 1.0f;
+	float alpha_PID_rate = 1.0f;
 	float rcac_rate_P0 = 0.0011f;
 };

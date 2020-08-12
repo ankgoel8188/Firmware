@@ -393,6 +393,9 @@ MulticopterPositionControl::parameters_update(bool force)
 		if (_wv_controller != nullptr) {
 			_wv_controller->update_parameters();
 		}
+		
+		_control.resetRCAC();
+		
 	}
 
 	return OK;
@@ -769,6 +772,8 @@ MulticopterPositionControl::Run()
 			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
 			_rcac_pos_vel_variables.switch_vel = _control.get_RCAC_vel_switch();
+			_rcac_pos_vel_variables.alpha_pid_pos = _control.get_pid_pos_alpha();
+			_rcac_pos_vel_variables.alpha_pid_vel = _control.get_pid_vel_alpha();
 			_rcac_pos_vel_variables.p11_pos = _control.get_RCAC_P11_Pos();
 			_rcac_pos_vel_variables.p11_velx = _control.get_RCAC_P11_Velx();
 
@@ -819,6 +824,8 @@ MulticopterPositionControl::Run()
 			_rcac_pos_vel_variables.ii_vel = _control.get_RCAC_vel_ii();
 			_rcac_pos_vel_variables.switch_pos = _control.get_RCAC_pos_switch();
 			_rcac_pos_vel_variables.switch_vel = _control.get_RCAC_vel_switch();
+			_rcac_pos_vel_variables.alpha_pid_pos = _control.get_pid_pos_alpha();
+			_rcac_pos_vel_variables.alpha_pid_vel = _control.get_pid_vel_alpha();
 			_rcac_pos_vel_variables.p11_pos = _control.get_RCAC_P11_Pos();
 			_rcac_pos_vel_variables.p11_velx = _control.get_RCAC_P11_Velx();
 

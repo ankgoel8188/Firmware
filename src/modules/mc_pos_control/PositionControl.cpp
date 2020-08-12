@@ -295,7 +295,8 @@ void PositionControl::_positionController()
 		// PX4_INFO("Pos Control u :\t%8.6f\t%8.6f\t%8.6f", (double)N1_vel(0), (double)N1_vel(1), (double)N1_vel(2));
 		PX4_INFO("Pos Control P0:\t%8.6f\t%8.6f", (double)_param_mpc_rcac_pos_p0.get(), (double)P_Pr_R(0,0) );
 	}
-	vel_sp_position = alpha_PID*vel_sp_position + u_k_Pr_R;
+	//vel_sp_position = alpha_PID*vel_sp_position + u_k_Pr_R;
+	vel_sp_position = alpha_PID_pos*vel_sp_position + u_k_Pr_R;
 	_vel_sp = vel_sp_position + _vel_sp; //Ankit: Reducing PID gains
 
 	// Constrain horizontal velocity by prioritizing the velocity component along the
@@ -341,7 +342,8 @@ void PositionControl::_velocityController(const float &dt)
 							 _param_mpc_z_vel_d.get() * _vel_dot(2) +
 							 _thr_int(2) -
 							 _param_mpc_thr_hover.get();
-	// thrust_desired_D = alpha_PID*thrust_desired_D;
+	//// thrust_desired_D = alpha_PID*thrust_desired_D;
+	//// thrust_desired_D = alpha_PID_vel*thrust_desired_D;
 	z_k_vel = vel_err;
 	u_k_vel.setZero();
 	if (RCAC_Pv_ON)
@@ -435,7 +437,8 @@ void PositionControl::_velocityController(const float &dt)
 		}*/
 
 	}
-	thrust_desired_D = alpha_PID*thrust_desired_D + u_k_vel(2);
+	//thrust_desired_D = alpha_PID*thrust_desired_D + u_k_vel(2);
+	thrust_desired_D = alpha_PID_vel*thrust_desired_D + u_k_vel(2);
 
 	// The Thrust limits are negated and swapped due to NED-frame.
 	float uMax = -_param_mpc_thr_min.get();
@@ -472,10 +475,18 @@ void PositionControl::_velocityController(const float &dt)
 		thrust_desired_NE(1) = _param_mpc_xy_vel_p.get() * vel_err(1) + _param_mpc_xy_vel_d.get() * _vel_dot(1) + _thr_int(1);
 
 
-		// thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0);
-		// thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1);
-		thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0) + u_k_vel(0);
-		thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1) + u_k_vel(1);
+		//// thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0);
+		//// thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1);
+
+		//// thrust_desired_NE(0) = alpha_PID_vel*thrust_desired_NE(0);
+		//// thrust_desired_NE(1) = alpha_PID_vel*thrust_desired_NE(1);
+
+		// thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0) + u_k_vel(0);
+		// thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1) + u_k_vel(1);
+
+		thrust_desired_NE(0) = alpha_PID_vel*thrust_desired_NE(0) + u_k_vel(0);
+		thrust_desired_NE(1) = alpha_PID_vel*thrust_desired_NE(1) + u_k_vel(1);
+
 		// if (RCAC_Pv_ON)
 		// {
 		// 	// thrust_desired_NE(0) = u_k_x_R(0, 0);
@@ -485,8 +496,10 @@ void PositionControl::_velocityController(const float &dt)
 		// 	// thrust_desired_NE(0) = thrust_desired_NE(0) + u_k_Pv_R(0, 0);
 		// 	// thrust_desired_NE(1) = thrust_desired_NE(1) + u_k_Pv_R(1, 0);
 
-		// 	thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0) + u_k_vel(0);
-		// 	thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1) + u_k_vel(1);
+		//// 	thrust_desired_NE(0) = alpha_PID*thrust_desired_NE(0) + u_k_vel(0);
+		//// 	thrust_desired_NE(1) = alpha_PID*thrust_desired_NE(1) + u_k_vel(1);
+		//// 	thrust_desired_NE(0) = alpha_PID_vel*thrust_desired_NE(0) + u_k_vel(0);
+		//// 	thrust_desired_NE(1) = alpha_PID_vel*thrust_desired_NE(1) + u_k_vel(1);
 		// }
 		// Get maximum allowed thrust in NE based on tilt and excess thrust.
 		float thrust_max_NE_tilt = fabsf(_thr_sp(2)) * tanf(_constraints.tilt);
