@@ -821,7 +821,7 @@ PARAM_DEFINE_FLOAT(MPC_VEL_ALPHA, 1.0f);
  *
  * @min 0.0
  * @max 10.0
- * @decimal 5
+ * @decimal 8
  * @group Multicopter RCAC Control
  */
 PARAM_DEFINE_FLOAT(MPC_RCAC_POS_P0, 0.005f);
@@ -831,7 +831,7 @@ PARAM_DEFINE_FLOAT(MPC_RCAC_POS_P0, 0.005f);
  *
  * @min 0.0
  * @max 10.0
- * @decimal 5
+ * @decimal 8
  * @group Multicopter RCAC Control
  */
 PARAM_DEFINE_FLOAT(MPC_RCAC_VEL_P0, 0.001f);

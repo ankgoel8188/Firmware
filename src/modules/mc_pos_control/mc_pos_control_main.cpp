@@ -563,7 +563,7 @@ MulticopterPositionControl::Run()
 			_control.set_RCAC_vel_switch(RCAC_switch);
 		}
 		float PID_scale_f = _rc_channels_switch.channels[13];
-		//PID_scale_f = 1.0f;
+		//PID_scale_f = -1.0f;
 		_control.set_PID_pv_factor(PID_scale_f);
 
 		// _control.set_RCAC_pos_switch(_rc_channels_switch.channels[14]);

@@ -569,7 +569,7 @@ PARAM_DEFINE_FLOAT(MPC_RATE_ALPHA, 1.0f);
  *
  * @min 0.0
  * @max 10.0
- * @decimal 3
+ * @decimal 8
  * @group Multicopter Attitude Control
  */
 PARAM_DEFINE_FLOAT(MPC_RCAC_ATT_P0, 0.01f);
@@ -579,7 +579,7 @@ PARAM_DEFINE_FLOAT(MPC_RCAC_ATT_P0, 0.01f);
  *
  * @min 0.0
  * @max 10.0
- * @decimal 3
+ * @decimal 8
  * @group Multicopter Attitude Control
  */
 PARAM_DEFINE_FLOAT(MPC_RCAC_RATE_P0, 0.001f);
