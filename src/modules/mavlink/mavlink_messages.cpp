@@ -53,12 +53,12 @@
 #include <px4_time.h>
 #include <systemlib/mavlink_log.h>
 #include <math.h>
-//#include <v2.0/rcac/mavlink.h>
-//#include <v2.0/rcac/mavlink_msg_rcac_att_rate_variables.h>
-//#include <v2.0/rcac/mavlink_msg_rcac_pos_vel_variables.h>
-#include <v2.0/rcac_gcs/mavlink.h>
-#include <v2.0/rcac_gcs/mavlink_msg_rcac_att_rate_variables.h>
-#include <v2.0/rcac_gcs/mavlink_msg_rcac_pos_vel_variables.h>
+#include <v2.0/rcac/mavlink.h>
+#include <v2.0/rcac/mavlink_msg_rcac_att_rate_variables.h>
+#include <v2.0/rcac/mavlink_msg_rcac_pos_vel_variables.h>
+//#include <v2.0/rcac_gcs/mavlink.h>
+//#include <v2.0/rcac_gcs/mavlink_msg_rcac_att_rate_variables.h>
+//#include <v2.0/rcac_gcs/mavlink_msg_rcac_pos_vel_variables.h>
 
 #include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/actuator_controls.h>
@@ -5088,48 +5088,48 @@ protected:
             _msg_rcac_att_rate_variables.timestamp 				= _rcac_att_rate_variables.timestamp;
 			_msg_rcac_att_rate_variables.ii_att 				= _rcac_att_rate_variables.ii_att;
 			_msg_rcac_att_rate_variables.ii_rate 				= _rcac_att_rate_variables.ii_rate;
-			_msg_rcac_att_rate_variables.rcac_att_z[0] 			= _rcac_att_rate_variables.rcac_att_z[0];
-			_msg_rcac_att_rate_variables.rcac_att_z[1] 			= _rcac_att_rate_variables.rcac_att_z[1];
-			_msg_rcac_att_rate_variables.rcac_att_z[2] 			= _rcac_att_rate_variables.rcac_att_z[2];
-			_msg_rcac_att_rate_variables.rcac_att_u[0] 			= _rcac_att_rate_variables.rcac_att_u[0];
-			_msg_rcac_att_rate_variables.rcac_att_u[1] 			= _rcac_att_rate_variables.rcac_att_u[1];
-			_msg_rcac_att_rate_variables.rcac_att_u[2] 			= _rcac_att_rate_variables.rcac_att_u[2];
-			_msg_rcac_att_rate_variables.rcac_att_theta[0] 		= _rcac_att_rate_variables.rcac_att_theta[0];
-			_msg_rcac_att_rate_variables.rcac_att_theta[1] 		= _rcac_att_rate_variables.rcac_att_theta[1];
-			_msg_rcac_att_rate_variables.rcac_att_theta[2] 		= _rcac_att_rate_variables.rcac_att_theta[2];
-			_msg_rcac_att_rate_variables.rcac_rate_z[0] 		= _rcac_att_rate_variables.rcac_rate_z[0];
-			_msg_rcac_att_rate_variables.rcac_rate_z[1] 		= _rcac_att_rate_variables.rcac_rate_z[1];
-			_msg_rcac_att_rate_variables.rcac_rate_z[2] 		= _rcac_att_rate_variables.rcac_rate_z[2];
-			_msg_rcac_att_rate_variables.rcac_rate_u[0] 		= _rcac_att_rate_variables.rcac_rate_u[0];
-			_msg_rcac_att_rate_variables.rcac_rate_u[1] 		= _rcac_att_rate_variables.rcac_rate_u[1];
-			_msg_rcac_att_rate_variables.rcac_rate_u[2] 		= _rcac_att_rate_variables.rcac_rate_u[2];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[0] 	= _rcac_att_rate_variables.rcac_rate_theta[0];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[1] 	= _rcac_att_rate_variables.rcac_rate_theta[1];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[2] 	= _rcac_att_rate_variables.rcac_rate_theta[2];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[3] 	= _rcac_att_rate_variables.rcac_rate_theta[3];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[4] 	= _rcac_att_rate_variables.rcac_rate_theta[4];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[5] 	= _rcac_att_rate_variables.rcac_rate_theta[5];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[6] 	= _rcac_att_rate_variables.rcac_rate_theta[6];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[7] 	= _rcac_att_rate_variables.rcac_rate_theta[7];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[8] 	= _rcac_att_rate_variables.rcac_rate_theta[8];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[9] 	= _rcac_att_rate_variables.rcac_rate_theta[9];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[10] 	= _rcac_att_rate_variables.rcac_rate_theta[10];
-			_msg_rcac_att_rate_variables.rcac_rate_theta[11] 	= _rcac_att_rate_variables.rcac_rate_theta[11];
-			_msg_rcac_att_rate_variables.px4_att_theta[0] 		= _rcac_att_rate_variables.px4_att_theta[0];
-			_msg_rcac_att_rate_variables.px4_att_theta[1] 		= _rcac_att_rate_variables.px4_att_theta[1];
-			_msg_rcac_att_rate_variables.px4_att_theta[2] 		= _rcac_att_rate_variables.px4_att_theta[2];
-			_msg_rcac_att_rate_variables.px4_rate_theta[0] 		= _rcac_att_rate_variables.px4_rate_theta[0];
-			_msg_rcac_att_rate_variables.px4_rate_theta[1] 		= _rcac_att_rate_variables.px4_rate_theta[1];
-			_msg_rcac_att_rate_variables.px4_rate_theta[2] 		= _rcac_att_rate_variables.px4_rate_theta[2];
-			_msg_rcac_att_rate_variables.px4_rate_theta[3] 		= _rcac_att_rate_variables.px4_rate_theta[3];
-			_msg_rcac_att_rate_variables.px4_rate_theta[4] 		= _rcac_att_rate_variables.px4_rate_theta[4];
-			_msg_rcac_att_rate_variables.px4_rate_theta[5] 		= _rcac_att_rate_variables.px4_rate_theta[5];
-			_msg_rcac_att_rate_variables.px4_rate_theta[6] 		= _rcac_att_rate_variables.px4_rate_theta[6];
-			_msg_rcac_att_rate_variables.px4_rate_theta[7] 		= _rcac_att_rate_variables.px4_rate_theta[7];
-			_msg_rcac_att_rate_variables.px4_rate_theta[8] 		= _rcac_att_rate_variables.px4_rate_theta[8];
-			_msg_rcac_att_rate_variables.px4_rate_theta[9] 		= _rcac_att_rate_variables.px4_rate_theta[9];
-			_msg_rcac_att_rate_variables.px4_rate_theta[10] 	= _rcac_att_rate_variables.px4_rate_theta[10];
-			_msg_rcac_att_rate_variables.px4_rate_theta[11] 	= _rcac_att_rate_variables.px4_rate_theta[11];
+			_msg_rcac_att_rate_variables.rcac_att_z_0 			= _rcac_att_rate_variables.rcac_att_z[0];
+			_msg_rcac_att_rate_variables.rcac_att_z_1 			= _rcac_att_rate_variables.rcac_att_z[1];
+			_msg_rcac_att_rate_variables.rcac_att_z_2 			= _rcac_att_rate_variables.rcac_att_z[2];
+			_msg_rcac_att_rate_variables.rcac_att_u_0 			= _rcac_att_rate_variables.rcac_att_u[0];
+			_msg_rcac_att_rate_variables.rcac_att_u_1 			= _rcac_att_rate_variables.rcac_att_u[1];
+			_msg_rcac_att_rate_variables.rcac_att_u_2 			= _rcac_att_rate_variables.rcac_att_u[2];
+			_msg_rcac_att_rate_variables.rcac_att_theta_0 		= _rcac_att_rate_variables.rcac_att_theta[0];
+			_msg_rcac_att_rate_variables.rcac_att_theta_1 		= _rcac_att_rate_variables.rcac_att_theta[1];
+			_msg_rcac_att_rate_variables.rcac_att_theta_2 		= _rcac_att_rate_variables.rcac_att_theta[2];
+			_msg_rcac_att_rate_variables.rcac_rate_z_0 		= _rcac_att_rate_variables.rcac_rate_z[0];
+			_msg_rcac_att_rate_variables.rcac_rate_z_1 		= _rcac_att_rate_variables.rcac_rate_z[1];
+			_msg_rcac_att_rate_variables.rcac_rate_z_2 		= _rcac_att_rate_variables.rcac_rate_z[2];
+			_msg_rcac_att_rate_variables.rcac_rate_u_0 		= _rcac_att_rate_variables.rcac_rate_u[0];
+			_msg_rcac_att_rate_variables.rcac_rate_u_1 		= _rcac_att_rate_variables.rcac_rate_u[1];
+			_msg_rcac_att_rate_variables.rcac_rate_u_2		= _rcac_att_rate_variables.rcac_rate_u[2];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_0 	= _rcac_att_rate_variables.rcac_rate_theta[0];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_1 	= _rcac_att_rate_variables.rcac_rate_theta[1];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_2 	= _rcac_att_rate_variables.rcac_rate_theta[2];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_3 	= _rcac_att_rate_variables.rcac_rate_theta[3];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_4 	= _rcac_att_rate_variables.rcac_rate_theta[4];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_5 	= _rcac_att_rate_variables.rcac_rate_theta[5];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_6 	= _rcac_att_rate_variables.rcac_rate_theta[6];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_7 	= _rcac_att_rate_variables.rcac_rate_theta[7];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_8 	= _rcac_att_rate_variables.rcac_rate_theta[8];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_9 	= _rcac_att_rate_variables.rcac_rate_theta[9];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_10 	= _rcac_att_rate_variables.rcac_rate_theta[10];
+			_msg_rcac_att_rate_variables.rcac_rate_theta_11 	= _rcac_att_rate_variables.rcac_rate_theta[11];
+			_msg_rcac_att_rate_variables.px4_att_theta_0 		= _rcac_att_rate_variables.px4_att_theta[0];
+			_msg_rcac_att_rate_variables.px4_att_theta_1 		= _rcac_att_rate_variables.px4_att_theta[1];
+			_msg_rcac_att_rate_variables.px4_att_theta_2 		= _rcac_att_rate_variables.px4_att_theta[2];
+			_msg_rcac_att_rate_variables.px4_rate_theta_0 		= _rcac_att_rate_variables.px4_rate_theta[0];
+			_msg_rcac_att_rate_variables.px4_rate_theta_1 		= _rcac_att_rate_variables.px4_rate_theta[1];
+			_msg_rcac_att_rate_variables.px4_rate_theta_2 		= _rcac_att_rate_variables.px4_rate_theta[2];
+			_msg_rcac_att_rate_variables.px4_rate_theta_3 		= _rcac_att_rate_variables.px4_rate_theta[3];
+			_msg_rcac_att_rate_variables.px4_rate_theta_4 		= _rcac_att_rate_variables.px4_rate_theta[4];
+			_msg_rcac_att_rate_variables.px4_rate_theta_5 		= _rcac_att_rate_variables.px4_rate_theta[5];
+			_msg_rcac_att_rate_variables.px4_rate_theta_6 		= _rcac_att_rate_variables.px4_rate_theta[6];
+			_msg_rcac_att_rate_variables.px4_rate_theta_7 		= _rcac_att_rate_variables.px4_rate_theta[7];
+			_msg_rcac_att_rate_variables.px4_rate_theta_8 		= _rcac_att_rate_variables.px4_rate_theta[8];
+			_msg_rcac_att_rate_variables.px4_rate_theta_9 		= _rcac_att_rate_variables.px4_rate_theta[9];
+			_msg_rcac_att_rate_variables.px4_rate_theta_10 	= _rcac_att_rate_variables.px4_rate_theta[10];
+			_msg_rcac_att_rate_variables.px4_rate_theta_11 	= _rcac_att_rate_variables.px4_rate_theta[11];
 			_msg_rcac_att_rate_variables.switch_att 		= _rcac_att_rate_variables.switch_att;
 			_msg_rcac_att_rate_variables.switch_rate 		= _rcac_att_rate_variables.switch_rate;
 			_msg_rcac_att_rate_variables.alpha_pid_att 		= _rcac_att_rate_variables.alpha_pid_att;
@@ -5199,39 +5199,39 @@ protected:
 			_msg_rcac_pos_vel_variables.rcac_master_sw 		= _rcac_pos_vel_variables.rcac_master_sw;
 			_msg_rcac_pos_vel_variables.ii_pos 				= _rcac_pos_vel_variables.ii_pos;
 			_msg_rcac_pos_vel_variables.ii_vel 				= _rcac_pos_vel_variables.ii_vel;
-			_msg_rcac_pos_vel_variables.rcac_pos_z[0] 		= _rcac_pos_vel_variables.rcac_pos_z[0];
-			_msg_rcac_pos_vel_variables.rcac_pos_z[1] 		= _rcac_pos_vel_variables.rcac_pos_z[1];
-			_msg_rcac_pos_vel_variables.rcac_pos_z[2] 		= _rcac_pos_vel_variables.rcac_pos_z[2];
-			_msg_rcac_pos_vel_variables.rcac_pos_u[0] 		= _rcac_pos_vel_variables.rcac_pos_u[0];
-			_msg_rcac_pos_vel_variables.rcac_pos_u[1] 		= _rcac_pos_vel_variables.rcac_pos_u[1];
-			_msg_rcac_pos_vel_variables.rcac_pos_u[2] 		= _rcac_pos_vel_variables.rcac_pos_u[2];
-			_msg_rcac_pos_vel_variables.rcac_pos_theta[0] 	= _rcac_pos_vel_variables.rcac_pos_theta[0];
-			_msg_rcac_pos_vel_variables.rcac_pos_theta[1] 	= _rcac_pos_vel_variables.rcac_pos_theta[1];
-			_msg_rcac_pos_vel_variables.rcac_pos_theta[2] 	= _rcac_pos_vel_variables.rcac_pos_theta[2];
-			_msg_rcac_pos_vel_variables.rcac_vel_z[0] 		= _rcac_pos_vel_variables.rcac_vel_z[0];
-			_msg_rcac_pos_vel_variables.rcac_vel_z[1] 		= _rcac_pos_vel_variables.rcac_vel_z[1];
-			_msg_rcac_pos_vel_variables.rcac_vel_z[2] 		= _rcac_pos_vel_variables.rcac_vel_z[2];
-			_msg_rcac_pos_vel_variables.rcac_vel_u[0] 		= _rcac_pos_vel_variables.rcac_vel_u[0];
-			_msg_rcac_pos_vel_variables.rcac_vel_u[1] 		= _rcac_pos_vel_variables.rcac_vel_u[1];
-			_msg_rcac_pos_vel_variables.rcac_vel_u[2] 		= _rcac_pos_vel_variables.rcac_vel_u[2];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[0] 	= _rcac_pos_vel_variables.rcac_vel_theta[0];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[1] 	= _rcac_pos_vel_variables.rcac_vel_theta[1];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[2] 	= _rcac_pos_vel_variables.rcac_vel_theta[2];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[3] 	= _rcac_pos_vel_variables.rcac_vel_theta[3];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[4] 	= _rcac_pos_vel_variables.rcac_vel_theta[4];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[5] 	= _rcac_pos_vel_variables.rcac_vel_theta[5];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[6] 	= _rcac_pos_vel_variables.rcac_vel_theta[6];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[7] 	= _rcac_pos_vel_variables.rcac_vel_theta[7];
-			_msg_rcac_pos_vel_variables.rcac_vel_theta[8] 	= _rcac_pos_vel_variables.rcac_vel_theta[8];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[0] 	= _rcac_pos_vel_variables.px4_ol_theta[0];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[1] 	= _rcac_pos_vel_variables.px4_ol_theta[1];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[2] 	= _rcac_pos_vel_variables.px4_ol_theta[2];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[3] 	= _rcac_pos_vel_variables.px4_ol_theta[3];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[4] 	= _rcac_pos_vel_variables.px4_ol_theta[4];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[5] 	= _rcac_pos_vel_variables.px4_ol_theta[5];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[6] 	= _rcac_pos_vel_variables.px4_ol_theta[6];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[7] 	= _rcac_pos_vel_variables.px4_ol_theta[7];
-			_msg_rcac_pos_vel_variables.px4_ol_theta[8] 	= _rcac_pos_vel_variables.px4_ol_theta[8];
+			_msg_rcac_pos_vel_variables.rcac_pos_z_0 		= _rcac_pos_vel_variables.rcac_pos_z[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_z_1 		= _rcac_pos_vel_variables.rcac_pos_z[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_z_2 		= _rcac_pos_vel_variables.rcac_pos_z[2];
+			_msg_rcac_pos_vel_variables.rcac_pos_u_0 		= _rcac_pos_vel_variables.rcac_pos_u[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_u_1 		= _rcac_pos_vel_variables.rcac_pos_u[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_u_2 		= _rcac_pos_vel_variables.rcac_pos_u[2];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta_0 	= _rcac_pos_vel_variables.rcac_pos_theta[0];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta_1 	= _rcac_pos_vel_variables.rcac_pos_theta[1];
+			_msg_rcac_pos_vel_variables.rcac_pos_theta_2 	= _rcac_pos_vel_variables.rcac_pos_theta[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_z_0 		= _rcac_pos_vel_variables.rcac_vel_z[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_z_1 		= _rcac_pos_vel_variables.rcac_vel_z[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_z_2 		= _rcac_pos_vel_variables.rcac_vel_z[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_u_0 		= _rcac_pos_vel_variables.rcac_vel_u[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_u_1 		= _rcac_pos_vel_variables.rcac_vel_u[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_u_2 		= _rcac_pos_vel_variables.rcac_vel_u[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_0 	= _rcac_pos_vel_variables.rcac_vel_theta[0];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_1 	= _rcac_pos_vel_variables.rcac_vel_theta[1];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_2 	= _rcac_pos_vel_variables.rcac_vel_theta[2];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_3 	= _rcac_pos_vel_variables.rcac_vel_theta[3];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_4 	= _rcac_pos_vel_variables.rcac_vel_theta[4];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_5 	= _rcac_pos_vel_variables.rcac_vel_theta[5];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_6 	= _rcac_pos_vel_variables.rcac_vel_theta[6];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_7 	= _rcac_pos_vel_variables.rcac_vel_theta[7];
+			_msg_rcac_pos_vel_variables.rcac_vel_theta_8 	= _rcac_pos_vel_variables.rcac_vel_theta[8];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_0 	= _rcac_pos_vel_variables.px4_ol_theta[0];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_1 	= _rcac_pos_vel_variables.px4_ol_theta[1];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_2 	= _rcac_pos_vel_variables.px4_ol_theta[2];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_3 	= _rcac_pos_vel_variables.px4_ol_theta[3];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_4 	= _rcac_pos_vel_variables.px4_ol_theta[4];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_5 	= _rcac_pos_vel_variables.px4_ol_theta[5];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_6 	= _rcac_pos_vel_variables.px4_ol_theta[6];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_7 	= _rcac_pos_vel_variables.px4_ol_theta[7];
+			_msg_rcac_pos_vel_variables.px4_ol_theta_8 	= _rcac_pos_vel_variables.px4_ol_theta[8];
 			_msg_rcac_pos_vel_variables.switch_pos 			= _rcac_pos_vel_variables.switch_pos;
 			_msg_rcac_pos_vel_variables.switch_vel 			= _rcac_pos_vel_variables.switch_vel;
 			_msg_rcac_pos_vel_variables.alpha_pid_pos 		= _rcac_pos_vel_variables.alpha_pid_pos;
