@@ -1935,6 +1935,7 @@ FixedwingPositionControl::tecs_update_pitch_throttle(float alt_sp, float airspee
 				    climbout_mode, climbout_pitch_min_rad,
 				    throttle_min, throttle_max, throttle_cruise,
 				    pitch_min_rad, pitch_max_rad);
+	if (0){
 	// PX4_INFO("RCAC throttle, TECS throttle:\t%12.10f \t%12.10f", (double)_tecs.get_rcac_throttle(), (double)_tecs.get_tecs_throttle());
 	PX4_INFO("PID  Error:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.STE_error(), (double) _tecs.throttle_integ_state(), (double)_tecs.STE_rate_error());
 	PX4_INFO("PID  Contr:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.STE_error()/560, (double) _tecs.throttle_integ_state(), (double)_tecs.STE_rate_error()/1120);
@@ -1945,7 +1946,7 @@ FixedwingPositionControl::tecs_update_pitch_throttle(float alt_sp, float airspee
 							      (double)_tecs.get_rcac_theta(2)*(double)_tecs.STE_rate_error()*0.01
 							      );
 	// PX4_INFO("TECS throttle:\t%12.10f", (double)_tecs.tecs_get_throttle());
-
+	}
 	tecs_status_publish();
 }
 
