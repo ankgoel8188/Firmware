@@ -750,3 +750,14 @@ PARAM_DEFINE_FLOAT(FW_DTRIM_R_FLPS, 0.0f);
  * @increment 0.01
  */
 PARAM_DEFINE_FLOAT(FW_DTRIM_P_FLPS, 0.0f);
+
+/**
+ * Roll Attitude RCAC Switch
+ *
+ * This switches on RCAC for the Roll P controller
+ *
+ * @boolean
+ * @group FW Attitude Control
+ */
+PARAM_DEFINE_INT32(FW_RCAC_ROLL_SW, 1);
+

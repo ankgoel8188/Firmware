@@ -211,6 +211,7 @@ private:
 
 		int32_t bat_scale_en;			/**< Battery scaling enabled */
 		bool airspeed_disabled;
+		int rcac_roll_switch;
 
 	} _parameters{};			/**< local copies of interesting parameters */
 
@@ -279,6 +280,8 @@ private:
 
 		param_t bat_scale_en;
 		param_t airspeed_mode;
+
+		param_t rcac_roll_switch;
 
 	} _parameter_handles{};		/**< handles for interesting parameters */
 
