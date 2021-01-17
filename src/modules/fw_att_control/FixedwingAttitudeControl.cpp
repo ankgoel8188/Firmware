@@ -471,6 +471,14 @@ void FixedwingAttitudeControl::Run()
 			{
 				_roll_ctrl.set_RCAC_parameters(100.0f,1.0f,2,10.0f);
 				PX4_INFO("RCAC initialized in Roll controller");
+				// PX4_INFO("%f",(double)_roll_ctrl.get_RCAC_theta(1));
+				_rcac_fw_roll_ss.timestamp = hrt_absolute_time();
+				_rcac_fw_roll_ss.theta[0] = _roll_ctrl.get_RCAC_theta(0);
+				_rcac_fw_roll_ss.theta[1] = _roll_ctrl.get_RCAC_theta(1);
+				_rcac_fw_roll_ss.theta[2] = _roll_ctrl.get_RCAC_theta(2);
+				_rcac_fw_roll_ss.z = _roll_ctrl.get_RCAC_z();
+				_rcac_fw_roll_ss.u = _roll_ctrl.get_RCAC_u();
+				_rcac_fw_roll_pub.publish(_rcac_fw_roll_ss);
 			}
 		}
 

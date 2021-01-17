@@ -65,6 +65,7 @@
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/vehicle_rates_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
+#include <uORB/topics/rcac_fw_roll.h>
 
 using matrix::Eulerf;
 using matrix::Quatf;
@@ -113,6 +114,7 @@ private:
 	uORB::Publication<actuator_controls_s>		_actuators_2_pub{ORB_ID(actuator_controls_2)};		/**< actuator control group 1 setpoint (Airframe) */
 	uORB::Publication<vehicle_rates_setpoint_s>	_rate_sp_pub{ORB_ID(vehicle_rates_setpoint)};		/**< rate setpoint publication */
 	uORB::PublicationMulti<rate_ctrl_status_s>	_rate_ctrl_status_pub{ORB_ID(rate_ctrl_status)};	/**< rate controller status publication */
+	uORB::Publication<rcac_fw_roll_s>		_rcac_fw_roll_pub{ORB_ID(rcac_fw_roll)};		/**< rcac data publication */
 
 	orb_id_t	_attitude_setpoint_id{nullptr};
 	orb_advert_t	_attitude_sp_pub{nullptr};	/**< attitude setpoint point */
@@ -129,6 +131,8 @@ private:
 	vehicle_global_position_s		_global_pos {};		/**< global position */
 	vehicle_rates_setpoint_s		_rates_sp {};		/* attitude rates setpoint */
 	vehicle_status_s			_vehicle_status {};	/**< vehicle status */
+	rcac_fw_roll_s 				_rcac_fw_roll_ss{};
+
 
 	perf_counter_t	_loop_perf;			/**< loop performance counter */
 
