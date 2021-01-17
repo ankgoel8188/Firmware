@@ -550,7 +550,7 @@ MulticopterPositionControl::Run()
 
 		float RCAC_switch = _rc_channels_switch.channels[14];
 		// SITL 1
-		RCAC_switch = -1.0f;
+		RCAC_switch = 1.0f;
 		if (RCAC_switch>0.0f)
 		{
 			_control.set_RCAC_pos_switch(_param_mpc_rcac_pos_sw.get());
