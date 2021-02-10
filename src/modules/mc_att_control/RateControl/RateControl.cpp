@@ -121,7 +121,7 @@ Vector3f RateControl::update(const Vector3f rate, const Vector3f rate_sp, const 
 			// Ankit 01 30 2020:New SISO implementation
 			z_k_rate = rate_error;
 
-			phi_k_rate_x(0,0) = rate_error(0);
+			phi_k_rate_x(0,0) = rate_error(0)*0; //Ankit: Disable P rate
 			phi_k_rate_x(0,1) = _rate_int(0);
 			phi_k_rate_x(0,2) = rate_d(0) * 0;
 			phi_k_rate_x(0,3) = rate_sp(0) * 0;
