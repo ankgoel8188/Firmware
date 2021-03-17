@@ -43,6 +43,7 @@
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_constraints.h>
 #include <px4_module_params.h>
+#include <mathlib/math/RCAC.h>
 #pragma once
 
 struct PositionControlStates {
@@ -223,6 +224,15 @@ private:
 	bool _ctrl_pos[3] = {true, true, true}; /**< True if the control-loop for position was used */
 	bool _ctrl_vel[3] = {true, true, true}; /**< True if the control-loop for velocity was used */
 
+	//RCAC related Members
+	//Add underscores beofre
+	RCAC _rcac_pos_x_;
+	RCAC _rcac_pos_y_;
+	RCAC _rcac_pos_z_;
+	float _rcac_pos_switch = 0;
+
+
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MPC_THR_MAX>) _param_mpc_thr_max,
 		(ParamFloat<px4::params::MPC_THR_HOVER>) _param_mpc_thr_hover,
@@ -242,6 +252,10 @@ private:
 		(ParamFloat<px4::params::MPC_XY_P>) _param_mpc_xy_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_P>) _param_mpc_xy_vel_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_I>) _param_mpc_xy_vel_i,
-		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d
+		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d,
+		(ParamFloat<px4::params::MPC_RCAC_POS_SW>) _param_mpc_rcac_pos_sw,
+		(ParamFloat<px4::params::MPC_RCAC_POS_A>) _param_mpc_rcac_pos_alpha,
+		(ParamFloat<px4::params::MPC_RCAC_POS_P0>) _param_mpc_rcac_pos_p0
+		//add a bool for velocity as well
 	)
 };

@@ -49,6 +49,7 @@
 #pragma once
 
 #include <matrix/matrix/math.hpp>
+#include <mathlib/math/RCAC.h>
 
 class AttitudeControl
 {
@@ -76,6 +77,7 @@ public:
 	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
 	 */
 	matrix::Vector3f update(matrix::Quatf q, matrix::Quatf qd, float yawspeed_feedforward);
+	RCAC rcac_att_;
 
 private:
 	matrix::Vector3f _proportional_gain;

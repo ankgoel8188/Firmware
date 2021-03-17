@@ -771,3 +771,33 @@ PARAM_DEFINE_FLOAT(MPC_SPOOLUP_TIME, 1.0f);
  * @group Mission
  */
 PARAM_DEFINE_INT32(MPC_YAW_MODE, 0);
+
+/**
+ * Scalar gain to degrade PID
+ *
+ *
+ * @min 0
+ * @max 2
+ * @group RCAC
+ */
+PARAM_DEFINE_FLOAT(MPC_RCAC_POS_A, 1.0f);
+
+/**
+ * P0 for RCAC Position Controller
+ *
+ *
+ * @min 0
+ * @max 10
+ * @group RCAC
+ */
+PARAM_DEFINE_FLOAT(MPC_RCAC_POS_P0, 0.05f);
+
+/**
+ * Bool to switch
+ *
+ *
+ * @min 0
+ * @max 1
+ * @group RCAC
+ */
+PARAM_DEFINE_FLOAT(MPC_RCAC_POS_SW, 1.0f);

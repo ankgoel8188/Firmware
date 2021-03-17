@@ -39,6 +39,8 @@
 
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
+//#include <mathlib/math/RCAC_test.hpp>
+#include <mathlib/math/RCAC.h>
 
 using namespace matrix;
 
@@ -106,6 +108,8 @@ matrix::Vector3f AttitudeControl::update(matrix::Quatf q, matrix::Quatf qd, cons
 	for (int i = 0; i < 3; i++) {
 		rate_setpoint(i) = math::constrain(rate_setpoint(i), -_rate_limit(i), _rate_limit(i));
 	}
+
+	//rcac_att_.init_test();
 
 	return rate_setpoint;
 }
