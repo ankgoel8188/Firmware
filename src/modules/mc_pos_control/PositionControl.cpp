@@ -225,7 +225,7 @@ bool PositionControl::_interfaceMapping()
 void PositionControl::_positionController()
 {
 	PX4_INFO("\t%10.6f", (double) _rcac_pos_switch);
-	if(_rcac_pos_switch > 0){
+	if(_rcac_pos_switch){
 		Vector3f pos_error_ = _pos_sp - _pos;
 		_rcac_pos_x_.compute_uk(pos_error_(0), 0, 0, _rcac_pos_x_.get_rcac_uk());
 		_rcac_pos_y_.compute_uk(pos_error_(1), 0, 0, _rcac_pos_y_.get_rcac_uk());
@@ -234,13 +234,16 @@ void PositionControl::_positionController()
 		PX4_INFO("\t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
 		//vel_sp_position = vel_sp_position*_param_mpc_pos_alpha.get() + _rcac_pos_u_;
 	}
+	else{
+		PX4_INFO("RCAC OFF \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
+
+	}
 
 	// P-position controller
 	const Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(),
 					 _param_mpc_z_p.get()))*_param_mpc_rcac_pos_alpha.get()
-					  + Vector3f(_rcac_pos_x_.get_rcac_uk(),_rcac_pos_y_.get_rcac_uk(),_rcac_pos_z_.get_rcac_uk());
+					  + Vector3f(_rcac_pos_switch, _rcac_pos_switch, _rcac_pos_switch).emult(Vector3f(_rcac_pos_x_.get_rcac_uk(),_rcac_pos_y_.get_rcac_uk(),_rcac_pos_z_.get_rcac_uk()));
 	//std::cout << _vel_sp(0) << " " << _vel_sp(1) << " " << _vel_sp(2) << std::endl;
-
 	//std::cout << _rcac_pos_x_.get_rcac_P() << " " << _rcac_pos_y_.get_rcac_P() << " " << _rcac_pos_z_.get_rcac_P() << std::endl;
 
 	_vel_sp = vel_sp_position + _vel_sp;
