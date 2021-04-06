@@ -1,5 +1,7 @@
 #pragma once
 #include "matrix/math.hpp"
+#include <uORB/Publication.hpp>
+#include <uORB/topics/rcac_pos_vel_states.h>
 
 using namespace matrix;
 // using namespace std;
@@ -15,6 +17,11 @@ class RCAC
     float P0;
     float lambda;
     float N_nf;
+
+private:
+    uORB::Publication<rcac_pos_vel_states_s>    _rcac_pos_vel_states_pub{ORB_ID(rcac_pos_vel_states)};
+    rcac_pos_vel_states_s _rcac_pos_vel_states{};
+    //uORB::Publication<rcac_pos_vel_variables_s>     _rcac_pos_vel_variables_pub{ORB_ID(rcac_pos_vel_variables)};
 
 public:
     //RCAC(float, float, float);
@@ -32,6 +39,7 @@ public:
     void update_theta();
     float compute_uk(float z, float z_int, float z_diff, float u);
     void init_test();
+    void publish_states(int index);
 
 protected:
     const int nf = 2;

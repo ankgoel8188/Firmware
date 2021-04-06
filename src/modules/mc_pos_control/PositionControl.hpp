@@ -75,6 +75,7 @@ struct PositionControlStates {
  */
 class PositionControl : public ModuleParams
 {
+
 public:
 
 	PositionControl(ModuleParams *parent);

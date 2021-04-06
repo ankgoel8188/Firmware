@@ -1,5 +1,7 @@
 #include "RCAC.h"
 #include <iostream>
+#include <uORB/topics/rcac_pos_vel_states.h>
+#include <drivers/drv_hrt.h>
 
 // using namespace std;
 
@@ -10,7 +12,7 @@ void RCAC::init_RCAC(float P0_val, float lambda_val, float N_nf_val)
     lambda = lambda_val;
     N_nf = N_nf_val;
 
-    // Initialize interal RCAC variables
+    // Initialize interal RCAC v ariables
     P = eye<float, 3>() * P0;
     theta.setZero();
     filtNu.setZero();
@@ -104,4 +106,14 @@ float RCAC::compute_uk(float z, float z_int, float z_diff, float u)
     u_k = dummy(0, 0);
     kk = kk + 1;
     return u_k;
+}
+
+void RCAC::publish_states(int index)
+{
+    _rcac_pos_vel_states.timestamp = hrt_absolute_time();
+    _rcac_pos_vel_states.u = u_k;
+    _rcac_pos_vel_states.theta = get_rcac_theta(1);
+    _rcac_pos_vel_states.z = u_km1;
+    _rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
+    
 }

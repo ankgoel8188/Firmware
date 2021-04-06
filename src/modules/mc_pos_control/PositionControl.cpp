@@ -227,17 +227,23 @@ void PositionControl::_positionController()
 	PX4_INFO("\t%10.6f", (double) _rcac_pos_switch);
 	if(_rcac_pos_switch){
 		Vector3f pos_error_ = _pos_sp - _pos;
-		_rcac_pos_x_.compute_uk(pos_error_(0), 0, 0, _rcac_pos_x_.get_rcac_uk());
-		_rcac_pos_y_.compute_uk(pos_error_(1), 0, 0, _rcac_pos_y_.get_rcac_uk());
-		_rcac_pos_z_.compute_uk(pos_error_(2), 0, 0, _rcac_pos_z_.get_rcac_uk());
+		_rcac_pos_x_.compute_uk(-pos_error_(0), 0, 0, _rcac_pos_x_.get_rcac_uk());
+		_rcac_pos_y_.compute_uk(-pos_error_(1), 0, 0, _rcac_pos_y_.get_rcac_uk());
+		_rcac_pos_z_.compute_uk(-pos_error_(2), 0, 0, _rcac_pos_z_.get_rcac_uk());
 		//Vector3f rcac_pos_u_ = Vector3f(_rcac_pos_x_.get_rcac_uk(),_rcac_pos_y_.get_rcac_uk(),_rcac_pos_z_.get_rcac_uk());
-		PX4_INFO("\t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
+		//PX4_INFO("\t%10.6f\t%10.6f\t%10.6f\n", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
+		PX4_INFO("Gains: \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_theta(0), (double)_rcac_pos_y_.get_rcac_theta(0), (double)_rcac_pos_z_.get_rcac_theta(0));
 		//vel_sp_position = vel_sp_position*_param_mpc_pos_alpha.get() + _rcac_pos_u_;
 	}
 	else{
 		PX4_INFO("RCAC OFF \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
 
 	}
+
+	_rcac_pos_x_.publish_states(1);
+	_rcac_pos_y_.publish_states(2);
+	_rcac_pos_z_.publish_states(3);
+
 
 	// P-position controller
 	const Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(),
