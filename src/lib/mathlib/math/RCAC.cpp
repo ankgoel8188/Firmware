@@ -115,5 +115,5 @@ void RCAC::publish_states(int index)
     _rcac_pos_vel_states.theta = get_rcac_theta(1);
     _rcac_pos_vel_states.z = u_km1;
     _rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
-    
+    std::cout << "publisher values "<< _rcac_pos_vel_states.u << std::endl;
 }
