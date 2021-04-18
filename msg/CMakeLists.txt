@@ -99,6 +99,7 @@ set(msg_files
         rcac_pos_vel_variables.msg
 	rc_channels.msg
 	rc_parameter_map.msg
+	rcac_fw_roll.msg
 	safety.msg
 	satellite_info.msg
 	sensor_accel.msg

@@ -118,6 +118,8 @@ FixedwingAttitudeControl::FixedwingAttitudeControl() :
 	_parameter_handles.bat_scale_en = param_find("FW_BAT_SCALE_EN");
 	_parameter_handles.airspeed_mode = param_find("FW_ARSP_MODE");
 
+	_parameter_handles.rcac_roll_switch = param_find("FW_RCAC_ROLL_SW");
+
 	/* fetch initial parameter values */
 	parameters_update();
 
@@ -228,6 +230,8 @@ FixedwingAttitudeControl::parameters_update()
 	param_get(_parameter_handles.airspeed_mode, &tmp);
 	_parameters.airspeed_disabled = (tmp == 1);
 
+	param_get(_parameter_handles.rcac_roll_switch, &_parameters.rcac_roll_switch);
+
 	/* pitch control parameters */
 	_pitch_ctrl.set_time_constant(_parameters.p_tc);
 	_pitch_ctrl.set_k_p(_parameters.p_p);
@@ -241,6 +245,7 @@ FixedwingAttitudeControl::parameters_update()
 	_roll_ctrl.set_k_i(_parameters.r_i);
 	_roll_ctrl.set_k_ff(_parameters.r_ff);
 	_roll_ctrl.set_integrator_max(_parameters.r_integrator_max);
+	_roll_ctrl.set_RCAC_switch(_parameter_handles.rcac_roll_switch);
 
 	/* yaw control parameters */
 	_yaw_ctrl.set_k_p(_parameters.y_p);
@@ -462,6 +467,19 @@ void FixedwingAttitudeControl::Run()
 
 			// update parameters from storage
 			parameters_update();
+			if (_roll_ctrl.get_RCAC_switch())
+			{
+				_roll_ctrl.set_RCAC_parameters(100.0f,1.0f,2,10.0f);
+				PX4_INFO("RCAC initialized in Roll controller");
+				// PX4_INFO("%f",(double)_roll_ctrl.get_RCAC_theta(1));
+				_rcac_fw_roll_ss.timestamp = hrt_absolute_time();
+				_rcac_fw_roll_ss.theta[0] = _roll_ctrl.get_RCAC_theta(0);
+				_rcac_fw_roll_ss.theta[1] = _roll_ctrl.get_RCAC_theta(1);
+				_rcac_fw_roll_ss.theta[2] = _roll_ctrl.get_RCAC_theta(2);
+				_rcac_fw_roll_ss.z = _roll_ctrl.get_RCAC_z();
+				_rcac_fw_roll_ss.u = _roll_ctrl.get_RCAC_u();
+				_rcac_fw_roll_pub.publish(_rcac_fw_roll_ss);
+			}
 		}
 
 		/* only run controller if attitude changed */

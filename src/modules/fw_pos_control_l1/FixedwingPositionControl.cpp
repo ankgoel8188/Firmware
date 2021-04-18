@@ -303,6 +303,12 @@ FixedwingPositionControl::parameters_update()
 
 		return PX4_ERROR;
 	}
+	if (_tecs.RCAC_getkk()==0)
+	{
+		_tecs.RCAC_set_parameters(0.1f,1.0f,2,-1.0f);
+		_tecs.RCAC_init();
+		PX4_INFO("RCAC initialized in TECS");
+	}
 
 	return PX4_OK;
 }
@@ -474,7 +480,7 @@ FixedwingPositionControl::calculate_target_airspeed(float airspeed_demand, const
 		 * by wind). Not countering this would lead to a fly-away.
 		 */
 		if (ground_speed_body < _groundspeed_min.get()) {
-			airspeed_demand += max(_groundspeed_min.get() - ground_speed_body, 0.0f);
+			airspeed_demand += math::max(_groundspeed_min.get() - ground_speed_body, 0.0f);
 		}
 	}
 
@@ -886,7 +892,7 @@ FixedwingPositionControl::control_position(const Vector2f &curr_pos, const Vecto
 			}
 
 			if (in_takeoff_situation()) {
-				alt_sp = max(alt_sp, _takeoff_ground_alt + _parameters.climbout_diff);
+				alt_sp = math::max(alt_sp, _takeoff_ground_alt + _parameters.climbout_diff);
 				_att_sp.roll_body = constrain(_att_sp.roll_body, radians(-5.0f), radians(5.0f));
 			}
 
@@ -1120,7 +1126,7 @@ FixedwingPositionControl::control_position(const Vector2f &curr_pos, const Vecto
 		   pos_sp_curr.type == position_setpoint_s::SETPOINT_TYPE_TAKEOFF &&
 		   _runway_takeoff.runwayTakeoffEnabled()) {
 
-		_att_sp.thrust_body[0] = _runway_takeoff.getThrottle(min(get_tecs_thrust(), throttle_max));
+		_att_sp.thrust_body[0] = _runway_takeoff.getThrottle(math::min(get_tecs_thrust(), throttle_max));
 
 	} else if (_control_mode_current == FW_POSCTRL_MODE_AUTO &&
 		   pos_sp_curr.type == position_setpoint_s::SETPOINT_TYPE_IDLE) {
@@ -1128,16 +1134,16 @@ FixedwingPositionControl::control_position(const Vector2f &curr_pos, const Vecto
 		_att_sp.thrust_body[0] = 0.0f;
 
 	} else if (_control_mode_current == FW_POSCTRL_MODE_OTHER) {
-		_att_sp.thrust_body[0] = min(_att_sp.thrust_body[0], _parameters.throttle_max);
+		_att_sp.thrust_body[0] = math::min(_att_sp.thrust_body[0], _parameters.throttle_max);
 
 	} else {
 		/* Copy thrust and pitch values from tecs */
 		if (_vehicle_land_detected.landed) {
 			// when we are landed state we want the motor to spin at idle speed
-			_att_sp.thrust_body[0] = min(_parameters.throttle_idle, throttle_max);
+			_att_sp.thrust_body[0] = math::min(_parameters.throttle_idle, throttle_max);
 
 		} else {
-			_att_sp.thrust_body[0] = min(get_tecs_thrust(), throttle_max);
+			_att_sp.thrust_body[0] = math::min(get_tecs_thrust(), throttle_max);
 		}
 	}
 
@@ -1308,7 +1314,7 @@ FixedwingPositionControl::control_takeoff(const Vector2f &curr_pos, const Vector
 							   takeoff_throttle,
 							   _parameters.throttle_cruise,
 							   true,
-							   max(radians(pos_sp_curr.pitch_min), radians(10.0f)),
+							   math::max(radians(pos_sp_curr.pitch_min), radians(10.0f)),
 							   tecs_status_s::TECS_MODE_TAKEOFF);
 
 				/* limit roll motion to ensure enough lift */
@@ -1335,7 +1341,7 @@ FixedwingPositionControl::control_takeoff(const Vector2f &curr_pos, const Vector
 
 			/* Set default roll and pitch setpoints during detection phase */
 			_att_sp.roll_body = 0.0f;
-			_att_sp.pitch_body = max(radians(pos_sp_curr.pitch_min), radians(10.0f));
+			_att_sp.pitch_body = math::max(radians(pos_sp_curr.pitch_min), radians(10.0f));
 		}
 	}
 }
@@ -1509,7 +1515,7 @@ FixedwingPositionControl::control_landing(const Vector2f &curr_pos, const Vector
 		if (((_global_pos.alt < terrain_alt + _landingslope.motor_lim_relative_alt()) &&
 		     (wp_distance_save < _landingslope.flare_length() + 5.0f)) || // Only kill throttle when close to WP
 		    _land_motor_lim) {
-			throttle_max = min(throttle_max, _parameters.throttle_land_max);
+			throttle_max = math::min(throttle_max, _parameters.throttle_land_max);
 
 			if (!_land_motor_lim) {
 				_land_motor_lim  = true;
@@ -1849,7 +1855,7 @@ FixedwingPositionControl::tecs_update_pitch_throttle(float alt_sp, float airspee
 			_asp_after_transition += dt * 2; // increase 2m/s
 
 			if (_asp_after_transition < airspeed_sp && _airspeed < airspeed_sp) {
-				airspeed_sp = max(_asp_after_transition, _airspeed);
+				airspeed_sp = math::max(_asp_after_transition, _airspeed);
 
 			} else {
 				_was_in_transition = false;
@@ -1929,7 +1935,18 @@ FixedwingPositionControl::tecs_update_pitch_throttle(float alt_sp, float airspee
 				    climbout_mode, climbout_pitch_min_rad,
 				    throttle_min, throttle_max, throttle_cruise,
 				    pitch_min_rad, pitch_max_rad);
-
+	if (0){
+	// PX4_INFO("RCAC throttle, TECS throttle:\t%12.10f \t%12.10f", (double)_tecs.get_rcac_throttle(), (double)_tecs.get_tecs_throttle());
+	PX4_INFO("PID  Error:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.STE_error(), (double) _tecs.throttle_integ_state(), (double)_tecs.STE_rate_error());
+	PX4_INFO("PID  Contr:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.STE_error()/560, (double) _tecs.throttle_integ_state(), (double)_tecs.STE_rate_error()/1120);
+	// PX4_INFO("RCAC integ:\t%12.10f", (double)_tecs.get_rcac_int_state());
+	PX4_INFO("RCAC theta:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.get_rcac_theta(0), (double)_tecs.get_rcac_theta(1), (double)_tecs.get_rcac_theta(2));
+	PX4_INFO("RCAC output:\t%12.10f \t%12.10f \t%12.10f", (double)_tecs.get_rcac_theta(0)*(double)_tecs.STE_error()*0.001,
+							      (double)_tecs.get_rcac_theta(1)*(double)_tecs.get_rcac_int_state(),
+							      (double)_tecs.get_rcac_theta(2)*(double)_tecs.STE_rate_error()*0.01
+							      );
+	// PX4_INFO("TECS throttle:\t%12.10f", (double)_tecs.tecs_get_throttle());
+	}
 	tecs_status_publish();
 }
 
