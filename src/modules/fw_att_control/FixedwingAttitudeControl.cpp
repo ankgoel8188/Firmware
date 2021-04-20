@@ -471,6 +471,8 @@ void FixedwingAttitudeControl::Run()
 			{
 				_roll_ctrl.set_RCAC_parameters(100.0f,1.0f,2,10.0f);
 				PX4_INFO("RCAC initialized in Roll controller");
+				_roll_ctrl.set_RCAC_rate_parameters(100.0f,1.0f,2,10.0f);
+				PX4_INFO("RCAC initialized in Roll rate controller");
 				// PX4_INFO("%f",(double)_roll_ctrl.get_RCAC_theta(1));
 				// _rcac_fw_roll_ss.timestamp = hrt_absolute_time();
 				// _rcac_fw_roll_ss.theta[0] = _roll_ctrl.get_RCAC_theta(0);
@@ -684,16 +686,6 @@ void FixedwingAttitudeControl::Run()
 					_yaw_ctrl.control_attitude(control_input); //runs last, because is depending on output of roll and pitch attitude
 					_wheel_ctrl.control_attitude(control_input);
 
-					// publish rcac data
-					_rcac_fw_roll_ss.timestamp = hrt_absolute_time();
-					_rcac_fw_roll_ss.theta[0] = _roll_ctrl.get_RCAC_theta(0);
-					_rcac_fw_roll_ss.theta[1] = _roll_ctrl.get_RCAC_theta(1);
-					_rcac_fw_roll_ss.theta[2] = _roll_ctrl.get_RCAC_theta(2);
-					_rcac_fw_roll_ss.z = _roll_ctrl.get_RCAC_z();
-					_rcac_fw_roll_ss.u = _roll_ctrl.get_RCAC_u();
-					_rcac_fw_roll_pub.publish(_rcac_fw_roll_ss);
-					// PX4_INFO("%f",(double)_roll_ctrl.get_RCAC_u());
-
 					/* Update input data for rate controllers */
 					control_input.roll_rate_setpoint = _roll_ctrl.get_desired_rate();
 					control_input.pitch_rate_setpoint = _pitch_ctrl.get_desired_rate();
@@ -797,6 +789,24 @@ void FixedwingAttitudeControl::Run()
 			rate_ctrl_status.additional_integ1 = _wheel_ctrl.get_integrator();
 
 			_rate_ctrl_status_pub.publish(rate_ctrl_status);
+
+			// publish rcac data
+			_rcac_fw_roll_ss.timestamp = hrt_absolute_time();
+			_rcac_fw_roll_ss.theta_roll[0] = _roll_ctrl.get_RCAC_theta(0);
+			_rcac_fw_roll_ss.theta_roll[1] = _roll_ctrl.get_RCAC_theta(1);
+			_rcac_fw_roll_ss.theta_roll[2] = _roll_ctrl.get_RCAC_theta(2);
+			_rcac_fw_roll_ss.z_roll = _roll_ctrl.get_RCAC_z();
+			_rcac_fw_roll_ss.u_roll = _roll_ctrl.get_RCAC_u();
+
+			_rcac_fw_roll_ss.theta_rate[0] = _roll_ctrl.get_RCAC_rate_theta(0);
+			_rcac_fw_roll_ss.theta_rate[1] = _roll_ctrl.get_RCAC_rate_theta(1);
+			_rcac_fw_roll_ss.theta_rate[2] = _roll_ctrl.get_RCAC_rate_theta(2);
+			_rcac_fw_roll_ss.z_rate = _roll_ctrl.get_RCAC_rate_z();
+			_rcac_fw_roll_ss.u_rate = _roll_ctrl.get_RCAC_rate_u();
+
+			_rcac_fw_roll_pub.publish(_rcac_fw_roll_ss);
+			// PX4_INFO("%f",(double)_roll_ctrl.get_RCAC_u());
+
 		}
 
 		// Add feed-forward from roll control output to yaw control output
