@@ -1,7 +1,7 @@
 #pragma once
 #include "matrix/math.hpp"
 #include <uORB/Publication.hpp>
-#include <uORB/topics/rcac_pos_vel_states.h>
+//#include <uORB/topics/rcac_pos_vel_states.h>
 
 using namespace matrix;
 // using namespace std;
@@ -17,11 +17,12 @@ class RCAC
     float P0;
     float lambda;
     float N_nf;
-
+/*
 private:
     uORB::Publication<rcac_pos_vel_states_s>    _rcac_pos_vel_states_pub{ORB_ID(rcac_pos_vel_states)};
     rcac_pos_vel_states_s _rcac_pos_vel_states{};
     //uORB::Publication<rcac_pos_vel_variables_s>     _rcac_pos_vel_variables_pub{ORB_ID(rcac_pos_vel_variables)};
+*/
 
 public:
     //RCAC(float, float, float);
@@ -32,6 +33,7 @@ public:
     float get_rcac_theta(int i) {return theta(i,0);}
     float get_rcac_P(int i, int j){return P(i, j);};
     float get_rcac_Phi(int i) {return Phi_k(i,0);}
+    float get_rcac_ukm1() {return u_km1;};
 
     void set_RCAC_data(float, float);
     void buildRegressor(float zkm1, float zkm1_int, float zkm1_diff);

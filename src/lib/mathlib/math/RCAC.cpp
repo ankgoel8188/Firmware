@@ -107,13 +107,27 @@ float RCAC::compute_uk(float z, float z_int, float z_diff, float u)
     kk = kk + 1;
     return u_k;
 }
-
-void RCAC::publish_states(int index)
+/*
+void RCAC::populate_states(int index)
 {
     _rcac_pos_vel_states.timestamp = hrt_absolute_time();
-    _rcac_pos_vel_states.u = u_k;
-    _rcac_pos_vel_states.theta = get_rcac_theta(1);
-    _rcac_pos_vel_states.z = u_km1;
-    _rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
+    _rcac_pos_vel_states.id_xyz = index;
+    
+    //Add an if else statement depending on if position on velocity controller component
+    _rcac_pos_vel_states.u_pos[index] = get_rcac_uk();
+    _rcac_pos_vel_states.theta_pos[index] = get_rcac_theta();
+    _rcac_pos_vel_states.z_pos[index] = u_km1;
+    //_rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
     std::cout << "publisher values "<< _rcac_pos_vel_states.u << std::endl;
 }
+
+void RCAC::publish_states(){
+    _rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
+}
+*/
+// [ 0 0 0]
+
+//pos_mes
+//vel_mes
+// if (1)
+// pos_mes

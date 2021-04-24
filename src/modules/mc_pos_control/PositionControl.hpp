@@ -42,6 +42,11 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_constraints.h>
+#include <uORB/topics/rcac_pos_states.h>
+#include <uORB/topics/rcac_vel_states.h>
+
+#include <uORB/Publication.hpp>
+
 #include <px4_module_params.h>
 #include <mathlib/math/RCAC.h>
 #pragma once
@@ -231,6 +236,13 @@ private:
 	RCAC _rcac_pos_y_;
 	RCAC _rcac_pos_z_;
 	int _rcac_pos_switch;
+	
+    uORB::Publication<rcac_pos_states_s>    _rcac_pos_states_pub{ORB_ID(rcac_pos_states)};
+    rcac_pos_states_s _rcac_pos_states{};
+
+	uORB::Publication<rcac_vel_states_s>    _rcac_vel_states_pub{ORB_ID(rcac_vel_states)};
+    rcac_vel_states_s _rcac_vel_states{};
+    //uORB::Publication<rcac_pos_vel_variables_s>     _rcac_pos_vel_variables_pub{ORB_ID(rcac_pos_vel_variables)};
 
 
 

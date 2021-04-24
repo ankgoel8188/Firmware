@@ -43,6 +43,8 @@
 //#include <mathlib/math/RCAC_test.hpp>
 #include <mathlib/math/RCAC.h>
 //#include <iostream>
+#include <drivers/drv_hrt.h>
+
 
 using namespace matrix;
 
@@ -53,6 +55,9 @@ PositionControl::PositionControl(ModuleParams *parent) :
 	_rcac_pos_x_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
 	_rcac_pos_y_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
 	_rcac_pos_z_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
+	_rcac_vel_x_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
+	_rcac_vel_y_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
+	_rcac_vel_z_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
 	_rcac_pos_switch = _param_mpc_rcac_pos_sw.get();
 	PX4_INFO("RCAC Initialized in Position Control");
 }
@@ -237,13 +242,29 @@ void PositionControl::_positionController()
 	}
 	else{
 		PX4_INFO("RCAC OFF \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
-
 	}
+	/*
+	_rcac_pos_x_.populate_states(0);
+	_rcac_pos_y_.populate_states(1);
+	_rcac_pos_z_.populate_states(2);
+	*/
+	//publihsstates;
+    _rcac_pos_states.timestamp = hrt_absolute_time();
+    //Add an if else statement depending on if position on velocity controller component
+    _rcac_pos_states.u_pos[0] = _rcac_pos_x_.get_rcac_uk();
+    _rcac_pos_states.theta_pos[0] = _rcac_pos_x_.get_rcac_theta(1);
+    _rcac_pos_states.z_pos[0] = _rcac_pos_x_.get_rcac_ukm1();
 
-	_rcac_pos_x_.publish_states(1);
-	_rcac_pos_y_.publish_states(2);
-	_rcac_pos_z_.publish_states(3);
+	_rcac_pos_states.u_pos[1] = _rcac_pos_y_.get_rcac_uk();
+    _rcac_pos_states.theta_pos[1] = _rcac_pos_y_.get_rcac_theta(1);
+    _rcac_pos_states.z_pos[1] = _rcac_pos_y_.get_rcac_ukm1();
 
+	_rcac_pos_states.u_pos[2] = _rcac_pos_z_.get_rcac_uk();
+    _rcac_pos_states.theta_pos[2] = _rcac_pos_z_.get_rcac_theta(1);
+    _rcac_pos_states.z_pos[2] = _rcac_pos_z_.get_rcac_ukm1();
+    //_rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
+    //std::cout << "publisher values "<< _rcac_pos_vel_states.u << std::endl;
+    _rcac_pos_states_pub.publish(_rcac_pos_states);
 
 	// P-position controller
 	const Vector3f vel_sp_position = (_pos_sp - _pos).emult(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(),
