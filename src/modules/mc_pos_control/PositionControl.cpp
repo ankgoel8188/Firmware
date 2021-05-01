@@ -55,11 +55,14 @@ PositionControl::PositionControl(ModuleParams *parent) :
 	_rcac_pos_x_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
 	_rcac_pos_y_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
 	_rcac_pos_z_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
-	_rcac_vel_x_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
-	_rcac_vel_y_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
-	_rcac_vel_z_.init_RCAC(_param_mpc_rcac_pos_p0.get(),1,1);
+	
 	_rcac_pos_switch = _param_mpc_rcac_pos_sw.get();
 	PX4_INFO("RCAC Initialized in Position Control");
+	PX4_INFO("P0 Param \t%10.6f", (double) _param_mpc_rcac_pos_p0.get());
+
+	PX4_INFO("Pre Computation: \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_theta(0), (double)_rcac_pos_y_.get_rcac_theta(0), (double)_rcac_pos_z_.get_rcac_theta(0));
+	_rcac_pos_x_.compute_uk(1,2,3,4);
+	PX4_INFO("Post Computation: \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_theta(0), (double)_rcac_pos_y_.get_rcac_theta(0), (double)_rcac_pos_z_.get_rcac_theta(0));
 }
 
 void PositionControl::updateState(const PositionControlStates &states)
@@ -237,11 +240,11 @@ void PositionControl::_positionController()
 		_rcac_pos_z_.compute_uk(-pos_error_(2), 0, 0, _rcac_pos_z_.get_rcac_uk());
 		//Vector3f rcac_pos_u_ = Vector3f(_rcac_pos_x_.get_rcac_uk(),_rcac_pos_y_.get_rcac_uk(),_rcac_pos_z_.get_rcac_uk());
 		//PX4_INFO("\t%10.6f\t%10.6f\t%10.6f\n", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
-		PX4_INFO("Gains: \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_theta(0), (double)_rcac_pos_y_.get_rcac_theta(0), (double)_rcac_pos_z_.get_rcac_theta(0));
+		//PX4_INFO("Gains: \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_theta(0), (double)_rcac_pos_y_.get_rcac_theta(0), (double)_rcac_pos_z_.get_rcac_theta(0));
 		//vel_sp_position = vel_sp_position*_param_mpc_pos_alpha.get() + _rcac_pos_u_;
 	}
 	else{
-		PX4_INFO("RCAC OFF \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
+		//PX4_INFO("RCAC OFF \t%10.6f\t%10.6f\t%10.6f", (double)_rcac_pos_x_.get_rcac_uk(), (double)_rcac_pos_y_.get_rcac_uk(), (double)_rcac_pos_z_.get_rcac_uk());
 	}
 	/*
 	_rcac_pos_x_.populate_states(0);
@@ -251,19 +254,22 @@ void PositionControl::_positionController()
 	//publihsstates;
     _rcac_pos_states.timestamp = hrt_absolute_time();
     //Add an if else statement depending on if position on velocity controller component
-    _rcac_pos_states.u_pos[0] = _rcac_pos_x_.get_rcac_uk();
+	_rcac_pos_states.u_pos[0] = _rcac_pos_x_.get_rcac_uk();
     _rcac_pos_states.theta_pos[0] = _rcac_pos_x_.get_rcac_theta(1);
+	//_rcac_pos_x_.update_theta();
     _rcac_pos_states.z_pos[0] = _rcac_pos_x_.get_rcac_ukm1();
 
 	_rcac_pos_states.u_pos[1] = _rcac_pos_y_.get_rcac_uk();
     _rcac_pos_states.theta_pos[1] = _rcac_pos_y_.get_rcac_theta(1);
+	//_rcac_pos_y_.update_theta();
     _rcac_pos_states.z_pos[1] = _rcac_pos_y_.get_rcac_ukm1();
 
 	_rcac_pos_states.u_pos[2] = _rcac_pos_z_.get_rcac_uk();
     _rcac_pos_states.theta_pos[2] = _rcac_pos_z_.get_rcac_theta(1);
+	//_rcac_pos_z_.update_theta();
     _rcac_pos_states.z_pos[2] = _rcac_pos_z_.get_rcac_ukm1();
     //_rcac_pos_vel_states_pub.publish(_rcac_pos_vel_states);
-    //std::cout << "publisher values "<< _rcac_pos_vel_states.u << std::endl;
+    PX4_INFO("publisher values \t%10.6f \t%10.6f \t%10.6f", (double)_rcac_pos_states.theta_pos[0], (double)_rcac_pos_states.theta_pos[1], (double)_rcac_pos_states.theta_pos[2]);
     _rcac_pos_states_pub.publish(_rcac_pos_states);
 
 	// P-position controller
