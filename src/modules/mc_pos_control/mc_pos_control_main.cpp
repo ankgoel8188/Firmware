@@ -166,7 +166,8 @@ private:
 		(ParamFloat<px4::params::MPC_THR_MIN>)_param_mpc_thr_min,
 		(ParamFloat<px4::params::MPC_THR_HOVER>)_param_mpc_thr_hover,
 		(ParamFloat<px4::params::MPC_THR_MAX>)_param_mpc_thr_max,
-		(ParamFloat<px4::params::MPC_Z_VEL_P>)_param_mpc_z_vel_p
+		(ParamFloat<px4::params::MPC_Z_VEL_P>)_param_mpc_z_vel_p,
+		(ParamFloat<px4::params::MPC_RCAC_POS_P0>) _param_mpc_rcac_pos_p0
 	);
 
 	control::BlockDerivative _vel_x_deriv; /**< velocity derivative in x */

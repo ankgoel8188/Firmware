@@ -93,7 +93,7 @@ void RCAC::update_theta()
 
         theta = theta - P * Phi_filt.transpose() * (z_filt * one_matrix + Phi_filt * theta - u_filt);
     }
-    // cout << kk << "\t" << z_filt << "\t" << u_filt << "\t" << Phi_filt << "\t" << theta.transpose() << endl;
+    std::cout << kk << "\t" << z_filt << "\t" << u_filt << "\t" << Phi_filt(0 ,0) << "\t" << theta(0 ,0) << std::endl;
 }
 
 float RCAC::compute_uk(float z, float z_int, float z_diff, float u)
